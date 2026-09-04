@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Galeri Virtual Kopi Pahit IT - BPS Babel</title>
+
+  <!-- WebXR A-Frame & Virtual Joystick -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.1/dist/nipplejs.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #030712;
+    }
+
+    /* HUD Petunjuk Cyberpunk */
+    #hud-instructions {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(3, 7, 18, 0.8);
+      color: #38bdf8;
+      padding: 8px 24px;
+      border-radius: 30px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      font-weight: 600;
+      z-index: 999;
+      pointer-events: none;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.1);
+      text-transform: uppercase;
+    }
+
+    /* Zona Virtual Joystick */
+    #joystick-zone {
+      position: absolute;
+      bottom: 25px;
+      left: 25px;
+      width: 120px;
+      height: 120px;
+      z-index: 999;
+      touch-action: none;
+    }
+
+    /* POP-UP MODAL CYBER-GLASSMORPHISM */
+    #detail-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 7, 18, 0.88);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .modal-card {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
+      width: 100%;
+      max-width: 860px;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      animation: modalFade 0.25s ease-out;
+    }
+
+    @keyframes modalFade {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header Bar Modal */
+    .modal-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: rgba(30, 41, 59, 0.8);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .bps-brand {
+      font-size: 11px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 720px) {
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .content-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .kopi-tag {
+      color: #f97316;
+      font-weight: 900;
+      font-size: 28px;
+      text-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .kopi-subtag {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .event-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f8fafc;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .event-meta {
+      font-size: 12px;
+      color: #38bdf8;
+      margin-bottom: 20px;
+    }
+
+    /* 4 Tombol Neon Modern */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .btn-presensi { border-color: rgba(56, 189, 248, 0.4); }
+    .btn-presensi:hover { background: #0284c7; box-shadow: 0 0 15px rgba(2, 132, 199, 0.5); }
+
+    .btn-notulen  { border-color: rgba(52, 211, 153, 0.4); }
+    .btn-notulen:hover  { background: #059669; box-shadow: 0 0 15px rgba(5, 150, 105, 0.5); }
+
+    .btn-laporan  { border-color: rgba(251, 146, 60, 0.4); }
+    .btn-laporan:hover  { background: #ea580c; box-shadow: 0 0 15px rgba(234, 88, 12, 0.5); }
+
+    .btn-youtube  { border-color: rgba(248, 113, 113, 0.4); }
+    .btn-youtube:hover  { background: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
+
+    .poster-preview {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      border-radius: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .btn-close-modal {
+      background: #0284c7;
+      color: #ffffff;
+      padding: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+
+    .btn-close-modal:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="hud-instructions">
+    [WASD / Joystick]: Gerak &middot; [Tap Poster]: Akses Dokumen Edisi
+  </div>
+
+  <!-- Area Joystick Analog (HP) -->
+  <div id="joystick-zone"></div>
+
+  <!-- MODAL POP-UP DOKUMEN KEGIATAN -->
+  <div id="detail-modal">
+    <div class="modal-card">
+      <div class="modal-top-bar">
+        <span class="bps-brand">BPS PROVINSI KEPULAUAN BANGKA BELITUNG</span>
+        <span style="font-size: 11px; font-weight: bold; color: #f97316;">VIRTUAL REPOSITORY</span>
+      </div>
+
+      <div class="modal-body">
+        <div class="content-left">
+          <div class="kopi-tag" id="modal-edisi">KOPI PAHIT #7</div>
+          <div class="kopi-subtag">KONGKOW PINTAR PAHAM IT</div>
+          <div class="event-title" id="modal-judul">Internalisasi dan Penguatan Inovasi Layanan Publik</div>
+          <div class="event-meta" id="modal-meta">📅 4 September 2026 &bull; Tim IPDS BPS Babel</div>
+
+          <!-- 4 Tombol Sesuai Format Dokumen Baru -->
+          <div class="buttons-grid">
+            <a href="#" id="link-presensi" target="_blank" class="action-btn btn-presensi">
+              <span>📝</span>
+              <span>Daftar Hadir</span>
+            </a>
+            <a href="#" id="link-notulen" target="_blank" class="action-btn btn-notulen">
+              <span>📄</span>
+              <span>Notulen Kegiatan</span>
+            </a>
+            <a href="#" id="link-laporan" target="_blank" class="action-btn btn-laporan">
+              <span>📊</span>
+              <span>Laporan Kegiatan</span>
+            </a>
+            <a href="#" id="link-youtube" target="_blank" class="action-btn btn-youtube">
+              <span>▶</span>
+              <span>Live Youtube</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="content-right">
+          <img src="" id="modal-poster-img" class="poster-preview" alt="Poster Bioskop">
+        </div>
+      </div>
+
+      <button class="btn-close-modal" onclick="closeModal()">TUTUP & KEMBALI MENJELAJAH</button>
+    </div>
+  </div>
+
+  <!-- A-FRAME 3D SCENE -->
+  <a-scene vr-mode-ui="enabled: false">
+    <!-- Pencahayaan Cyber Museum -->
+    <a-entity light="type: ambient; intensity: 0.55; color: #b0c4de"></a-entity>
+    <a-entity light="type: point; intensity: 0.8; color: #38bdf8; distance: 20" position="0 4 2"></a-entity>
+
+    <a-sky color="#030712"></a-sky>
+
+    <!-- PINTU GERBANG UTAMA (ENTRANCE PORTAL) -->
+    <!-- Pilar Gerbang Kiri & Kanan -->
+    <a-box position="-3.5 2.5 0" width="0.4" height="5" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
+    <a-box position="3.5 2.5 0" width="0.4" height="5" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
+    
+    <!-- Neon Beam Vertikal Gerbang -->
+    <a-box position="-3.28 2.5 0" width="0.05" height="4.8" depth="0.85" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9;"></a-box>
+    <a-box position="3.28 2.5 0" width="0.05" height="4.8" depth="0.85" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9;"></a-box>
+
+    <!-- Balok Atas Gerbang & Neon Beam Horizontal -->
+    <a-box position="0 4.8 0" width="7.4" height="0.6" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
+    <a-box position="0 4.5 0" width="7.2" height="0.05" depth="0.85" color="#f97316" material="emissive: #f97316; emissiveIntensity: 1;"></a-box>
+
+    <!-- Banner Teks Sambutan Pintu Masuk -->
+    <a-text value="SELAMAT DATANG DI" position="0 4.0 0.1" align="center" color="#94a3b8" scale="0.8 0.8 0.8"></a-text>
+    <a-text value="BPS PROVINSI KEPULAUAN BANGKA BELITUNG" position="0 3.5 0.1" align="center" color="#38bdf8" scale="1.1 1.1 1.1" font="kelsonsans"></a-text>
+    <a-text value="VIRTUAL GALLERY: KOPI PAHIT (KONGKOW PINTAR PAHAM IT)" position="0 3.0 0.1" align="center" color="#f97316" scale="0.75 0.75 0.75"></a-text>
+
+    <!-- Container Koridor & Neon Box Poster -->
+    <a-entity id="gallery-container"></a-entity>
+
+    <!-- Rig Kamera Pengunjung -->
+    <!-- Posisi start di (0, 1.6, 4), menghadap tepat ke pintu gerbang dan lorong -->
+    <a-entity id="rig" position="0 1.6 4">
+      <a-camera id="cam" look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 25">
+        <a-cursor color="#38bdf8" scale="0.6 0.6 0.6" raycaster="objects: .clickable"></a-cursor>
+      </a-camera>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    /* ==========================================================
+       DATABASE DOKUMEN & FLYER KOPI PAHIT (BPS BABEL)
+       ========================================================== */
+    const galleryData = [
+      {
+        edisi: 1,
+        judul: "Pengenalan Arsitektur IT & Transformasi Digital",
+        tanggal: "Januari 2026",
+        poster: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit1",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 2,
+        judul: "Optimalisasi Jaringan & Manajemen Data Sektoral",
+        tanggal: "Februari 2026",
+        poster: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit2",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 3,
+        judul: "Keamanan Siber & Perlindungan Data Kedinasan",
+        tanggal: "April 2026",
+        poster: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit3",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 4,
+        judul: "Pemanfaatan Tools AI dalam Otomasi Pengolahan Data",
+        tanggal: "Mei 2026",
+        poster: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit4",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 5,
+        judul: "Visualisasi Data & Dashboard Statistik Interaktif",
+        tanggal: "Juni 2026",
+        poster: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit5",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 6,
+        judul: "Integrasi API & Layanan Satu Data Statistik",
+        tanggal: "Juli 2026",
+        poster: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/presensi-kopipahit6",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      },
+      {
+        edisi: 7,
+        judul: "Internalisasi dan Penguatan Inovasi Layanan Publik",
+        tanggal: "4 September 2026",
+        poster: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80",
+        linkPresensi: "https://s.bps.go.id/kopipahit900",
+        linkNotulen: "https://drive.google.com",
+        linkLaporan: "https://drive.google.com",
+        linkYoutube: "https://youtube.com"
+      }
+    ];
+
+    /* ==========================================================
+       ARSITEKTUR CYBER MUSEUM & CASING NEON BOX BIOSKOP
+       ========================================================== */
+    const container = document.getElementById('gallery-container');
+    const SPACING = 4.5;
+    const totalCount = galleryData.length;
+    const hallwayLength = Math.max(35, (Math.ceil(totalCount / 2) + 2) * SPACING);
+    const hallwayCenterZ = -(hallwayLength / 2);
+
+    // 1. Lantai Reflektif Glossy
+    const floor = document.createElement('a-plane');
+    floor.setAttribute('position', `0 0 ${hallwayCenterZ}`);
+    floor.setAttribute('rotation', '-90 0 0');
+    floor.setAttribute('width', '8');
+    floor.setAttribute('height', hallwayLength.toString());
+    floor.setAttribute('color', '#0b0f19');
+    floor.setAttribute('metalness', '0.7');
+    floor.setAttribute('roughness', '0.3');
+    container.appendChild(floor);
+
+    // Garis Pandu Neon di Lantai (Strip Jalan)
+    const floorNeonL = document.createElement('a-plane');
+    floorNeonL.setAttribute('position', `-3.5 0.01 ${hallwayCenterZ}`);
+    floorNeonL.setAttribute('rotation', '-90 0 0');
+    floorNeonL.setAttribute('width', '0.08');
+    floorNeonL.setAttribute('height', hallwayLength.toString());
+    floorNeonL.setAttribute('color', '#0284c7');
+    floorNeonL.setAttribute('material', 'emissive: #0284c7; emissiveIntensity: 0.8');
+    container.appendChild(floorNeonL);
+
+    const floorNeonR = document.createElement('a-plane');
+    floorNeonR.setAttribute('position', `3.5 0.01 ${hallwayCenterZ}`);
+    floorNeonR.setAttribute('rotation', '-90 0 0');
+    floorNeonR.setAttribute('width', '0.08');
+    floorNeonR.setAttribute('height', hallwayLength.toString());
+    floorNeonR.setAttribute('color', '#0284c7');
+    floorNeonR.setAttribute('material', 'emissive: #0284c7; emissiveIntensity: 0.8');
+    container.appendChild(floorNeonR);
+
+    // 2. Dinding Ruangan
+    const leftWall = document.createElement('a-box');
+    leftWall.setAttribute('position', `-4 2.5 ${hallwayCenterZ}`);
+    leftWall.setAttribute('width', '0.2');
+    leftWall.setAttribute('height', '5');
+    leftWall.setAttribute('depth', hallwayLength.toString());
+    leftWall.setAttribute('color', '#090d16');
+    container.appendChild(leftWall);
+
+    const rightWall = document.createElement('a-box');
+    rightWall.setAttribute('position', `4 2.5 ${hallwayCenterZ}`);
+    rightWall.setAttribute('width', '0.2');
+    rightWall.setAttribute('height', '5');
+    rightWall.setAttribute('depth', hallwayLength.toString());
+    rightWall.setAttribute('color', '#090d16');
+    container.appendChild(rightWall);
+
+    // 3. Render Setiap Neon Box Bioskop
+    galleryData.forEach((item, index) => {
+      const isLeft = index % 2 === 0;
+      const xWall = isLeft ? -3.85 : 3.85;
+      const zPos = -(Math.floor(index / 2) * SPACING) - 3.5;
+      const rotY = isLeft ? 90 : -90;
+
+      // Group Neon Box Bioskop
+      const boxGroup = document.createElement('a-entity');
+      boxGroup.setAttribute('position', `${xWall} 2.1 ${zPos}`);
+      boxGroup.setAttribute('rotation', `0 ${rotY} 0`);
+
+      // Casing Box Belakang Hitam Tebal (Cinema Frame)
+      const casing = document.createElement('a-box');
+      casing.setAttribute('position', '0 0 -0.05');
+      casing.setAttribute('width', '1.6');
+      casing.setAttribute('height', '2.3');
+      casing.setAttribute('depth', '0.1');
+      casing.setAttribute('color', '#030712');
+      casing.setAttribute('metalness', '0.9');
+      casing.setAttribute('roughness', '0.1');
+      boxGroup.appendChild(casing);
+
+      // Backlight Glow Neon (Border Berpendar)
+      const glowNeon = document.createElement('a-box');
+      glowNeon.setAttribute('position', '0 0 -0.01');
+      glowNeon.setAttribute('width', '1.5');
+      glowNeon.setAttribute('height', '2.2');
+      glowNeon.setAttribute('depth', '0.04');
+      const neonColor = isLeft ? '#38bdf8' : '#f97316';
+      glowNeon.setAttribute('color', neonColor);
+      glowNeon.setAttribute('material', `emissive: ${neonColor}; emissiveIntensity: 0.9`);
+      boxGroup.appendChild(glowNeon);
+
+      // Flyer Poster Transparan Menyala (Lit Surface)
+      const posterImg = document.createElement('a-image');
+      posterImg.setAttribute('src', item.poster);
+      posterImg.setAttribute('position', '0 0 0.02');
+      posterImg.setAttribute('width', '1.38');
+      posterImg.setAttribute('height', '2.08');
+      posterImg.setAttribute('class', 'clickable');
+      posterImg.addEventListener('click', () => openModal(item));
+      boxGroup.appendChild(posterImg);
+
+      // Pedestal / Stand Bawah Neon
+      const stand = document.createElement('a-box');
+      stand.setAttribute('position', '0 -1.35 0.05');
+      stand.setAttribute('width', '1.6');
+      stand.setAttribute('height', '0.35');
+      stand.setAttribute('depth', '0.4');
+      stand.setAttribute('color', '#0f172a');
+      boxGroup.appendChild(stand);
+
+      // Strip Lampu di Stand
+      const standLight = document.createElement('a-box');
+      standLight.setAttribute('position', '0 -1.35 0.26');
+      standLight.setAttribute('width', '1.4');
+      standLight.setAttribute('height', '0.06');
+      standLight.setAttribute('depth', '0.02');
+      standLight.setAttribute('color', neonColor);
+      standLight.setAttribute('material', `emissive: ${neonColor}; emissiveIntensity: 1`);
+      boxGroup.appendChild(standLight);
+
+      // Text Header Edisi di Atas Neon Box
+      const topLabel = document.createElement('a-text');
+      topLabel.setAttribute('value', `EDISI #${item.edisi}`);
+      topLabel.setAttribute('position', '0 1.25 0.05');
+      topLabel.setAttribute('align', 'center');
+      topLabel.setAttribute('color', '#ffffff');
+      topLabel.setAttribute('scale', '0.7 0.7 0.7');
+      boxGroup.appendChild(topLabel);
+
+      container.appendChild(boxGroup);
+    });
+
+    /* ==========================================================
+       MODAL CONTROLLER
+       ========================================================== */
+    function openModal(data) {
+      document.getElementById('modal-edisi').innerText = `KOPI PAHIT #${data.edisi}`;
+      document.getElementById('modal-judul').innerText = data.judul;
+      document.getElementById('modal-meta').innerText = `📅 ${data.tanggal} • Tim IT BPS Babel`;
+      document.getElementById('modal-poster-img').src = data.poster;
+
+      document.getElementById('link-presensi').href = data.linkPresensi;
+      document.getElementById('link-notulen').href = data.linkNotulen;
+      document.getElementById('link-laporan').href = data.linkLaporan;
+      document.getElementById('link-youtube').href = data.linkYoutube;
+
+      document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    /* ==========================================================
+       JOYSTICK TOUCH ENGINE (HP)
+       ========================================================== */
+    const rig = document.getElementById('rig');
+    const cam = document.getElementById('cam');
+    let joystickVector = { x: 0, y: 0 };
+    const SPEED = 0.08;
+
+    const joystick = nipplejs.create({
+      zone: document.getElementById('joystick-zone'),
+      mode: 'static',
+      position: { left: '60px', bottom: '60px' },
+      color: '#38bdf8',
+      size: 90
+    });
+
+    joystick.on('move', (evt, data) => {
+      if (data && data.vector) {
+        joystickVector.x = data.vector.x;
+        joystickVector.y = data.vector.y;
+      }
+    });
+
+    joystick.on('end', () => {
+      joystickVector = { x: 0, y: 0 };
+    });
+
+    function renderMovement() {
+      if (joystickVector.x !== 0 || joystickVector.y !== 0) {
+        const rotation = cam.getAttribute('rotation');
+        const angleY = THREE.MathUtils.degToRad(rotation.y);
+
+        const forward = joystickVector.y * SPEED;
+        const strafe = joystickVector.x * SPEED;
+
+        const dx = (strafe * Math.cos(angleY)) - (forward * Math.sin(angleY));
+        const dz = (-strafe * Math.sin(angleY)) - (forward * Math.cos(angleY));
+
+        const currentPos = rig.getAttribute('position');
+        rig.setAttribute('position', {
+          x: currentPos.x + dx,
+          y: currentPos.y,
+          z: currentPos.z + dz
+        });
+      }
+      requestAnimationFrame(renderMovement);
+    }
+
+    renderMovement();
+  </script>
+</body>
+</html>
