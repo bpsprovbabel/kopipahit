@@ -464,6 +464,95 @@
     .studio-doc-button.orange { background:#f28c18; }
 
     /* =====================================================
+       POSTER ACTION / DETAIL MODAL
+    ====================================================== */
+    #poster-action-modal,
+    #poster-detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(8, 14, 19, .82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .poster-modal-card {
+      position: relative;
+      width: min(760px, 94vw);
+      max-height: 92vh;
+      overflow: auto;
+      padding: 20px;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(28,38,47,.98), rgba(12,19,25,.98));
+      border: 1px solid rgba(242,140,24,.42);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55), 0 0 45px rgba(242,140,24,.10);
+      text-align: center;
+    }
+    .poster-modal-title {
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:1.2px;
+      margin-bottom:4px;
+    }
+    .poster-modal-subtitle {
+      color:#aebbc4;
+      font-size:11px;
+      margin-bottom:14px;
+    }
+    #poster-preview {
+      display:block;
+      width:min(330px, 72vw);
+      max-height:58vh;
+      object-fit:contain;
+      margin:0 auto 16px;
+      border-radius:12px;
+      box-shadow:0 18px 45px rgba(0,0,0,.42);
+      cursor:zoom-in;
+      background:#111820;
+    }
+    .poster-modal-actions {
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .poster-action-button {
+      border:0;
+      border-radius:12px;
+      padding:12px 18px;
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.4px;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(0,0,0,.20);
+      transition:transform .16s ease, filter .16s ease;
+    }
+    .poster-action-button:hover { transform:translateY(-2px); filter:brightness(1.08); }
+    .poster-action-detail { background:#0794d2; }
+    .poster-action-studio { background:#f28c18; }
+    .poster-action-close { background:#34434e; }
+    #poster-detail-modal { z-index: 9100; }
+    .poster-detail-card {
+      width:min(1100px, 96vw);
+      height:min(94vh, 900px);
+      padding:18px;
+    }
+    #poster-detail-image {
+      width:100%;
+      height:calc(100% - 60px);
+      object-fit:contain;
+      border-radius:10px;
+      background:#05080b;
+      cursor:zoom-out;
+    }
+    .poster-detail-hint { color:#aebbc4; font-size:10px; margin-top:8px; }
+
+    /* =====================================================
        MOBILE
     ====================================================== */
     @media (max-width:700px) {
@@ -583,6 +672,36 @@
   <!-- =====================================================
        JOYSTICK
   ====================================================== -->
+
+  <!-- =====================================================
+       POSTER ACTION MODAL
+  ====================================================== -->
+  <div id="poster-action-modal">
+    <div class="poster-modal-card">
+      <div class="poster-modal-title" id="poster-modal-title">KOPI PAHIT</div>
+      <div class="poster-modal-subtitle" id="poster-modal-subtitle">Pilih aksi</div>
+      <img id="poster-preview" src="" alt="Poster Kopi Pahit">
+      <div class="poster-modal-actions">
+        <button class="poster-action-button poster-action-detail" id="poster-detail-button">🔍 LIHAT DETAIL POSTER</button>
+        <button class="poster-action-button poster-action-studio" id="poster-studio-button">🚪 MASUK STUDIO</button>
+        <button class="poster-action-button poster-action-close" id="poster-close-button">TUTUP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       POSTER DETAIL LIGHTBOX
+  ====================================================== -->
+  <div id="poster-detail-modal">
+    <div class="poster-modal-card poster-detail-card">
+      <div class="poster-modal-title" id="poster-detail-title">DETAIL POSTER</div>
+      <img id="poster-detail-image" src="" alt="Detail Poster Kopi Pahit">
+      <div class="poster-detail-hint">Klik gambar atau tombol tutup untuk kembali.</div>
+      <div class="poster-modal-actions" style="margin-top:10px;">
+        <button class="poster-action-button poster-action-close" id="poster-detail-close-button">TUTUP DETAIL</button>
+      </div>
+    </div>
+  </div>
 
   <div id="joystick-zone" class="joystick-zone"></div>
   <div id="look-joystick-zone" class="joystick-zone"></div>
@@ -1123,6 +1242,18 @@ const loadingStatus =
 
 const studioDocs = document.getElementById("studio-docs");
 const docButtons = { presensi:document.getElementById("doc-presensi"), notulen:document.getElementById("doc-notulen"), laporan:document.getElementById("doc-laporan") };
+const posterActionModal = document.getElementById("poster-action-modal");
+const posterDetailModal = document.getElementById("poster-detail-modal");
+const posterPreview = document.getElementById("poster-preview");
+const posterDetailImage = document.getElementById("poster-detail-image");
+const posterModalTitle = document.getElementById("poster-modal-title");
+const posterModalSubtitle = document.getElementById("poster-modal-subtitle");
+const posterDetailTitle = document.getElementById("poster-detail-title");
+const posterDetailButton = document.getElementById("poster-detail-button");
+const posterStudioButton = document.getElementById("poster-studio-button");
+const posterCloseButton = document.getElementById("poster-close-button");
+const posterDetailCloseButton = document.getElementById("poster-detail-close-button");
+
 
 
 /* ============================================================
@@ -1136,6 +1267,8 @@ let currentStudio = null;
 let currentPosterGroup = null;
 
 let studioOpening = false;
+let selectedPosterItem = null;
+let selectedPosterGroup = null;
 
 
 /* ============================================================
@@ -1434,88 +1567,25 @@ function buildYearHall() {
 
 
   /* ========================================================
-     BPS LOGO
-     
-     Root folder:
-     ./assets/logo-bps.png
+     WELCOME / KOPI PAHIT INTRO IMAGE
+     File: ./assets/sambutan.png
   ======================================================== */
-
-  const bpsLogo =
-    document.createElement(
-      "a-image"
-    );
-
-
-  bpsLogo.setAttribute(
-    "src",
-    "./assets/logo-bps.png"
+  const welcomePanel = createBox(
+    "0 3.95 -7.62",
+    5.95,
+    3.70,
+    0.18,
+    "#fffaf0",
+    `roughness: 0.48; metalness: 0.02;`
   );
+  yearHall.appendChild(welcomePanel);
 
-
-  bpsLogo.setAttribute(
-    "position",
-    "0 4.95 -7.65"
-  );
-
-
-  bpsLogo.setAttribute(
-    "width",
-    "2.65"
-  );
-
-
-  bpsLogo.setAttribute(
-    "height",
-    "0.80"
-  );
-
-
-  yearHall.appendChild(
-    bpsLogo
-  );
-
-
-  /* ========================================================
-     KOPI PAHIT LOGO
-     
-     Root folder:
-     ./assets/logo-kopi-pahit.png
-  ======================================================== */
-
-  const kopiLogo =
-    document.createElement(
-      "a-image"
-    );
-
-
-  kopiLogo.setAttribute(
-    "src",
-    "./assets/logo-kopi-pahit.png"
-  );
-
-
-  kopiLogo.setAttribute(
-    "position",
-    "0 3.95 -7.65"
-  );
-
-
-  kopiLogo.setAttribute(
-    "width",
-    "3.55"
-  );
-
-
-  kopiLogo.setAttribute(
-    "height",
-    "1.45"
-  );
-
-
-  yearHall.appendChild(
-    kopiLogo
-  );
-
+  const welcomeImage = document.createElement("a-image");
+  welcomeImage.setAttribute("src", "./assets/sambutan.png");
+  welcomeImage.setAttribute("position", "0 3.95 -7.52");
+  welcomeImage.setAttribute("width", "5.72");
+  welcomeImage.setAttribute("height", "3.22");
+  yearHall.appendChild(welcomeImage);
 
   /* ========================================================
      TITLE
@@ -1527,11 +1597,11 @@ function buildYearHall() {
 
       "VIRTUAL EXPERIENCE GALLERY",
 
-      "0 3.12 -7.58",
+      "0 1.72 -7.50",
 
       COLORS.orange,
 
-      4.2
+      3.8
 
     )
 
@@ -1548,11 +1618,11 @@ function buildYearHall() {
 
       "Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit",
 
-      "0 2.70 -7.58",
+      "0 1.38 -7.50",
 
       COLORS.navy,
 
-      3.05
+      2.85
 
     )
 
@@ -1567,9 +1637,9 @@ function buildYearHall() {
 
     createBox(
 
-      "0 2.38 -7.55",
+      "0 1.08 -7.47",
 
-      3.7,
+      3.2,
 
       0.035,
 
@@ -2470,13 +2540,7 @@ function createPoster(
       event.stopPropagation();
 
 
-      openStudio(
-
-        item,
-
-        group
-
-      );
+      openPosterActions(item, group);
 
     }
 
@@ -2698,6 +2762,54 @@ function createGalleryEnd(
 
 }
 
+
+/* ============================================================
+   POSTER ACTIONS / DETAIL VIEW
+============================================================ */
+function openPosterActions(item, group) {
+  if (studioOpening || !item || !group) return;
+  selectedPosterItem = item;
+  selectedPosterGroup = group;
+  posterPreview.src = item.poster;
+  posterDetailImage.src = item.poster;
+  posterModalTitle.textContent = `EDISI #${String(item.edisi).padStart(2,"0")} · KOPI PAHIT`;
+  posterModalSubtitle.textContent = `${item.judul} · ${item.tanggal}`;
+  posterDetailTitle.textContent = `DETAIL POSTER · EDISI #${String(item.edisi).padStart(2,"0")}`;
+  posterActionModal.style.display = "flex";
+}
+
+function closePosterActions() {
+  posterActionModal.style.display = "none";
+}
+
+function openPosterDetail() {
+  if (!selectedPosterItem) return;
+  posterDetailImage.src = selectedPosterItem.poster;
+  posterDetailModal.style.display = "flex";
+}
+
+function closePosterDetail() {
+  posterDetailModal.style.display = "none";
+}
+
+posterCloseButton.addEventListener("click", closePosterActions);
+posterDetailButton.addEventListener("click", openPosterDetail);
+posterDetailCloseButton.addEventListener("click", closePosterDetail);
+posterPreview.addEventListener("click", openPosterDetail);
+posterDetailImage.addEventListener("click", closePosterDetail);
+posterStudioButton.addEventListener("click", function(){
+  const item = selectedPosterItem;
+  const group = selectedPosterGroup;
+  closePosterActions();
+  if (item && group) openStudio(item, group);
+});
+
+posterActionModal.addEventListener("click", function(e){
+  if (e.target === posterActionModal) closePosterActions();
+});
+posterDetailModal.addEventListener("click", function(e){
+  if (e.target === posterDetailModal) closePosterDetail();
+});
 
 /* ============================================================
    OPEN STUDIO
@@ -3596,8 +3708,8 @@ function lookLoop(){
   if(isTouchDevice && (lookVector.x!==0 || lookVector.y!==0)){
     const rot=camera.getAttribute("rotation");
     const sensitivity = studio.getAttribute("visible") ? 2.0 : 2.35;
-    rot.y -= lookVector.x * sensitivity;
-    rot.x -= lookVector.y * sensitivity;
+    rot.y += lookVector.x * sensitivity;
+    rot.x += lookVector.y * sensitivity;
     rot.x=Math.max(-70, Math.min(70, rot.x));
     camera.setAttribute("rotation", rot);
   }
@@ -3812,6 +3924,13 @@ function movementLoop() {
 
 }
 
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    closePosterDetail();
+    closePosterActions();
+  }
+});
 
 /* ============================================================
    STARTUP
