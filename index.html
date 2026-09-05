@@ -107,15 +107,9 @@
     }
 
 
-    #loading-logo {
-
-      width: 150px;
-
-      max-width: 50vw;
-
-      margin-bottom: 20px;
-
-    }
+    #loading-logos { display:flex; align-items:center; justify-content:center; gap:28px; margin-bottom:18px; min-height:95px; }
+    #loading-logo-bps { width:150px; max-width:38vw; max-height:82px; object-fit:contain; }
+    #loading-logo-kopi { width:175px; max-width:42vw; max-height:92px; object-fit:contain; }
 
 
     #loading-title {
@@ -338,130 +332,22 @@
 
 
     /* =====================================================
-       YOUTUBE SCREEN
-       
-       HANYA ADA SATU IFRAME.
+       YOUTUBE SCREEN — aligned with the 3D cinema screen
     ====================================================== */
-
-    #youtube-layer {
-
-      position: fixed;
-
-      inset: 0;
-
-      z-index: 5000;
-
-      display: none;
-
-      align-items: center;
-      justify-content: center;
-
-      pointer-events: none;
-
-    }
-
-
-    #youtube-frame-container {
-
-      position: relative;
-
-      width:
-        min(
-          62vw,
-          880px
-        );
-
-      aspect-ratio:
-        16 / 9;
-
-      pointer-events: auto;
-
-      background:
-        #000000;
-
-      border:
-        7px solid
-        #111820;
-
-      box-shadow:
-
-        0 0 0 3px
-        #f28c18,
-
-        0 30px 80px
-        rgba(0,0,0,0.70);
-
-    }
-
-
-    #youtube-frame {
-
-      width: 100%;
-      height: 100%;
-
-      border: none;
-
-      display: block;
-
-    }
-
-
-    #youtube-title {
-
-      position: absolute;
-
-      left: 50%;
-      top: -50px;
-
-      transform:
-        translateX(-50%);
-
-      color: #ffffff;
-
-      font-size: 14px;
-
-      font-weight: 900;
-
-      letter-spacing: 2px;
-
-      white-space: nowrap;
-
-      text-shadow:
-        0 2px 12px
-        rgba(0,0,0,0.85);
-
-    }
-
-
-    #on-air-label {
-
-      position: absolute;
-
-      top: 11px;
-      right: 11px;
-
-      z-index: 20;
-
-      padding: 5px 9px;
-
-      border-radius: 5px;
-
-      background: #df2929;
-
-      color: #ffffff;
-
-      font-size: 9px;
-
-      font-weight: 900;
-
-      letter-spacing: 1px;
-
-    }
-
+    #youtube-layer { position:fixed; inset:0; z-index:5000; display:none; align-items:center; justify-content:center; pointer-events:none; }
+    #youtube-frame-container { position:relative; width:min(44vw,760px); aspect-ratio:16/9; pointer-events:auto; background:#000; border:0; border-radius:2px; overflow:hidden; box-shadow:0 10px 35px rgba(0,0,0,.28); }
+    #youtube-frame { width:100%; height:100%; border:0; display:block; }
+    #gyro-button { display:none; position:fixed; right:18px; bottom:18px; z-index:7000; border:0; border-radius:999px; padding:11px 15px; background:rgba(24,60,84,.94); color:#fff; font-size:11px; font-weight:900; box-shadow:0 8px 25px rgba(0,0,0,.18); touch-action:manipulation; }
+    #studio-docs { position:fixed; right:18px; bottom:18px; z-index:6500; display:none; width:205px; padding:12px; border-radius:14px; background:rgba(13,21,28,.94); border:1px solid rgba(242,140,24,.45); box-shadow:0 14px 35px rgba(0,0,0,.28); backdrop-filter:blur(8px); }
+    #studio-docs-title { color:#fff; font-size:10px; font-weight:900; letter-spacing:1.4px; margin-bottom:8px; }
+    .studio-doc-button { display:block; width:100%; margin-top:7px; padding:9px 10px; border:0; border-radius:8px; color:#fff; font-size:10px; font-weight:900; text-align:left; cursor:pointer; }
+    .studio-doc-button.blue { background:#0794d2; } .studio-doc-button.green { background:#65b82e; } .studio-doc-button.orange { background:#f28c18; }
 
     /* =====================================================
        MOBILE
     ====================================================== */
+
+    @media (hover: none) and (pointer: coarse) { #gyro-button { display:block; } }
 
     @media (max-width: 700px) {
 
@@ -476,23 +362,15 @@
       }
 
 
-      #youtube-frame-container {
+      #loading-logos { gap:14px; }
+      #loading-logo-bps { width:105px; }
+      #loading-logo-kopi { width:125px; }
 
-        width: 88vw;
+      #youtube-frame-container { width:74vw; }
 
-        border-width: 5px;
-
-      }
-
-
-      #youtube-title {
-
-        top: -31px;
-
-        font-size: 9px;
-
-      }
-
+      #studio-docs { left:12px; right:12px; bottom:12px; width:auto; padding:9px; }
+      .studio-doc-button { display:inline-block; width:calc(33.333% - 6px); margin-right:5px; margin-top:0; padding:8px 7px; font-size:9px; }
+      .studio-doc-button:last-child { margin-right:0; }
 
       #back-year,
       #close-studio {
@@ -520,11 +398,10 @@
 
   <div id="loading">
 
-    <img
-      id="loading-logo"
-      src="./logo-bps.png"
-      alt="BPS Babel"
-    >
+    <div id="loading-logos">
+      <img id="loading-logo-bps" src="./logo-bps.png" alt="BPS Babel">
+      <img id="loading-logo-kopi" src="./logo-kopi-pahit.png" alt="Kopi Pahit">
+    </div>
 
     <div id="loading-title">
       KOPI PAHIT
@@ -584,14 +461,6 @@
 
     <div id="youtube-frame-container">
 
-      <div id="youtube-title">
-        STUDIO · KOPI PAHIT
-      </div>
-
-      <div id="on-air-label">
-        ● ON AIR
-      </div>
-
       <iframe
         id="youtube-frame"
         src=""
@@ -615,6 +484,15 @@
   ====================================================== -->
 
   <div id="joystick-zone"></div>
+
+  <button id="gyro-button" type="button" onclick="enableGyro()">🧭 AKTIFKAN GYRO</button>
+
+  <div id="studio-docs">
+    <div id="studio-docs-title">DOKUMEN KEGIATAN · BUKA TAB BARU</div>
+    <button id="doc-presensi" class="studio-doc-button blue" type="button">DAFTAR HADIR ↗</button>
+    <button id="doc-notulen" class="studio-doc-button green" type="button">NOTULEN ↗</button>
+    <button id="doc-laporan" class="studio-doc-button orange" type="button">LAPORAN ↗</button>
+  </div>
 
 
   <!-- =====================================================
@@ -761,6 +639,9 @@
 
         look-controls="
           pointerLockEnabled: false;
+          magicWindowTrackingEnabled: true;
+          touchEnabled: true;
+          mouseEnabled: true;
         "
 
         wasd-controls="
@@ -1137,6 +1018,10 @@ const loadingStatus =
   document.getElementById(
     "loading-status"
   );
+
+const gyroButton = document.getElementById("gyro-button");
+const studioDocs = document.getElementById("studio-docs");
+const docButtons = { presensi:document.getElementById("doc-presensi"), notulen:document.getElementById("doc-notulen"), laporan:document.getElementById("doc-laporan") };
 
 
 /* ============================================================
@@ -2124,6 +2009,9 @@ function backToYearHall() {
 
   youtubeLayer.style.display =
     "none";
+  studioDocs.style.display = "none";
+  if (("ontouchstart" in window) || navigator.maxTouchPoints > 0) gyroButton.style.display = "block";
+  camera.setAttribute("look-controls", "enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   closeStudioButton.style.display =
@@ -2965,32 +2853,8 @@ function openStudio(
 
 
   /* ========================================================
-     CREATE DOOR
+     MASUK STUDIO — tanpa pintu animasi
   ======================================================== */
-
-  createStudioDoor(
-    posterGroup
-  );
-
-
-  /* ========================================================
-     START OPENING
-  ======================================================== */
-
-  setTimeout(
-
-    function() {
-
-      animateStudioDoor(
-        posterGroup
-      );
-
-    },
-
-    80
-
-  );
-
 
   /* ========================================================
      AFTER DOOR
@@ -3047,12 +2911,15 @@ function openStudio(
       );
 
 
+
+      camera.setAttribute(
+        "look-controls",
+        "enabled: false; magicWindowTrackingEnabled: false; touchEnabled: false; mouseEnabled: false;"
+      );
+
       /* ====================================================
          YOUTUBE
       ==================================================== */
-
-      youtubeTitle.innerText =
-        `STUDIO ${String(item.edisi).padStart(2, "0")} · KOPI PAHIT #${item.edisi}`;
 
 
       const embedURL =
@@ -3061,18 +2928,14 @@ function openStudio(
         );
 
 
-      if (
-        embedURL
-      ) {
-
-        youtubeFrame.src =
-          embedURL;
-
-
-        youtubeLayer.style.display =
-          "flex";
-
+      if (embedURL) {
+        youtubeFrame.src = embedURL;
+        youtubeLayer.style.display = "flex";
       }
+
+      setupStudioDocuments(item);
+      studioDocs.style.display = "block";
+      if (("ontouchstart" in window) || navigator.maxTouchPoints > 0) gyroButton.style.display = "none";
 
 
       studioOpening =
@@ -3080,7 +2943,7 @@ function openStudio(
 
     },
 
-    1000
+    120
 
   );
 
@@ -3841,101 +3704,7 @@ function createCinemaSeats() {
    DOCUMENT PANEL
 ============================================================ */
 
-function createDocumentPanel(
-  item
-) {
-
-  const x =
-    -4.10;
-
-
-  /* ========================================================
-     PANEL
-  ======================================================== */
-
-  studio.appendChild(
-
-    createBox(
-
-      `${x} 2.45 -6.65`,
-
-      2.25,
-
-      3.20,
-
-      0.16,
-
-      "#131d25"
-
-    )
-
-  );
-
-
-  /* ========================================================
-     HEADER
-  ======================================================== */
-
-  studio.appendChild(
-
-    createText(
-
-      "DOKUMEN KEGIATAN",
-
-      `${x} 3.75 -6.50`,
-
-      "#ffffff",
-
-      2.10
-
-    )
-
-  );
-
-
-  /* ========================================================
-     BUTTONS
-  ======================================================== */
-
-  createDocumentButton(
-
-    item.presensi,
-
-    "DAFTAR HADIR",
-
-    `${x} 3.03 -6.49`,
-
-    COLORS.blue
-
-  );
-
-
-  createDocumentButton(
-
-    item.notulen,
-
-    "NOTULEN",
-
-    `${x} 2.37 -6.49`,
-
-    COLORS.green
-
-  );
-
-
-  createDocumentButton(
-
-    item.laporan,
-
-    "LAPORAN KEGIATAN",
-
-    `${x} 1.71 -6.49`,
-
-    COLORS.orange
-
-  );
-
-}
+function createDocumentPanel(item) { return; }
 
 
 /* ============================================================
@@ -4092,6 +3861,7 @@ function closeStudio() {
 
   youtubeLayer.style.display =
     "none";
+  studioDocs.style.display = "none";
 
 
   /* ========================================================
@@ -4193,6 +3963,7 @@ function closeStudio() {
     "rotation",
     "0 0 0"
   );
+  camera.setAttribute("look-controls", "enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   currentStudio =
@@ -4204,6 +3975,35 @@ function closeStudio() {
 
 }
 
+
+/* ============================================================
+   STUDIO DOCUMENT LINKS
+============================================================ */
+function openDocumentLink(url,label){
+  if(!url || url==="#" || url.startsWith("LINK_")){ alert(label+": link belum diisi."); return; }
+  window.open(url,"_blank","noopener,noreferrer");
+}
+function setupStudioDocuments(item){
+  const links={presensi:item.presensi,notulen:item.notulen,laporan:item.laporan};
+  docButtons.presensi.onclick=e=>{e.stopPropagation();openDocumentLink(links.presensi,"Daftar hadir")};
+  docButtons.notulen.onclick=e=>{e.stopPropagation();openDocumentLink(links.notulen,"Notulen")};
+  docButtons.laporan.onclick=e=>{e.stopPropagation();openDocumentLink(links.laporan,"Laporan kegiatan")};
+}
+
+/* ============================================================
+   GYROSCOPE / MOBILE LOOK
+============================================================ */
+async function enableGyro(){
+  try{
+    if(typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function"){
+      const permission=await DeviceOrientationEvent.requestPermission();
+      if(permission!=="granted"){ gyroButton.innerText="🧭 GYRO DITOLAK"; return; }
+    }
+    camera.setAttribute("look-controls","enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+    gyroButton.innerText="✓ GYRO AKTIF";
+  }catch(error){ console.warn("Gyro permission error:",error); gyroButton.innerText="↻ COBA LAGI"; }
+}
+function prepareMobileControls(){ if(("ontouchstart" in window)||navigator.maxTouchPoints>0) gyroButton.style.display="block"; }
 
 /* ============================================================
    YOUTUBE NORMALIZER
@@ -4708,6 +4508,7 @@ function movementLoop() {
 ============================================================ */
 
 buildYearHall();
+prepareMobileControls();
 
 
 movementLoop();
