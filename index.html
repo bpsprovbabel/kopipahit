@@ -309,32 +309,46 @@
 
 
     /* =====================================================
-       DUAL JOYSTICK CONTROLS
+       MOBILE MOVEMENT + SWIPE LOOK
     ====================================================== */
-    .joystick-zone {
+    #joystick-zone {
       position: fixed;
+      left: 16px;
       bottom: 18px;
-      width: 125px;
-      height: 125px;
-      z-index: 5000;
+      width: 118px;
+      height: 118px;
+      z-index: 5200;
       pointer-events: auto;
       touch-action: none;
     }
-    #joystick-zone { left: 18px; }
-    #look-joystick-zone { right: 18px; }
-    .joystick-caption {
+    #look-touch-hint {
+      display: none;
       position: fixed;
-      bottom: 8px;
-      z-index: 5001;
-      color: rgba(255,255,255,.72);
-      font-size: 8px;
+      right: 16px;
+      bottom: 18px;
+      z-index: 5100;
+      padding: 9px 12px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.88);
+      background: rgba(16,24,32,.55);
+      border: 1px solid rgba(255,255,255,.20);
+      font-size: 9px;
       font-weight: 900;
-      letter-spacing: 1.2px;
+      letter-spacing: .7px;
       pointer-events: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       text-shadow: 0 2px 6px rgba(0,0,0,.55);
     }
-    #move-caption { left: 48px; }
-    #look-caption { right: 48px; }
+    #touch-look-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 4700;
+      pointer-events: auto;
+      touch-action: none;
+      background: transparent;
+    }
 
     /* =====================================================
        YOUTUBE CINEMA FRAME
@@ -505,7 +519,7 @@
     }
     #poster-preview {
       display:block;
-      width:min(330px, 72vw);
+      width:min(390px, 82vw);
       max-height:58vh;
       object-fit:contain;
       margin:0 auto 16px;
@@ -563,11 +577,9 @@
       #studio-docs { left:12px; right:12px; bottom:148px; width:auto; padding:9px; }
       .studio-doc-button { display:inline-block; width:calc(33.333% - 6px); margin-right:5px; margin-top:0; padding:8px 7px; font-size:9px; }
       .studio-doc-button:last-child { margin-right:0; }
-      .joystick-zone { width:105px; height:105px; bottom:18px; }
-      #joystick-zone { left:5px; }
-      #look-joystick-zone { right:5px; }
-      #move-caption { left:34px; }
-      #look-caption { right:34px; }
+      #joystick-zone { width:108px; height:108px; left:12px; bottom:14px; }
+      #look-touch-hint { display:block; bottom:18px; right:12px; font-size:8px; }
+      #touch-look-overlay { display:block; }
       #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
@@ -611,7 +623,7 @@
 
   <div id="hud">
 
-    WASD / JOYSTICK KIRI · JOYSTICK KANAN UNTUK MELIHAT
+    WASD / JOYSTICK KIRI · GESER LAYAR UNTUK MELIHAT
     ·
     JELAJAHI GALLERY
     ·
@@ -703,10 +715,9 @@
     </div>
   </div>
 
-  <div id="joystick-zone" class="joystick-zone"></div>
-  <div id="look-joystick-zone" class="joystick-zone"></div>
-  <div id="move-caption" class="joystick-caption">GERAK</div>
-  <div id="look-caption" class="joystick-caption">LIHAT</div>
+  <div id="touch-look-overlay" aria-hidden="true"></div>
+  <div id="joystick-zone" class="joystick-zone" aria-label="Joystick gerak"></div>
+  <div id="look-touch-hint">GESER LAYAR = LIHAT</div>
 
   <div id="studio-docs">
     <div id="studio-docs-title">DOKUMEN KEGIATAN · BUKA TAB BARU</div>
@@ -859,9 +870,10 @@
         id="camera"
 
         look-controls="
+          enabled: true;
           pointerLockEnabled: false;
-          magicWindowTrackingEnabled: true;
-          touchEnabled: true;
+          magicWindowTrackingEnabled: false;
+          touchEnabled: false;
           mouseEnabled: true;
         "
 
@@ -1396,325 +1408,184 @@ function buildYearHall() {
 
   yearHall.innerHTML = "";
 
+  /* ========================================================
+     FLOOR / LOBBY BASE
+  ======================================================== */
+  yearHall.appendChild(createBox(
+    "0 -0.10 -2", 14, 0.20, 18, "#ddd9d0",
+    `roughness: 0.35; metalness: 0.08;`
+  ));
+
+  // Inset carpet / circulation zone
+  yearHall.appendChild(createBox(
+    "0 0.015 -2.8", 7.4, 0.035, 12.5, "#ece8df",
+    `roughness: 0.82; metalness: 0.02;`
+  ));
+  yearHall.appendChild(createBox(
+    "0 0.04 -2.8", 6.4, 0.02, 11.6, "#2a4050",
+    `roughness: 0.92; metalness: 0.02;`
+  ));
+  yearHall.appendChild(createBox(
+    "0 0.052 -2.8", 5.8, 0.025, 11.0, "#3a5567",
+    `roughness: 0.92; metalness: 0.02;`
+  ));
+
+  // BPS color lane in front of the podium
+  [-0.26, 0, 0.26].forEach((x,i)=>{
+    const c = i===0 ? COLORS.blue : (i===1 ? COLORS.green : COLORS.orange);
+    yearHall.appendChild(createBox(
+      `${x} 0.075 -1.0`, 0.22, 0.035, 4.7, c,
+      `emissive: ${c}; emissiveIntensity: 0.32;`
+    ));
+  });
 
   /* ========================================================
-     FLOOR
+     ARCHITECTURAL SHELL
   ======================================================== */
+  yearHall.appendChild(createBox("0 3.0 -8.0", 14, 6, 0.25, "#f7f1e8",
+    `roughness: 0.50; metalness: 0.02;`));
+  yearHall.appendChild(createBox("-7 3 -3", 0.25, 6, 10, "#f1f4f3"));
+  yearHall.appendChild(createBox("7 3 -3", 0.25, 6, 10, "#f1f4f3"));
 
-  yearHall.appendChild(
-
-    createBox(
-
-      "0 -0.10 -2",
-
-      14,
-
-      0.20,
-
-      18,
-
-      "#e1e6e3",
-
-      `
-        roughness: 0.40;
-        metalness: 0.12;
-      `
-
-    )
-
-  );
-
+  // Dark wall plinths keep the room from looking washed out
+  yearHall.appendChild(createBox("-6.82 1.05 -3.0", 0.10, 2.1, 9.7, "#1c3547"));
+  yearHall.appendChild(createBox("6.82 1.05 -3.0", 0.10, 2.1, 9.7, "#1c3547"));
 
   /* ========================================================
-     BACK WALL
+     FEATURE CEILING
   ======================================================== */
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "0 3 -8",
-
-      14,
-
-      6,
-
-      0.25,
-
-      COLORS.cream
-
-    )
-
-  );
-
+  yearHall.appendChild(createBox("0 5.7 -3.2", 12.6, 0.12, 9.5, "#d8d5cf"));
+  yearHall.appendChild(createBox("0 5.60 -3.2", 9.7, 0.07, 7.9, "#f8f2e8"));
+  [[-4.3,COLORS.blue],[-1.45,COLORS.green],[1.45,COLORS.orange],[4.3,COLORS.blue]].forEach(([x,c])=>{
+    yearHall.appendChild(createBox(`${x} 5.63 -3.2`, 0.18, 0.045, 7.5, c,
+      `emissive: ${c}; emissiveIntensity: 0.55;`));
+  });
+  [-5.2,0,5.2].forEach(x=>{
+    const lamp=document.createElement('a-sphere');
+    lamp.setAttribute('radius','0.11');
+    lamp.setAttribute('scale','1 0.35 1');
+    lamp.setAttribute('position',`${x} 5.48 -5.2`);
+    lamp.setAttribute('color','#fff7e8');
+    lamp.setAttribute('material','emissive: #fff7e8; emissiveIntensity: 0.8;');
+    yearHall.appendChild(lamp);
+  });
 
   /* ========================================================
-     SIDE WALLS
+     BACK BRANDING WALL / HERO PANEL
   ======================================================== */
+  const backFrame=createBox("0 3.75 -7.62", 6.25, 4.1, 0.18, "#fffaf0",
+    `roughness: 0.45; metalness: 0.02;`);
+  yearHall.appendChild(backFrame);
 
-  yearHall.appendChild(
-
-    createBox(
-
-      "-7 3 -3",
-
-      0.25,
-
-      6,
-
-      10,
-
-      COLORS.cream
-
-    )
-
-  );
-
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "7 3 -3",
-
-      0.25,
-
-      6,
-
-      10,
-
-      COLORS.cream
-
-    )
-
-  );
-
-
-  /* ========================================================
-     BRAND COLORS
-  ======================================================== */
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "-3.2 5.55 -7.80",
-
-      3.0,
-
-      0.10,
-
-      0.08,
-
-      COLORS.blue,
-
-      `
-        emissive: ${COLORS.blue};
-        emissiveIntensity: 0.55;
-      `
-
-    )
-
-  );
-
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "0 5.55 -7.80",
-
-      3.0,
-
-      0.10,
-
-      0.08,
-
-      COLORS.green,
-
-      `
-        emissive: ${COLORS.green};
-        emissiveIntensity: 0.50;
-      `
-
-    )
-
-  );
-
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "3.2 5.55 -7.80",
-
-      3.0,
-
-      0.10,
-
-      0.08,
-
-      COLORS.orange,
-
-      `
-        emissive: ${COLORS.orange};
-        emissiveIntensity: 0.55;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     WELCOME / KOPI PAHIT INTRO IMAGE
-     File: ./assets/sambutan.png
-  ======================================================== */
-  const welcomePanel = createBox(
-    "0 3.95 -7.62",
-    5.95,
-    3.70,
-    0.18,
-    "#fffaf0",
-    `roughness: 0.48; metalness: 0.02;`
-  );
-  yearHall.appendChild(welcomePanel);
-
-  const welcomeImage = document.createElement("a-image");
-  welcomeImage.setAttribute("src", "./assets/sambutan.png");
-  welcomeImage.setAttribute("position", "0 3.95 -7.52");
-  welcomeImage.setAttribute("width", "5.72");
-  welcomeImage.setAttribute("height", "3.22");
+  const welcomeImage=document.createElement('a-image');
+  welcomeImage.setAttribute('src','./assets/sambutan.png');
+  welcomeImage.setAttribute('position','0 3.75 -7.50');
+  welcomeImage.setAttribute('width','5.98');
+  welcomeImage.setAttribute('height','3.36');
   yearHall.appendChild(welcomeImage);
 
-  /* ========================================================
-     TITLE
-  ======================================================== */
-
-  yearHall.appendChild(
-
-    createText(
-
-      "VIRTUAL EXPERIENCE GALLERY",
-
-      "0 1.72 -7.50",
-
-      COLORS.orange,
-
-      3.8
-
-    )
-
-  );
-
+  // Small lit ledge under the hero panel
+  yearHall.appendChild(createBox("0 2.00 -7.30", 6.4, 0.08, 0.20, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`));
+  yearHall.appendChild(createText("VIRTUAL EXPERIENCE GALLERY", "0 1.65 -7.22", "#ffffff", 4.1));
+  yearHall.appendChild(createBox("0 1.42 -7.20", 3.4, 0.04, 0.04, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.45;`));
+  yearHall.appendChild(createText("Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit", "0 1.18 -7.18", "#dfe9ee", 2.9));
 
   /* ========================================================
-     SUBTITLE
+     LEFT / RIGHT INFORMATION WALLS
   ======================================================== */
-
-  yearHall.appendChild(
-
-    createText(
-
-      "Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit",
-
-      "0 1.38 -7.50",
-
-      COLORS.navy,
-
-      2.85
-
-    )
-
-  );
-
+  function addSidePanel(side, title, subtitle, color){
+    const x = side==='left' ? -6.62 : 6.62;
+    yearHall.appendChild(createBox(`${x} 3.05 -4.2`, 0.16, 3.25, 2.65, "#fbf7ef"));
+    yearHall.appendChild(createBox(`${x + (side==='left'?0.05:-0.05)} 3.05 -5.46`, 0.06, 2.55, 1.25, color,
+      `emissive: ${color}; emissiveIntensity: 0.28;`));
+    yearHall.appendChild(createBox(`${x + (side==='left'?0.05:-0.05)} 4.37 -4.18`, 0.06, 0.06, 2.0, color,
+      `emissive: ${color}; emissiveIntensity: 0.7;`));
+    yearHall.appendChild(createText(title, `${x + (side==='left'?0.14:-0.14)} 3.78 -5.52`, COLORS.navy, 1.25, side==='left'?'left':'right'));
+    yearHall.appendChild(createText(subtitle, `${x + (side==='left'?0.14:-0.14)} 2.82 -5.52`, color, 1.15, side==='left'?'left':'right'));
+  }
+  addSidePanel('left','DATA','MEMBANGUN NEGERI',COLORS.blue);
+  addSidePanel('right','STATISTIK','BERKUALITAS UNTUK INDONESIA MAJU',COLORS.orange);
 
   /* ========================================================
-     DIVIDER
+     PODIUM FOR YEAR CARDS
   ======================================================== */
-
-  yearHall.appendChild(
-
-    createBox(
-
-      "0 1.08 -7.47",
-
-      3.2,
-
-      0.035,
-
-      0.035,
-
-      COLORS.green,
-
-      `
-        emissive: ${COLORS.green};
-        emissiveIntensity: 0.45;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     FRONT ARCH / DECORATIVE PORTAL
-  ======================================================== */
-  yearHall.appendChild(createBox("-6.25 2.8 -7.35", 0.18, 5.2, 0.35, COLORS.blue,
-    `emissive: ${COLORS.blue}; emissiveIntensity: 0.30;`));
-  yearHall.appendChild(createBox("6.25 2.8 -7.35", 0.18, 5.2, 0.35, COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.30;`));
-  yearHall.appendChild(createBox("0 5.25 -7.35", 12.5, 0.18, 0.35, COLORS.green,
-    `emissive: ${COLORS.green}; emissiveIntensity: 0.30;`));
-  yearHall.appendChild(createBox("0 0.08 -6.95", 12.2, 0.08, 1.0, "#d9dfdc",
-    `roughness: 0.8; metalness: 0.05;`));
+  yearHall.appendChild(createCylinder("0 0.26 -0.9", 3.9, 0.52, "#f6f1e8"));
+  yearHall.appendChild(createCylinder("0 0.53 -0.9", 3.45, 0.16, "#17364b",
+    `roughness: 0.32; metalness: 0.10;`));
+  yearHall.appendChild(createCylinder("0 0.64 -0.9", 3.0, 0.10, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.38;`));
 
   /* ========================================================
      YEAR CARDS
   ======================================================== */
-
-  createYearCard(
-    2026,
-    "7 EDISI",
-    "-3.2 0.95 -7.20",
-    true
-  );
-
-
-  createYearCard(
-    2027,
-    "BELUM ADA EDISI",
-    "0 0.95 -7.20",
-    false
-  );
-
-
-  createYearCard(
-    2028,
-    "BELUM ADA EDISI",
-    "3.2 0.95 -7.20",
-    false
-  );
-
+  createYearCard(2026, "7 EDISI", "-3.05 1.05 -1.05", true);
+  createYearCard(2027, "BELUM ADA EDISI", "0 1.05 -1.05", false);
+  createYearCard(2028, "BELUM ADA EDISI", "3.05 1.05 -1.05", false);
 
   /* ========================================================
-     DECOR
+     BENCHES / PLANTERS / DECOR
   ======================================================== */
+  createLobbyBench("-5.05 0 -1.9", COLORS.blue);
+  createLobbyBench("5.05 0 -1.9", COLORS.orange);
+  createLobbyBench("-5.05 0 -6.0", COLORS.green);
+  createLobbyBench("5.05 0 -6.0", COLORS.blue);
+  createPlanter("-5.7 0 -3.6");
+  createPlanter("5.7 0 -3.6");
+  createPlanter("-5.7 0 -7.0");
+  createPlanter("5.7 0 -7.0");
 
-  createPlant(
-    "-5.2 0 -4.8"
-  );
+  // Directional floor lights toward the year cards
+  [-3,-1.5,0,1.5,3].forEach((x,i)=>{
+    const c = i%2===0 ? COLORS.blue : COLORS.green;
+    yearHall.appendChild(createBox(`${x} 0.10 -3.15`, 0.10, 0.06, 1.0, c,
+      `emissive: ${c}; emissiveIntensity: 0.55;`));
+  });
+}
 
+function createCylinder(position, radius, height, color, material="") {
+  const el=document.createElement('a-cylinder');
+  el.setAttribute('position',position);
+  el.setAttribute('radius',radius);
+  el.setAttribute('height',height);
+  el.setAttribute('color',color);
+  if(material) el.setAttribute('material',material);
+  yearHall.appendChild(el);
+  return el;
+}
 
-  createPlant(
-    "5.2 0 -4.8"
-  );
+function createLobbyBench(position, accent){
+  const g=document.createElement('a-entity');
+  g.setAttribute('position',position);
+  g.appendChild(createBox('0 0.28 0', 2.0, 0.26, 0.66, '#f3efe7'));
+  g.appendChild(createBox('0 0.49 0', 1.82, 0.20, 0.58, accent,
+    `emissive: ${accent}; emissiveIntensity: 0.10;`));
+  g.appendChild(createBox('0 0.76 0.20', 1.78, 0.82, 0.16, '#e7e0d4'));
+  yearHall.appendChild(g);
+}
 
+function createPlanter(position){
+  const g=document.createElement('a-entity');
+  g.setAttribute('position',position);
+  g.appendChild(createBox('0 0.24 0',0.72,0.48,0.72,'#f7f3ea',`roughness:0.75;`));
+  g.appendChild(createBox('0 0.55 0',0.48,0.28,0.48,'#5c402a',`roughness:1.0;`));
+  [[-0.22,0.95,0],[0,1.18,0.08],[0.22,0.95,0],[-0.08,0.98,0.18]].forEach(pos=>{
+    const leaf=document.createElement('a-sphere');
+    leaf.setAttribute('radius','0.25');
+    leaf.setAttribute('scale','1 0.60 1');
+    leaf.setAttribute('position',`${pos[0]} ${pos[1]} ${pos[2]}`);
+    leaf.setAttribute('color',COLORS.green);
+    leaf.setAttribute('material',`roughness:0.85; emissive:${COLORS.green}; emissiveIntensity:0.08;`);
+    g.appendChild(leaf);
+  });
+  yearHall.appendChild(g);
 }
 
 
 /* ============================================================
    YEAR CARD
+
 ============================================================ */
 
 function createYearCard(
@@ -3669,12 +3540,11 @@ function normalizeYoutubeUrl(
 
 
 /* ============================================================
-   DUAL JOYSTICK
-   Kiri = bergerak, kanan = melihat/menoleh.
+   SINGLE JOYSTICK + SWIPE LOOK
+   Kiri = bergerak, swipe layar = melihat.
 ============================================================ */
 const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 let joystickVector = { x:0, y:0 };
-let lookVector = { x:0, y:0 };
 
 const joystick = nipplejs.create({
   zone: document.getElementById("joystick-zone"),
@@ -3682,36 +3552,79 @@ const joystick = nipplejs.create({
   position: { left:"50%", top:"50%" },
   color: COLORS.blue,
   size: 88,
-  restOpacity: 0.7
-});
-
-const lookJoystick = nipplejs.create({
-  zone: document.getElementById("look-joystick-zone"),
-  mode: "static",
-  position: { left:"50%", top:"50%" },
-  color: COLORS.orange,
-  size: 88,
-  restOpacity: 0.7
+  restOpacity: 0.72,
+  threshold: 0.08,
+  fadeTime: 120
 });
 
 joystick.on("move", function(event,data){
-  if(data && data.vector){ joystickVector.x=data.vector.x; joystickVector.y=data.vector.y; }
+  if(data && data.vector){
+    joystickVector.x = data.vector.x;
+    joystickVector.y = data.vector.y;
+  }
 });
 joystick.on("end", function(){ joystickVector={x:0,y:0}; });
 
-lookJoystick.on("move", function(event,data){
-  if(data && data.vector){ lookVector.x=data.vector.x; lookVector.y=data.vector.y; }
-});
-lookJoystick.on("end", function(){ lookVector={x:0,y:0}; });
+/* Swipe-to-look. The overlay sits above A-Frame on mobile, but deliberately
+   ignores the joystick/document/modal/video regions. */
+let lookTouch = null;
+const lookSensitivity = 0.20;
+const lookSmooth = 0.22;
+let targetYaw = 0;
+let targetPitch = 0;
+
+function syncLookTargets(){
+  const r=camera.getAttribute("rotation") || {x:0,y:0,z:0};
+  targetYaw=r.y;
+  targetPitch=r.x;
+}
+syncLookTargets();
+
+function normalizeAngle(a){
+  while(a>180) a-=360;
+  while(a<-180) a+=360;
+  return a;
+}
+
+function isInteractiveTouchTarget(target){
+  return !!target.closest('#joystick-zone, #studio-docs, #poster-action-modal, #poster-detail-modal, #youtube-layer, button, a, input, textarea, select');
+}
+
+const touchOverlay=document.getElementById('touch-look-overlay');
+if(touchOverlay){
+  touchOverlay.addEventListener('touchstart', function(e){
+    if(!isTouchDevice || e.touches.length!==1) return;
+    if(isInteractiveTouchTarget(e.target)) return;
+    const t=e.touches[0];
+    const r=camera.getAttribute('rotation') || {x:0,y:0,z:0};
+    targetYaw=r.y; targetPitch=r.x;
+    lookTouch={x:t.clientX,y:t.clientY};
+  }, {passive:true});
+
+  touchOverlay.addEventListener('touchmove', function(e){
+    if(!lookTouch || e.touches.length!==1) return;
+    const t=e.touches[0];
+    const dx=t.clientX-lookTouch.x;
+    const dy=t.clientY-lookTouch.y;
+    targetYaw -= dx*lookSensitivity;
+    targetPitch += dy*lookSensitivity;
+    targetPitch=Math.max(-65,Math.min(65,targetPitch));
+    lookTouch={x:t.clientX,y:t.clientY};
+    e.preventDefault();
+  }, {passive:false});
+
+  ['touchend','touchcancel'].forEach(type=>touchOverlay.addEventListener(type,function(){lookTouch=null;},{passive:true}));
+}
 
 function lookLoop(){
-  if(isTouchDevice && (lookVector.x!==0 || lookVector.y!==0)){
-    const rot=camera.getAttribute("rotation");
-    const sensitivity = studio.getAttribute("visible") ? 2.0 : 2.35;
-    rot.y += lookVector.x * sensitivity;
-    rot.x += lookVector.y * sensitivity;
-    rot.x=Math.max(-70, Math.min(70, rot.x));
-    camera.setAttribute("rotation", rot);
+  const r=camera.getAttribute('rotation') || {x:0,y:0,z:0};
+  if(isTouchDevice){
+    let dy=normalizeAngle(targetYaw-r.y);
+    let dp=targetPitch-r.x;
+    r.y += dy*lookSmooth;
+    r.x += dp*lookSmooth;
+    r.x=Math.max(-65,Math.min(65,r.x));
+    camera.setAttribute('rotation',r);
   }
   requestAnimationFrame(lookLoop);
 }
