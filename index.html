@@ -1,590 +1,3381 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Galeri Virtual Kopi Pahit IT - BPS Babel</title>
+  <meta charset="UTF-8" />
 
-  <!-- WebXR A-Frame & Virtual Joystick -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.1/dist/nipplejs.min.js"></script>
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no"
+  />
+
+  <title>
+    Kopi Pahit — Virtual Gallery BPS Babel
+  </title>
+
+  <!-- =========================================================
+       A-FRAME
+  ========================================================== -->
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <!-- =========================================================
+       NIPPLE JS
+  ========================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
+
 
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
-      background-color: #030712;
-    }
 
-    /* HUD Petunjuk Cyberpunk */
-    #hud-instructions {
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(3, 7, 18, 0.8);
-      color: #38bdf8;
-      padding: 8px 24px;
-      border-radius: 30px;
-      font-size: 12px;
-      letter-spacing: 1px;
-      font-weight: 600;
-      z-index: 999;
-      pointer-events: none;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.1);
-      text-transform: uppercase;
-    }
+    /* =========================================================
+       GLOBAL
+    ========================================================== */
 
-    /* Zona Virtual Joystick */
-    #joystick-zone {
-      position: absolute;
-      bottom: 25px;
-      left: 25px;
-      width: 120px;
-      height: 120px;
-      z-index: 999;
-      touch-action: none;
-    }
-
-    /* POP-UP MODAL CYBER-GLASSMORPHISM */
-    #detail-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(3, 7, 18, 0.88);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(10px);
-      padding: 16px;
+    * {
       box-sizing: border-box;
     }
 
-    .modal-card {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1.5px solid rgba(56, 189, 248, 0.5);
-      box-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
+    html,
+    body {
+
+      margin: 0;
+      padding: 0;
+
       width: 100%;
-      max-width: 860px;
-      border-radius: 20px;
+      height: 100%;
+
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      max-height: 90vh;
-      animation: modalFade 0.25s ease-out;
+
+      font-family:
+        "Segoe UI",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+      background: #f5f1e8;
     }
 
-    @keyframes modalFade {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    /* Header Bar Modal */
-    .modal-top-bar {
+
+    /* =========================================================
+       LOADING
+    ========================================================== */
+
+    #loading {
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 9999;
+
       display: flex;
+
       align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      background: rgba(30, 41, 59, 0.8);
-      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-    }
-
-    .bps-brand {
-      font-size: 11px;
-      font-weight: 800;
-      color: #38bdf8;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    .modal-body {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    @media (max-width: 720px) {
-      .modal-body {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .content-left {
-      display: flex;
-      flex-direction: column;
       justify-content: center;
+
+      flex-direction: column;
+
+      background:
+        linear-gradient(
+          145deg,
+          #f9f7f1,
+          #eef3f0
+        );
+
+      color: #24455c;
     }
 
-    .kopi-tag {
-      color: #f97316;
-      font-weight: 900;
-      font-size: 28px;
-      text-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
-      letter-spacing: 1px;
-    }
 
-    .kopi-subtag {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: 2px;
-    }
+    #loading-logo {
 
-    .event-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #f8fafc;
-      line-height: 1.4;
-      margin-bottom: 6px;
-    }
+      width: 130px;
 
-    .event-meta {
-      font-size: 12px;
-      color: #38bdf8;
       margin-bottom: 20px;
     }
 
-    /* 4 Tombol Neon Modern */
-    .buttons-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+
+    #loading-title {
+
+      font-size: 20px;
+
+      font-weight: 900;
+
+      letter-spacing: 2px;
     }
 
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      text-decoration: none;
+
+    #loading-sub {
+
+      margin-top: 8px;
+
+      color: #7b8792;
+
       font-size: 12px;
-      font-weight: 700;
-      color: #ffffff;
-      background: rgba(30, 41, 59, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.2s ease;
     }
 
-    .btn-presensi { border-color: rgba(56, 189, 248, 0.4); }
-    .btn-presensi:hover { background: #0284c7; box-shadow: 0 0 15px rgba(2, 132, 199, 0.5); }
 
-    .btn-notulen  { border-color: rgba(52, 211, 153, 0.4); }
-    .btn-notulen:hover  { background: #059669; box-shadow: 0 0 15px rgba(5, 150, 105, 0.5); }
+    /* =========================================================
+       DESKTOP / MOBILE HUD
+    ========================================================== */
 
-    .btn-laporan  { border-color: rgba(251, 146, 60, 0.4); }
-    .btn-laporan:hover  { background: #ea580c; box-shadow: 0 0 15px rgba(234, 88, 12, 0.5); }
+    #hud {
 
-    .btn-youtube  { border-color: rgba(248, 113, 113, 0.4); }
-    .btn-youtube:hover  { background: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
+      position: fixed;
 
-    .poster-preview {
-      width: 100%;
-      max-height: 380px;
-      object-fit: contain;
-      border-radius: 10px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-    }
+      top: 18px;
 
-    .btn-close-modal {
-      background: #0284c7;
-      color: #ffffff;
-      padding: 14px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 1000;
+
+      padding: 9px 18px;
+
+      border-radius: 50px;
+
+      background:
+        rgba(255,255,255,0.88);
+
+      border:
+        1px solid rgba(0,142,204,0.20);
+
+      box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
+
+      color: #174e6d;
+
+      font-size: 11px;
+
       font-weight: 800;
-      letter-spacing: 1px;
-      border: none;
-      cursor: pointer;
-      font-size: 12px;
-      text-transform: uppercase;
-      transition: background 0.2s;
+
+      white-space: nowrap;
     }
 
-    .btn-close-modal:hover {
-      background: #0369a1;
+
+    #back-btn {
+
+      position: fixed;
+
+      top: 18px;
+
+      left: 18px;
+
+      z-index: 1000;
+
+      display: none;
+
+      border: none;
+
+      padding: 10px 15px;
+
+      border-radius: 12px;
+
+      background: rgba(255,255,255,0.90);
+
+      color: #174e6d;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
     }
+
+
+    /* =========================================================
+       JOYSTICK
+    ========================================================== */
+
+    #joystick-zone {
+
+      position: fixed;
+
+      left: 18px;
+      bottom: 18px;
+
+      width: 125px;
+      height: 125px;
+
+      z-index: 1000;
+
+      touch-action: none;
+    }
+
+
+    /* =========================================================
+       YOUTUBE CINEMA OVERLAY
+    ========================================================== */
+
+    #youtube-overlay {
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 3000;
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      pointer-events: none;
+
+      background: transparent;
+    }
+
+
+    #youtube-screen {
+
+      width: min(72vw, 900px);
+
+      aspect-ratio: 16 / 9;
+
+      position: relative;
+
+      pointer-events: auto;
+
+      background: #000;
+
+      border-radius: 4px;
+
+      border:
+        10px solid #111820;
+
+      box-shadow:
+        0 0 0 2px #f28c18,
+        0 25px 80px rgba(0,0,0,0.7);
+    }
+
+
+    #youtube-frame {
+
+      width: 100%;
+      height: 100%;
+
+      border: none;
+
+      display: block;
+    }
+
+
+    #youtube-title {
+
+      position: absolute;
+
+      left: 50%;
+      top: -58px;
+
+      transform: translateX(-50%);
+
+      color: white;
+
+      font-size: 14px;
+
+      font-weight: 900;
+
+      letter-spacing: 2px;
+
+      white-space: nowrap;
+    }
+
+
+    #on-air {
+
+      position: absolute;
+
+      top: 12px;
+      right: 12px;
+
+      padding: 6px 10px;
+
+      background: #e53935;
+
+      color: white;
+
+      border-radius: 6px;
+
+      font-size: 10px;
+
+      font-weight: 900;
+
+      letter-spacing: 1px;
+
+      z-index: 4;
+    }
+
+
+    /* =========================================================
+       STUDIO CLOSE
+    ========================================================== */
+
+    #close-studio {
+
+      position: fixed;
+
+      right: 22px;
+      top: 18px;
+
+      z-index: 3200;
+
+      display: none;
+
+      padding: 10px 15px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      cursor: pointer;
+
+      color: white;
+
+      background: #f28c18;
+
+      font-weight: 900;
+    }
+
+
+    /* =========================================================
+       MOBILE
+    ========================================================== */
+
+    @media(max-width: 700px) {
+
+      #hud {
+
+        font-size: 9px;
+
+        max-width: 78vw;
+
+        white-space: normal;
+
+        text-align: center;
+      }
+
+
+      #youtube-screen {
+
+        width: 88vw;
+
+        border-width: 6px;
+      }
+
+
+      #youtube-title {
+
+        font-size: 10px;
+
+        top: -34px;
+      }
+
+    }
+
   </style>
 </head>
+
+
 <body>
 
-  <div id="hud-instructions">
-    [WASD / Joystick]: Gerak &middot; [Tap Poster]: Akses Dokumen Edisi
+
+  <!-- =========================================================
+       LOADING SCREEN
+  ========================================================== -->
+
+  <div id="loading">
+
+    <img
+      id="loading-logo"
+      src="assets/logo-bps.png"
+      alt="BPS"
+    />
+
+    <div id="loading-title">
+      KOPI PAHIT
+    </div>
+
+    <div id="loading-sub">
+      Virtual Experience Gallery · BPS Babel
+    </div>
+
   </div>
 
-  <!-- Area Joystick Analog (HP) -->
+
+  <!-- =========================================================
+       HUD
+  ========================================================== -->
+
+  <div id="hud">
+
+    WASD / JOYSTICK · JELAJAHI GALLERY · KLIK OBJEK UNTUK BERINTERAKSI
+
+  </div>
+
+
+  <!-- =========================================================
+       BACK
+  ========================================================== -->
+
+  <button
+    id="back-btn"
+    onclick="backToYearHall()"
+  >
+    ← PILIH TAHUN
+  </button>
+
+
+  <!-- =========================================================
+       CLOSE STUDIO
+  ========================================================== -->
+
+  <button
+    id="close-studio"
+    onclick="closeStudio()"
+  >
+    ← KEMBALI KE GALLERY
+  </button>
+
+
+  <!-- =========================================================
+       YOUTUBE
+  ========================================================== -->
+
+  <div id="youtube-overlay">
+
+    <div id="youtube-screen">
+
+      <div id="youtube-title">
+        STUDIO 01
+      </div>
+
+      <div id="on-air">
+        ● ON AIR
+      </div>
+
+      <iframe
+        id="youtube-frame"
+        src=""
+        allow="
+          autoplay;
+          encrypted-media;
+          picture-in-picture;
+          web-share
+        "
+        allowfullscreen>
+      </iframe>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       JOYSTICK
+  ========================================================== -->
+
   <div id="joystick-zone"></div>
 
-  <!-- MODAL POP-UP DOKUMEN KEGIATAN -->
-  <div id="detail-modal">
-    <div class="modal-card">
-      <div class="modal-top-bar">
-        <span class="bps-brand">BPS PROVINSI KEPULAUAN BANGKA BELITUNG</span>
-        <span style="font-size: 11px; font-weight: bold; color: #f97316;">VIRTUAL REPOSITORY</span>
-      </div>
 
-      <div class="modal-body">
-        <div class="content-left">
-          <div class="kopi-tag" id="modal-edisi">KOPI PAHIT #7</div>
-          <div class="kopi-subtag">KONGKOW PINTAR PAHAM IT</div>
-          <div class="event-title" id="modal-judul">Internalisasi dan Penguatan Inovasi Layanan Publik</div>
-          <div class="event-meta" id="modal-meta">📅 4 September 2026 &bull; Tim IPDS BPS Babel</div>
 
-          <!-- 4 Tombol Sesuai Format Dokumen Baru -->
-          <div class="buttons-grid">
-            <a href="#" id="link-presensi" target="_blank" class="action-btn btn-presensi">
-              <span>📝</span>
-              <span>Daftar Hadir</span>
-            </a>
-            <a href="#" id="link-notulen" target="_blank" class="action-btn btn-notulen">
-              <span>📄</span>
-              <span>Notulen Kegiatan</span>
-            </a>
-            <a href="#" id="link-laporan" target="_blank" class="action-btn btn-laporan">
-              <span>📊</span>
-              <span>Laporan Kegiatan</span>
-            </a>
-            <a href="#" id="link-youtube" target="_blank" class="action-btn btn-youtube">
-              <span>▶</span>
-              <span>Live Youtube</span>
-            </a>
-          </div>
-        </div>
+  <!-- =========================================================
+       A-FRAME
+  ========================================================== -->
 
-        <div class="content-right">
-          <img src="" id="modal-poster-img" class="poster-preview" alt="Poster Bioskop">
-        </div>
-      </div>
+  <a-scene
+    id="scene"
 
-      <button class="btn-close-modal" onclick="closeModal()">TUTUP & KEMBALI MENJELAJAH</button>
-    </div>
-  </div>
+    vr-mode-ui="enabled: false"
 
-  <!-- A-FRAME 3D SCENE -->
-  <a-scene vr-mode-ui="enabled: false">
-    <!-- Pencahayaan Cyber Museum -->
-    <a-entity light="type: ambient; intensity: 0.55; color: #b0c4de"></a-entity>
-    <a-entity light="type: point; intensity: 0.8; color: #38bdf8; distance: 20" position="0 4 2"></a-entity>
+    renderer="
+      antialias: true;
+      colorManagement: true;
+    "
+  >
 
-    <a-sky color="#030712"></a-sky>
 
-    <!-- PINTU GERBANG UTAMA (ENTRANCE PORTAL) -->
-    <!-- Pilar Gerbang Kiri & Kanan -->
-    <a-box position="-3.5 2.5 0" width="0.4" height="5" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
-    <a-box position="3.5 2.5 0" width="0.4" height="5" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
-    
-    <!-- Neon Beam Vertikal Gerbang -->
-    <a-box position="-3.28 2.5 0" width="0.05" height="4.8" depth="0.85" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9;"></a-box>
-    <a-box position="3.28 2.5 0" width="0.05" height="4.8" depth="0.85" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9;"></a-box>
+    <!-- =======================================================
+         ASSETS
+    ======================================================== -->
 
-    <!-- Balok Atas Gerbang & Neon Beam Horizontal -->
-    <a-box position="0 4.8 0" width="7.4" height="0.6" depth="0.8" color="#0f172a" metalness="0.8" roughness="0.2"></a-box>
-    <a-box position="0 4.5 0" width="7.2" height="0.05" depth="0.85" color="#f97316" material="emissive: #f97316; emissiveIntensity: 1;"></a-box>
+    <a-assets>
 
-    <!-- Banner Teks Sambutan Pintu Masuk -->
-    <a-text value="SELAMAT DATANG DI" position="0 4.0 0.1" align="center" color="#94a3b8" scale="0.8 0.8 0.8"></a-text>
-    <a-text value="BPS PROVINSI KEPULAUAN BANGKA BELITUNG" position="0 3.5 0.1" align="center" color="#38bdf8" scale="1.1 1.1 1.1" font="kelsonsans"></a-text>
-    <a-text value="VIRTUAL GALLERY: KOPI PAHIT (KONGKOW PINTAR PAHAM IT)" position="0 3.0 0.1" align="center" color="#f97316" scale="0.75 0.75 0.75"></a-text>
+      <img
+        id="logoBPS"
+        src="assets/logo-bps.png"
+      >
 
-    <!-- Container Koridor & Neon Box Poster -->
-    <a-entity id="gallery-container"></a-entity>
+      <img
+        id="logoKopi"
+        src="assets/logo-kopi-pahit.png"
+      >
 
-    <!-- Rig Kamera Pengunjung -->
-    <!-- Posisi start di (0, 1.6, 4), menghadap tepat ke pintu gerbang dan lorong -->
-    <a-entity id="rig" position="0 1.6 4">
-      <a-camera id="cam" look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 25">
-        <a-cursor color="#38bdf8" scale="0.6 0.6 0.6" raycaster="objects: .clickable"></a-cursor>
-      </a-camera>
+    </a-assets>
+
+
+    <!-- =======================================================
+         LIGHTING
+    ======================================================== -->
+
+    <a-entity
+      light="
+        type: ambient;
+        intensity: 0.85;
+        color: #ffffff
+      ">
     </a-entity>
+
+
+    <a-entity
+      light="
+        type: directional;
+        intensity: 0.7;
+        color: #ffffff
+      "
+      position="0 8 5">
+    </a-entity>
+
+
+    <!-- BLUE -->
+
+    <a-entity
+      light="
+        type: point;
+        intensity: 1.0;
+        distance: 18;
+        color: #0794d2
+      "
+      position="-4 4 -7">
+    </a-entity>
+
+
+    <!-- ORANGE -->
+
+    <a-entity
+      light="
+        type: point;
+        intensity: 1.0;
+        distance: 18;
+        color: #f28c18
+      "
+      position="4 4 -7">
+    </a-entity>
+
+
+
+    <!-- =======================================================
+         SKY
+    ======================================================== -->
+
+    <a-sky
+      color="#f3f0e8">
+    </a-sky>
+
+
+
+    <!-- =======================================================
+         ROOTS
+    ======================================================== -->
+
+    <a-entity id="yearHall"></a-entity>
+
+    <a-entity
+      id="gallery"
+      visible="false">
+    </a-entity>
+
+    <a-entity
+      id="studio"
+      visible="false">
+    </a-entity>
+
+
+
+    <!-- =======================================================
+         PLAYER
+    ======================================================== -->
+
+    <a-entity
+      id="rig"
+      position="0 1.6 6"
+    >
+
+      <a-camera
+        id="camera"
+
+        wasd-controls="
+          acceleration: 14
+        "
+
+        look-controls="
+          pointerLockEnabled: false
+        "
+      >
+
+        <a-cursor
+          color="#f28c18"
+
+          scale="0.55 0.55 0.55"
+
+          raycaster="
+            objects:
+            .clickable
+          "
+        >
+        </a-cursor>
+
+      </a-camera>
+
+    </a-entity>
+
   </a-scene>
 
-  <script>
-    /* ==========================================================
-       DATABASE DOKUMEN & FLYER KOPI PAHIT (BPS BABEL)
-       ========================================================== */
-    const galleryData = [
-      {
-        edisi: 1,
-        judul: "Pengenalan Arsitektur IT & Transformasi Digital",
-        tanggal: "Januari 2026",
-        poster: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit1",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 2,
-        judul: "Optimalisasi Jaringan & Manajemen Data Sektoral",
-        tanggal: "Februari 2026",
-        poster: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit2",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 3,
-        judul: "Keamanan Siber & Perlindungan Data Kedinasan",
-        tanggal: "April 2026",
-        poster: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit3",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 4,
-        judul: "Pemanfaatan Tools AI dalam Otomasi Pengolahan Data",
-        tanggal: "Mei 2026",
-        poster: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit4",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 5,
-        judul: "Visualisasi Data & Dashboard Statistik Interaktif",
-        tanggal: "Juni 2026",
-        poster: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit5",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 6,
-        judul: "Integrasi API & Layanan Satu Data Statistik",
-        tanggal: "Juli 2026",
-        poster: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/presensi-kopipahit6",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      },
-      {
-        edisi: 7,
-        judul: "Internalisasi dan Penguatan Inovasi Layanan Publik",
-        tanggal: "4 September 2026",
-        poster: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80",
-        linkPresensi: "https://s.bps.go.id/kopipahit900",
-        linkNotulen: "https://drive.google.com",
-        linkLaporan: "https://drive.google.com",
-        linkYoutube: "https://youtube.com"
-      }
-    ];
 
-    /* ==========================================================
-       ARSITEKTUR CYBER MUSEUM & CASING NEON BOX BIOSKOP
-       ========================================================== */
-    const container = document.getElementById('gallery-container');
-    const SPACING = 4.5;
-    const totalCount = galleryData.length;
-    const hallwayLength = Math.max(35, (Math.ceil(totalCount / 2) + 2) * SPACING);
-    const hallwayCenterZ = -(hallwayLength / 2);
 
-    // 1. Lantai Reflektif Glossy
-    const floor = document.createElement('a-plane');
-    floor.setAttribute('position', `0 0 ${hallwayCenterZ}`);
-    floor.setAttribute('rotation', '-90 0 0');
-    floor.setAttribute('width', '8');
-    floor.setAttribute('height', hallwayLength.toString());
-    floor.setAttribute('color', '#0b0f19');
-    floor.setAttribute('metalness', '0.7');
-    floor.setAttribute('roughness', '0.3');
-    container.appendChild(floor);
+<script>
 
-    // Garis Pandu Neon di Lantai (Strip Jalan)
-    const floorNeonL = document.createElement('a-plane');
-    floorNeonL.setAttribute('position', `-3.5 0.01 ${hallwayCenterZ}`);
-    floorNeonL.setAttribute('rotation', '-90 0 0');
-    floorNeonL.setAttribute('width', '0.08');
-    floorNeonL.setAttribute('height', hallwayLength.toString());
-    floorNeonL.setAttribute('color', '#0284c7');
-    floorNeonL.setAttribute('material', 'emissive: #0284c7; emissiveIntensity: 0.8');
-    container.appendChild(floorNeonL);
 
-    const floorNeonR = document.createElement('a-plane');
-    floorNeonR.setAttribute('position', `3.5 0.01 ${hallwayCenterZ}`);
-    floorNeonR.setAttribute('rotation', '-90 0 0');
-    floorNeonR.setAttribute('width', '0.08');
-    floorNeonR.setAttribute('height', hallwayLength.toString());
-    floorNeonR.setAttribute('color', '#0284c7');
-    floorNeonR.setAttribute('material', 'emissive: #0284c7; emissiveIntensity: 0.8');
-    container.appendChild(floorNeonR);
+/* ============================================================
+   BPS COLOR SYSTEM
+============================================================ */
 
-    // 2. Dinding Ruangan
-    const leftWall = document.createElement('a-box');
-    leftWall.setAttribute('position', `-4 2.5 ${hallwayCenterZ}`);
-    leftWall.setAttribute('width', '0.2');
-    leftWall.setAttribute('height', '5');
-    leftWall.setAttribute('depth', hallwayLength.toString());
-    leftWall.setAttribute('color', '#090d16');
-    container.appendChild(leftWall);
+const COLORS = {
 
-    const rightWall = document.createElement('a-box');
-    rightWall.setAttribute('position', `4 2.5 ${hallwayCenterZ}`);
-    rightWall.setAttribute('width', '0.2');
-    rightWall.setAttribute('height', '5');
-    rightWall.setAttribute('depth', hallwayLength.toString());
-    rightWall.setAttribute('color', '#090d16');
-    container.appendChild(rightWall);
+  blue: "#0794d2",
 
-    // 3. Render Setiap Neon Box Bioskop
-    galleryData.forEach((item, index) => {
-      const isLeft = index % 2 === 0;
-      const xWall = isLeft ? -3.85 : 3.85;
-      const zPos = -(Math.floor(index / 2) * SPACING) - 3.5;
-      const rotY = isLeft ? 90 : -90;
+  green: "#65b82e",
 
-      // Group Neon Box Bioskop
-      const boxGroup = document.createElement('a-entity');
-      boxGroup.setAttribute('position', `${xWall} 2.1 ${zPos}`);
-      boxGroup.setAttribute('rotation', `0 ${rotY} 0`);
+  orange: "#f28c18",
 
-      // Casing Box Belakang Hitam Tebal (Cinema Frame)
-      const casing = document.createElement('a-box');
-      casing.setAttribute('position', '0 0 -0.05');
-      casing.setAttribute('width', '1.6');
-      casing.setAttribute('height', '2.3');
-      casing.setAttribute('depth', '0.1');
-      casing.setAttribute('color', '#030712');
-      casing.setAttribute('metalness', '0.9');
-      casing.setAttribute('roughness', '0.1');
-      boxGroup.appendChild(casing);
+  navy: "#183c54",
 
-      // Backlight Glow Neon (Border Berpendar)
-      const glowNeon = document.createElement('a-box');
-      glowNeon.setAttribute('position', '0 0 -0.01');
-      glowNeon.setAttribute('width', '1.5');
-      glowNeon.setAttribute('height', '2.2');
-      glowNeon.setAttribute('depth', '0.04');
-      const neonColor = isLeft ? '#38bdf8' : '#f97316';
-      glowNeon.setAttribute('color', neonColor);
-      glowNeon.setAttribute('material', `emissive: ${neonColor}; emissiveIntensity: 0.9`);
-      boxGroup.appendChild(glowNeon);
+  cream: "#f7f4ec",
 
-      // Flyer Poster Transparan Menyala (Lit Surface)
-      const posterImg = document.createElement('a-image');
-      posterImg.setAttribute('src', item.poster);
-      posterImg.setAttribute('position', '0 0 0.02');
-      posterImg.setAttribute('width', '1.38');
-      posterImg.setAttribute('height', '2.08');
-      posterImg.setAttribute('class', 'clickable');
-      posterImg.addEventListener('click', () => openModal(item));
-      boxGroup.appendChild(posterImg);
+  dark: "#101820"
 
-      // Pedestal / Stand Bawah Neon
-      const stand = document.createElement('a-box');
-      stand.setAttribute('position', '0 -1.35 0.05');
-      stand.setAttribute('width', '1.6');
-      stand.setAttribute('height', '0.35');
-      stand.setAttribute('depth', '0.4');
-      stand.setAttribute('color', '#0f172a');
-      boxGroup.appendChild(stand);
+};
 
-      // Strip Lampu di Stand
-      const standLight = document.createElement('a-box');
-      standLight.setAttribute('position', '0 -1.35 0.26');
-      standLight.setAttribute('width', '1.4');
-      standLight.setAttribute('height', '0.06');
-      standLight.setAttribute('depth', '0.02');
-      standLight.setAttribute('color', neonColor);
-      standLight.setAttribute('material', `emissive: ${neonColor}; emissiveIntensity: 1`);
-      boxGroup.appendChild(standLight);
 
-      // Text Header Edisi di Atas Neon Box
-      const topLabel = document.createElement('a-text');
-      topLabel.setAttribute('value', `EDISI #${item.edisi}`);
-      topLabel.setAttribute('position', '0 1.25 0.05');
-      topLabel.setAttribute('align', 'center');
-      topLabel.setAttribute('color', '#ffffff');
-      topLabel.setAttribute('scale', '0.7 0.7 0.7');
-      boxGroup.appendChild(topLabel);
 
-      container.appendChild(boxGroup);
-    });
+/* ============================================================
+   DATABASE
+============================================================ */
 
-    /* ==========================================================
-       MODAL CONTROLLER
-       ========================================================== */
-    function openModal(data) {
-      document.getElementById('modal-edisi').innerText = `KOPI PAHIT #${data.edisi}`;
-      document.getElementById('modal-judul').innerText = data.judul;
-      document.getElementById('modal-meta').innerText = `📅 ${data.tanggal} • Tim IT BPS Babel`;
-      document.getElementById('modal-poster-img').src = data.poster;
+const galleryData = {
 
-      document.getElementById('link-presensi').href = data.linkPresensi;
-      document.getElementById('link-notulen').href = data.linkNotulen;
-      document.getElementById('link-laporan').href = data.linkLaporan;
-      document.getElementById('link-youtube').href = data.linkYoutube;
+  2026: [
 
-      document.getElementById('detail-modal').style.display = 'flex';
+    {
+      edisi: 1,
+
+      judul:
+        "Launching dan Sosialisasi Sistem NARA",
+
+      tanggal:
+        "8 Juni 2026",
+
+      poster:
+        "assets/poster-01.png",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_01",
+
+      presensi:
+        "LINK_PRESENSI_01",
+
+      notulen:
+        "LINK_NOTULEN_01",
+
+      laporan:
+        "LINK_LAPORAN_01"
+    },
+
+
+    {
+      edisi: 2,
+
+      judul:
+        "Kegiatan Kopi Pahit #02",
+
+      tanggal:
+        "Februari 2026",
+
+      poster:
+        "assets/poster-02.jpg",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_02",
+
+      presensi:
+        "LINK_PRESENSI_02",
+
+      notulen:
+        "LINK_NOTULEN_02",
+
+      laporan:
+        "LINK_LAPORAN_02"
+    },
+
+
+    {
+      edisi: 3,
+
+      judul:
+        "Kegiatan Kopi Pahit #03",
+
+      tanggal:
+        "April 2026",
+
+      poster:
+        "assets/poster-03.jpeg",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_03",
+
+      presensi:
+        "LINK_PRESENSI_03",
+
+      notulen:
+        "LINK_NOTULEN_03",
+
+      laporan:
+        "LINK_LAPORAN_03"
+    },
+
+
+    {
+      edisi: 4,
+
+      judul:
+        "Kegiatan Kopi Pahit #04",
+
+      tanggal:
+        "Mei 2026",
+
+      poster:
+        "assets/poster-04.png",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_04",
+
+      presensi:
+        "LINK_PRESENSI_04",
+
+      notulen:
+        "LINK_NOTULEN_04",
+
+      laporan:
+        "LINK_LAPORAN_04"
+    },
+
+
+    {
+      edisi: 5,
+
+      judul:
+        "Kegiatan Kopi Pahit #05",
+
+      tanggal:
+        "Juni 2026",
+
+      poster:
+        "assets/poster-05.jpg",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_05",
+
+      presensi:
+        "LINK_PRESENSI_05",
+
+      notulen:
+        "LINK_NOTULEN_05",
+
+      laporan:
+        "LINK_LAPORAN_05"
+    },
+
+
+    {
+      edisi: 6,
+
+      judul:
+        "Kegiatan Kopi Pahit #06",
+
+      tanggal:
+        "Juli 2026",
+
+      poster:
+        "assets/poster-06.jpeg",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_06",
+
+      presensi:
+        "LINK_PRESENSI_06",
+
+      notulen:
+        "LINK_NOTULEN_06",
+
+      laporan:
+        "LINK_LAPORAN_06"
+    },
+
+
+    {
+      edisi: 7,
+
+      judul:
+        "Internalisasi dan Penguatan Inovasi Layanan Publik",
+
+      tanggal:
+        "4 September 2026",
+
+      poster:
+        "assets/poster-07.png",
+
+      youtube:
+        "https://www.youtube.com/embed/VIDEO_ID_07",
+
+      presensi:
+        "LINK_PRESENSI_07",
+
+      notulen:
+        "LINK_NOTULEN_07",
+
+      laporan:
+        "LINK_LAPORAN_07"
     }
 
-    function closeModal() {
-      document.getElementById('detail-modal').style.display = 'none';
+  ],
+
+
+  /* ========================================================
+     TAHUN BERIKUTNYA
+     Tinggal tambahkan kegiatan baru.
+  ======================================================== */
+
+  2027: [],
+
+  2028: []
+
+};
+
+
+
+/* ============================================================
+   GLOBAL VARIABLES
+============================================================ */
+
+const scene =
+  document.getElementById("scene");
+
+const yearHall =
+  document.getElementById("yearHall");
+
+const gallery =
+  document.getElementById("gallery");
+
+const studio =
+  document.getElementById("studio");
+
+const rig =
+  document.getElementById("rig");
+
+const camera =
+  document.getElementById("camera");
+
+const backBtn =
+  document.getElementById("back-btn");
+
+const closeStudioBtn =
+  document.getElementById("close-studio");
+
+const youtubeOverlay =
+  document.getElementById("youtube-overlay");
+
+const youtubeFrame =
+  document.getElementById("youtube-frame");
+
+const youtubeTitle =
+  document.getElementById("youtube-title");
+
+
+
+let currentYear = null;
+
+let currentStudio = null;
+
+let studioDoorLeft = null;
+
+let studioDoorRight = null;
+
+
+
+/* ============================================================
+   CREATE TEXT
+============================================================ */
+
+function textEntity(
+  value,
+  position,
+  color,
+  width = 4,
+  align = "center"
+) {
+
+  const text =
+    document.createElement("a-text");
+
+  text.setAttribute(
+    "value",
+    value
+  );
+
+  text.setAttribute(
+    "position",
+    position
+  );
+
+  text.setAttribute(
+    "color",
+    color
+  );
+
+  text.setAttribute(
+    "width",
+    width
+  );
+
+  text.setAttribute(
+    "align",
+    align
+  );
+
+  text.setAttribute(
+    "font",
+    "roboto"
+  );
+
+  return text;
+}
+
+
+
+/* ============================================================
+   BOX
+============================================================ */
+
+function boxEntity(
+  position,
+  width,
+  height,
+  depth,
+  color,
+  extra = ""
+) {
+
+  const box =
+    document.createElement("a-box");
+
+  box.setAttribute(
+    "position",
+    position
+  );
+
+  box.setAttribute(
+    "width",
+    width
+  );
+
+  box.setAttribute(
+    "height",
+    height
+  );
+
+  box.setAttribute(
+    "depth",
+    depth
+  );
+
+  box.setAttribute(
+    "color",
+    color
+  );
+
+  if (extra) {
+
+    box.setAttribute(
+      "material",
+      extra
+    );
+
+  }
+
+  return box;
+
+}
+
+
+
+/* ============================================================
+   YEAR SELECTION HALL
+============================================================ */
+
+function buildYearHall() {
+
+  yearHall.innerHTML = "";
+
+
+  /*
+   * FLOOR
+   */
+
+  yearHall.appendChild(
+
+    boxEntity(
+      "0 -0.12 -2",
+      14,
+      0.2,
+      18,
+      COLORS.cream
+    )
+
+  );
+
+
+  /*
+   * BLUE FLOOR RING
+   */
+
+  const blueLine =
+    boxEntity(
+      "0 0.01 -2",
+      8,
+      0.025,
+      0.12,
+      COLORS.blue
+    );
+
+  yearHall.appendChild(
+    blueLine
+  );
+
+
+  /*
+   * BACK WALL
+   */
+
+  yearHall.appendChild(
+
+    boxEntity(
+      "0 3 -7",
+      14,
+      6,
+      0.25,
+      COLORS.cream
+    )
+
+  );
+
+
+  /*
+   * SIDE WALL
+   */
+
+  yearHall.appendChild(
+
+    boxEntity(
+      "-7 3 -2",
+      0.25,
+      6,
+      10,
+      COLORS.cream
+    )
+
+  );
+
+
+  yearHall.appendChild(
+
+    boxEntity(
+      "7 3 -2",
+      0.25,
+      6,
+      10,
+      COLORS.cream
+    )
+
+  );
+
+
+  /*
+   * TOP COLOR BANDS
+   */
+
+  const blueBand =
+    boxEntity(
+      "-2.2 5.85 -6.80",
+      3.5,
+      0.10,
+      0.08,
+      COLORS.blue
+    );
+
+  const greenBand =
+    boxEntity(
+      "0 5.85 -6.80",
+      3.5,
+      0.10,
+      0.08,
+      COLORS.green
+    );
+
+  const orangeBand =
+    boxEntity(
+      "2.2 5.85 -6.80",
+      3.5,
+      0.10,
+      0.08,
+      COLORS.orange
+    );
+
+
+  yearHall.appendChild(
+    blueBand
+  );
+
+  yearHall.appendChild(
+    greenBand
+  );
+
+  yearHall.appendChild(
+    orangeBand
+  );
+
+
+  /*
+   * LOGO BPS
+   */
+
+  const bpsLogo =
+    document.createElement(
+      "a-image"
+    );
+
+  bpsLogo.setAttribute(
+    "src",
+    "#logoBPS"
+  );
+
+  bpsLogo.setAttribute(
+    "position",
+    "0 5.0 -6.70"
+  );
+
+  bpsLogo.setAttribute(
+    "width",
+    "2.5"
+  );
+
+  bpsLogo.setAttribute(
+    "height",
+    "0.75"
+  );
+
+  yearHall.appendChild(
+    bpsLogo
+  );
+
+
+  /*
+   * KOPI PAHIT
+   */
+
+  const kopiLogo =
+    document.createElement(
+      "a-image"
+    );
+
+  kopiLogo.setAttribute(
+    "src",
+    "#logoKopi"
+  );
+
+  kopiLogo.setAttribute(
+    "position",
+    "0 4.0 -6.70"
+  );
+
+  kopiLogo.setAttribute(
+    "width",
+    "3.4"
+  );
+
+  kopiLogo.setAttribute(
+    "height",
+    "1.5"
+  );
+
+  yearHall.appendChild(
+    kopiLogo
+  );
+
+
+  /*
+   * SUBTITLE
+   */
+
+  yearHall.appendChild(
+
+    textEntity(
+      "VIRTUAL EXPERIENCE GALLERY",
+      "0 3.0 -6.65",
+      COLORS.orange,
+      5
+    )
+
+  );
+
+
+  yearHall.appendChild(
+
+    textEntity(
+      "Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit",
+      "0 2.65 -6.65",
+      COLORS.navy,
+      3.7
+    )
+
+  );
+
+
+  /*
+   * CREATE YEAR CARDS
+   */
+
+  createYearCard(
+    2026,
+    "7 EDISI",
+    "-3.2 1.45 -6.4",
+    true
+  );
+
+
+  createYearCard(
+    2027,
+    "BELUM ADA EDISI",
+    "0 1.45 -6.4",
+    false
+  );
+
+
+  createYearCard(
+    2028,
+    "BELUM ADA EDISI",
+    "3.2 1.45 -6.4",
+    false
+  );
+
+
+  /*
+   * DECORATIONS
+   */
+
+  createPlant(
+    "-5.2 0 -4.0"
+  );
+
+  createPlant(
+    "5.2 0 -4.0"
+  );
+
+}
+
+
+
+/* ============================================================
+   YEAR CARD
+============================================================ */
+
+function createYearCard(
+  year,
+  subtitle,
+  position,
+  active
+) {
+
+  const card =
+    document.createElement(
+      "a-entity"
+    );
+
+  card.setAttribute(
+    "position",
+    position
+  );
+
+
+  /*
+   * PANEL
+   */
+
+  const panel =
+    boxEntity(
+      "0 0 0",
+      2.35,
+      3.0,
+      0.18,
+      "#ffffff",
+      `
+        metalness: 0.05;
+        roughness: 0.55;
+      `
+    );
+
+  card.appendChild(
+    panel
+  );
+
+
+  /*
+   * TOP BAR
+   */
+
+  const color =
+    year === 2026
+      ? COLORS.blue
+      : year === 2027
+      ? COLORS.green
+      : COLORS.orange;
+
+
+  card.appendChild(
+
+    boxEntity(
+      "0 1.35 0.12",
+      2.20,
+      0.10,
+      0.03,
+      color
+    )
+
+  );
+
+
+  /*
+   * YEAR
+   */
+
+  card.appendChild(
+
+    textEntity(
+      String(year),
+      "0 0.65 0.13",
+      COLORS.navy,
+      4
+    )
+
+  );
+
+
+  /*
+   * SUBTITLE
+   */
+
+  card.appendChild(
+
+    textEntity(
+      subtitle,
+      "0 -0.05 0.13",
+      "#75818a",
+      2.7
+    )
+
+  );
+
+
+  /*
+   * BUTTON
+   */
+
+  const button =
+    boxEntity(
+      "0 -0.82 0.13",
+      1.65,
+      0.48,
+      0.06,
+      active
+        ? COLORS.blue
+        : "#b6bcc0"
+    );
+
+
+  card.appendChild(
+    button
+  );
+
+
+  card.appendChild(
+
+    textEntity(
+      active
+        ? "MASUK →"
+        : "SEGERA HADIR",
+      "0 -0.82 0.18",
+      "#ffffff",
+      1.8
+    )
+
+  );
+
+
+  /*
+   * CLICK
+   */
+
+  if (active) {
+
+    card.classList.add(
+      "clickable"
+    );
+
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        enterYear(
+          year
+        );
+
+      }
+    );
+
+  }
+
+
+  yearHall.appendChild(
+    card
+  );
+
+}
+
+
+
+/* ============================================================
+   SIMPLE PLANT
+============================================================ */
+
+function createPlant(position) {
+
+  const group =
+    document.createElement(
+      "a-entity"
+    );
+
+  group.setAttribute(
+    "position",
+    position
+  );
+
+
+  group.appendChild(
+
+    boxEntity(
+      "0 0.25 0",
+      0.7,
+      0.5,
+      0.7,
+      "#ffffff"
+    )
+
+  );
+
+
+  const trunk =
+    boxEntity(
+      "0 0.75 0",
+      0.10,
+      1.0,
+      0.10,
+      COLORS.green
+    );
+
+  group.appendChild(
+    trunk
+  );
+
+
+  for (
+    let i = 0;
+    i < 3;
+    i++
+  ) {
+
+    const leaf =
+      document.createElement(
+        "a-sphere"
+      );
+
+    leaf.setAttribute(
+      "radius",
+      "0.28"
+    );
+
+    leaf.setAttribute(
+      "position",
+      `${(i-1)*0.25} 1.2 0`
+    );
+
+    leaf.setAttribute(
+      "scale",
+      "1 0.65 1"
+    );
+
+    leaf.setAttribute(
+      "color",
+      COLORS.green
+    );
+
+    group.appendChild(
+      leaf
+    );
+
+  }
+
+
+  yearHall.appendChild(
+    group
+  );
+
+}
+
+
+
+/* ============================================================
+   ENTER YEAR
+============================================================ */
+
+function enterYear(year) {
+
+  currentYear =
+    year;
+
+
+  yearHall.setAttribute(
+    "visible",
+    "false"
+  );
+
+
+  gallery.setAttribute(
+    "visible",
+    "true"
+  );
+
+
+  buildGallery(
+    year
+  );
+
+
+  backBtn.style.display =
+    "block";
+
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 4.5"
+  );
+
+}
+
+
+
+/* ============================================================
+   BACK TO YEAR HALL
+============================================================ */
+
+function backToYearHall() {
+
+  gallery.setAttribute(
+    "visible",
+    "false"
+  );
+
+
+  studio.setAttribute(
+    "visible",
+    "false"
+  );
+
+
+  yearHall.setAttribute(
+    "visible",
+    "true"
+  );
+
+
+  backBtn.style.display =
+    "none";
+
+
+  closeStudioBtn.style.display =
+    "none";
+
+
+  youtubeOverlay.style.display =
+    "none";
+
+
+  youtubeFrame.src =
+    "";
+
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 6"
+  );
+
+}
+
+
+
+/* ============================================================
+   BUILD GALLERY
+============================================================ */
+
+function buildGallery(year) {
+
+  gallery.innerHTML = "";
+
+
+  /*
+   * FLOOR
+   */
+
+  gallery.appendChild(
+
+    boxEntity(
+      "0 -0.12 -16",
+      10,
+      0.2,
+      35,
+      "#dde2df"
+    )
+
+  );
+
+
+  /*
+   * LEFT WALL
+   */
+
+  gallery.appendChild(
+
+    boxEntity(
+      "-4.8 2.7 -16",
+      0.20,
+      5.4,
+      35,
+      "#faf8f2"
+    )
+
+  );
+
+
+  /*
+   * RIGHT WALL
+   */
+
+  gallery.appendChild(
+
+    boxEntity(
+      "4.8 2.7 -16",
+      0.20,
+      5.4,
+      35,
+      "#faf8f2"
+    )
+
+  );
+
+
+  /*
+   * FLOOR STRIPES
+   */
+
+  gallery.appendChild(
+
+    boxEntity(
+      "-4.1 0.02 -16",
+      0.10,
+      0.04,
+      35,
+      COLORS.blue,
+      `emissive: ${COLORS.blue};`
+    )
+
+  );
+
+
+  gallery.appendChild(
+
+    boxEntity(
+      "4.1 0.02 -16",
+      0.10,
+      0.04,
+      35,
+      COLORS.green,
+      `emissive: ${COLORS.green};`
+    )
+
+  );
+
+
+  /*
+   * HEADER
+   */
+
+  gallery.appendChild(
+
+    textEntity(
+      `KOPI PAHIT · ${year}`,
+      "0 4.2 -4.2",
+      COLORS.navy,
+      5
+    )
+
+  );
+
+
+  gallery.appendChild(
+
+    textEntity(
+      "KONGKOW PINTAR PAHAM IT",
+      "0 3.75 -4.2",
+      COLORS.orange,
+      3.4
+    )
+
+  );
+
+
+  /*
+   * TIMELINE
+   */
+
+  gallery.appendChild(
+
+    boxEntity(
+      "0 0.28 -22",
+      7,
+      0.03,
+      0.03,
+      COLORS.blue
+    )
+
+  );
+
+
+  /*
+   * POSTERS
+   */
+
+  const data =
+    galleryData[year] || [];
+
+
+  data.forEach(
+    (item, index) => {
+
+      const row =
+        Math.floor(
+          index / 2
+        );
+
+      const left =
+        index % 2 === 0;
+
+
+      const x =
+        left
+          ? -3.65
+          : 3.65;
+
+
+      const z =
+        -7 -
+        row * 4.6;
+
+
+      createPoster(
+        item,
+        x,
+        z,
+        left
+      );
+
+    }
+  );
+
+
+  /*
+   * END WALL
+   */
+
+  createEndWall(
+    data.length
+  );
+
+}
+
+
+
+/* ============================================================
+   CREATE POSTER
+============================================================ */
+
+function createPoster(
+  item,
+  x,
+  z,
+  left
+) {
+
+  const group =
+    document.createElement(
+      "a-entity"
+    );
+
+
+  group.setAttribute(
+    "position",
+    `${x} 2.05 ${z}`
+  );
+
+
+  group.setAttribute(
+    "rotation",
+    `0 ${left ? 90 : -90} 0`
+  );
+
+
+  /*
+   * BACK FRAME
+   */
+
+  const frame =
+    boxEntity(
+      "0 0 0",
+      1.82,
+      2.65,
+      0.20,
+      "#ffffff"
+    );
+
+
+  group.appendChild(
+    frame
+  );
+
+
+  /*
+   * ORANGE FRAME
+   */
+
+  const orange =
+    boxEntity(
+      "0 0 0.12",
+      1.60,
+      2.43,
+      0.06,
+      COLORS.orange
+    );
+
+  group.appendChild(
+    orange
+  );
+
+
+  /*
+   * POSTER
+   */
+
+  const image =
+    document.createElement(
+      "a-image"
+    );
+
+
+  image.setAttribute(
+    "src",
+    item.poster
+  );
+
+
+  image.setAttribute(
+    "width",
+    "1.48"
+  );
+
+
+  image.setAttribute(
+    "height",
+    "2.22"
+  );
+
+
+  image.setAttribute(
+    "position",
+    "0 0 0.16"
+  );
+
+
+  image.classList.add(
+    "clickable"
+  );
+
+
+  /*
+   * HOVER EFFECT
+   */
+
+  image.addEventListener(
+    "mouseenter",
+    () => {
+
+      image.setAttribute(
+        "scale",
+        "1.04 1.04 1.04"
+      );
+
+    }
+  );
+
+
+  image.addEventListener(
+    "mouseleave",
+    () => {
+
+      image.setAttribute(
+        "scale",
+        "1 1 1"
+      );
+
+    }
+  );
+
+
+  image.addEventListener(
+    "click",
+    () => {
+
+      openStudio(
+        item,
+        group
+      );
+
+    }
+  );
+
+
+  group.appendChild(
+    image
+  );
+
+
+  /*
+   * EDITION LABEL
+   */
+
+  group.appendChild(
+
+    textEntity(
+      `EDISI #${String(item.edisi).padStart(2, "0")}`,
+      "0 1.55 0.16",
+      COLORS.navy,
+      2.3
+    )
+
+  );
+
+
+  /*
+   * EVENT TITLE
+   */
+
+  group.appendChild(
+
+    textEntity(
+      item.judul,
+      "0 -1.56 0.16",
+      "#53606a",
+      2.6
+    )
+
+  );
+
+
+  /*
+   * STAND
+   */
+
+  group.appendChild(
+
+    boxEntity(
+      "0 -1.38 0",
+      1.9,
+      0.16,
+      0.45,
+      "#eef1ef"
+    )
+
+  );
+
+
+  /*
+   * TIMELINE DOT
+   */
+
+  const dot =
+    document.createElement(
+      "a-sphere"
+    );
+
+
+  dot.setAttribute(
+    "radius",
+    "0.07"
+  );
+
+
+  dot.setAttribute(
+    "position",
+    "0 -1.85 0"
+  );
+
+
+  dot.setAttribute(
+    "color",
+    left
+      ? COLORS.blue
+      : COLORS.green
+  );
+
+
+  group.appendChild(
+    dot
+  );
+
+
+  gallery.appendChild(
+    group
+  );
+
+}
+
+
+
+/* ============================================================
+   CREATE END WALL
+============================================================ */
+
+function createEndWall(
+  count
+) {
+
+  const endZ =
+    -7 -
+    Math.max(
+      0,
+      Math.floor(
+        (count - 1) / 2
+      )
+    ) * 4.6 -
+    5;
+
+
+  gallery.appendChild(
+
+    boxEntity(
+      "0 2.7 " + endZ,
+      9.5,
+      5.4,
+      0.22,
+      COLORS.cream
+    )
+
+  );
+
+
+  gallery.appendChild(
+
+    textEntity(
+      "KOPI PAHIT",
+      `0 3.55 ${endZ - 0.2}`,
+      COLORS.navy,
+      4
+    )
+
+  );
+
+
+  gallery.appendChild(
+
+    textEntity(
+      `${count} EDISI · SATU PERJALANAN`,
+      `0 3.0 ${endZ - 0.2}`,
+      COLORS.orange,
+      3
+    )
+
+  );
+
+
+  gallery.appendChild(
+
+    textEntity(
+      "SETIAP DISKUSI MENINGGALKAN JEJAK",
+      `0 2.5 ${endZ - 0.2}`,
+      COLORS.green,
+      2.8
+    )
+
+  );
+
+}
+
+
+
+/* ============================================================
+   OPEN STUDIO
+============================================================ */
+
+function openStudio(
+  item,
+  posterGroup
+) {
+
+  currentStudio =
+    item;
+
+
+  /*
+   * Build studio world
+   */
+
+  buildStudio(
+    item
+  );
+
+
+  /*
+   * First:
+   * animate "poster door".
+   *
+   * Poster becomes the
+   * doorway visual.
+   */
+
+  createPosterDoor(
+    posterGroup
+  );
+
+
+  /*
+   * After opening:
+   * switch to studio.
+   */
+
+  setTimeout(
+    () => {
+
+      gallery.setAttribute(
+        "visible",
+        "false"
+      );
+
+
+      yearHall.setAttribute(
+        "visible",
+        "false"
+      );
+
+
+      studio.setAttribute(
+        "visible",
+        "true"
+      );
+
+
+      backBtn.style.display =
+        "none";
+
+
+      closeStudioBtn.style.display =
+        "block";
+
+
+      /*
+       * Move visitor into
+       * cinema room.
+       */
+
+      rig.setAttribute(
+        "position",
+        "0 1.6 3.8"
+      );
+
+
+      /*
+       * Face screen.
+       */
+
+      camera.setAttribute(
+        "rotation",
+        "0 0 0"
+      );
+
+
+      /*
+       * Youtube overlay
+       */
+
+      youtubeTitle.innerText =
+        `STUDIO ${String(item.edisi).padStart(2, "0")} · KOPI PAHIT #${item.edisi}`;
+
+
+      youtubeFrame.src =
+        getYoutubeEmbed(
+          item.youtube
+        );
+
+
+      youtubeOverlay.style.display =
+        "flex";
+
+    },
+    950
+  );
+
+}
+
+
+
+/* ============================================================
+   POSTER DOOR
+============================================================ */
+
+function createPosterDoor(
+  posterGroup
+) {
+
+  /*
+   * Hide poster.
+   */
+
+  const poster =
+    posterGroup.querySelector(
+      "a-image"
+    );
+
+
+  if (poster) {
+
+    poster.setAttribute(
+      "visible",
+      "false"
+    );
+
+  }
+
+
+  /*
+   * Dark doorway
+   */
+
+  const opening =
+    boxEntity(
+      "0 0 0.25",
+      1.58,
+      2.25,
+      0.08,
+      COLORS.dark
+    );
+
+
+  opening.classList.add(
+    "temp-door"
+  );
+
+
+  posterGroup.appendChild(
+    opening
+  );
+
+
+  /*
+   * LEFT PIVOT
+   */
+
+  const leftPivot =
+    document.createElement(
+      "a-entity"
+    );
+
+
+  leftPivot.setAttribute(
+    "position",
+    "-0.78 0 0.30"
+  );
+
+
+  const leftDoor =
+    boxEntity(
+      "0.39 0 0",
+      0.78,
+      2.22,
+      0.09,
+      COLORS.orange
+    );
+
+
+  leftPivot.appendChild(
+    leftDoor
+  );
+
+
+  /*
+   * RIGHT PIVOT
+   */
+
+  const rightPivot =
+    document.createElement(
+      "a-entity"
+    );
+
+
+  rightPivot.setAttribute(
+    "position",
+    "0.78 0 0.30"
+  );
+
+
+  const rightDoor =
+    boxEntity(
+      "-0.39 0 0",
+      0.78,
+      2.22,
+      0.09,
+      COLORS.orange
+    );
+
+
+  rightPivot.appendChild(
+    rightDoor
+  );
+
+
+  posterGroup.appendChild(
+    leftPivot
+  );
+
+
+  posterGroup.appendChild(
+    rightPivot
+  );
+
+
+  /*
+   * Door labels.
+   */
+
+  const studioText =
+    textEntity(
+      "STUDIO",
+      "0 1.15 0.38",
+      "#ffffff",
+      1.6
+    );
+
+
+  studioText.classList.add(
+    "temp-door"
+  );
+
+
+  posterGroup.appendChild(
+    studioText
+  );
+
+
+  /*
+   * OPEN ANIMATION
+   */
+
+  leftPivot.setAttribute(
+    "animation__open",
+    `
+      property: rotation;
+      to: 0 85 0;
+      dur: 800;
+      easing: easeInOutCubic;
+    `
+  );
+
+
+  rightPivot.setAttribute(
+    "animation__open",
+    `
+      property: rotation;
+      to: 0 -85 0;
+      dur: 800;
+      easing: easeInOutCubic;
+    `
+  );
+
+}
+
+
+
+/* ============================================================
+   BUILD STUDIO
+============================================================ */
+
+function buildStudio(
+  item
+) {
+
+  studio.innerHTML = "";
+
+
+  /*
+   * FLOOR
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "0 -0.10 -2",
+      12,
+      0.2,
+      13,
+      "#202832"
+    )
+
+  );
+
+
+  /*
+   * LEFT WALL
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "-6 3 -2",
+      0.25,
+      6,
+      13,
+      "#101820"
+    )
+
+  );
+
+
+  /*
+   * RIGHT WALL
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "6 3 -2",
+      0.25,
+      6,
+      13,
+      "#101820"
+    )
+
+  );
+
+
+  /*
+   * BACK WALL
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "0 3 -8",
+      12,
+      6,
+      0.25,
+      "#0c1218"
+    )
+
+  );
+
+
+  /*
+   * ORANGE LIGHT STRIPS
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "-5.7 1.0 -2",
+      0.06,
+      2.0,
+      12,
+      COLORS.orange,
+      `emissive: ${COLORS.orange};`
+    )
+
+  );
+
+
+  studio.appendChild(
+
+    boxEntity(
+      "5.7 1.0 -2",
+      0.06,
+      2.0,
+      12,
+      COLORS.orange,
+      `emissive: ${COLORS.orange};`
+    )
+
+  );
+
+
+  /*
+   * SCREEN FRAME
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "0 3.15 -7.75",
+      5.1,
+      3.0,
+      0.30,
+      "#111820"
+    )
+
+  );
+
+
+  /*
+   * ORANGE SCREEN BORDER
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "0 3.15 -7.56",
+      4.75,
+      2.65,
+      0.06,
+      COLORS.orange,
+      `emissive: ${COLORS.orange};`
+    )
+
+  );
+
+
+  /*
+   * BLACK SCREEN
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      "0 3.15 -7.48",
+      4.45,
+      2.35,
+      0.03,
+      "#000000"
+    )
+
+  );
+
+
+  /*
+   * STUDIO LABEL
+   */
+
+  studio.appendChild(
+
+    textEntity(
+      `STUDIO ${String(item.edisi).padStart(2, "0")}`,
+      "0 5.1 -7.35",
+      "#ffffff",
+      4
+    )
+
+  );
+
+
+  /*
+   * ON AIR
+   */
+
+  const onAir =
+    boxEntity(
+      "0 4.55 -7.38",
+      1.10,
+      0.32,
+      0.06,
+      "#d92525"
+    );
+
+  studio.appendChild(
+    onAir
+  );
+
+
+  studio.appendChild(
+
+    textEntity(
+      "● ON AIR",
+      "0 4.55 -7.28",
+      "#ffffff",
+      1.5
+    )
+
+  );
+
+
+  /*
+   * KOPI PAHIT LOGO
+   */
+
+  studio.appendChild(
+
+    textEntity(
+      "KOPI PAHIT",
+      "0 5.65 -7.35",
+      COLORS.orange,
+      2.7
+    )
+
+  );
+
+
+  /*
+   * CINEMA SEATS
+   */
+
+  createCinemaSeats();
+
+
+  /*
+   * DOCUMENT PANEL
+   */
+
+  createDocumentPanel(
+    item
+  );
+
+
+  /*
+   * SIDE TITLE
+   */
+
+  studio.appendChild(
+
+    textEntity(
+      item.judul,
+      "0 0.45 -7.35",
+      "#ffffff",
+      4
+    )
+
+  );
+
+}
+
+
+
+/* ============================================================
+   CINEMA SEATS
+============================================================ */
+
+function createCinemaSeats() {
+
+  const rows = [
+    1.0,
+    2.0,
+    3.0
+  ];
+
+
+  rows.forEach(
+    (z, rowIndex) => {
+
+      for (
+        let i = -3;
+        i <= 3;
+        i++
+      ) {
+
+        const seat =
+          document.createElement(
+            "a-entity"
+          );
+
+
+        seat.setAttribute(
+          "position",
+          `${i * 0.9} 0.55 ${z}`
+        );
+
+
+        /*
+         * seat base
+         */
+
+        seat.appendChild(
+
+          boxEntity(
+            "0 0 0",
+            0.62,
+            0.40,
+            0.62,
+            "#3a4652"
+          )
+
+        );
+
+
+        /*
+         * seat back
+         */
+
+        seat.appendChild(
+
+          boxEntity(
+            "0 0.45 0.24",
+            0.62,
+            0.85,
+            0.20,
+            "#27333e"
+          )
+
+        );
+
+
+        studio.appendChild(
+          seat
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+
+/* ============================================================
+   DOCUMENT PANEL
+============================================================ */
+
+function createDocumentPanel(
+  item
+) {
+
+  const x =
+    -4.15;
+
+
+  /*
+   * PANEL BACKGROUND
+   */
+
+  studio.appendChild(
+
+    boxEntity(
+      `${x} 2.55 -6.8`,
+      2.2,
+      3.3,
+      0.15,
+      "#131c24"
+    )
+
+  );
+
+
+  /*
+   * TITLE
+   */
+
+  studio.appendChild(
+
+    textEntity(
+      "DOKUMEN KEGIATAN",
+      `${x} 3.85 -6.68`,
+      "#ffffff",
+      2.1
+    )
+
+  );
+
+
+  createDocumentButton(
+    item.presensi,
+    "DAFTAR HADIR",
+    `${x} 3.1 -6.68`,
+    COLORS.blue
+  );
+
+
+  createDocumentButton(
+    item.notulen,
+    "NOTULEN",
+    `${x} 2.45 -6.68`,
+    COLORS.green
+  );
+
+
+  createDocumentButton(
+    item.laporan,
+    "LAPORAN KEGIATAN",
+    `${x} 1.8 -6.68`,
+    COLORS.orange
+  );
+
+}
+
+
+
+/* ============================================================
+   DOCUMENT BUTTON
+============================================================ */
+
+function createDocumentButton(
+  url,
+  label,
+  position,
+  color
+) {
+
+  const group =
+    document.createElement(
+      "a-entity"
+    );
+
+
+  group.setAttribute(
+    "position",
+    position
+  );
+
+
+  const button =
+    boxEntity(
+      "0 0 0",
+      1.85,
+      0.46,
+      0.08,
+      color
+    );
+
+
+  button.classList.add(
+    "clickable"
+  );
+
+
+  group.appendChild(
+    button
+  );
+
+
+  group.appendChild(
+
+    textEntity(
+      label,
+      "0 0 0.07",
+      "#ffffff",
+      1.9
+    )
+
+  );
+
+
+  group.classList.add(
+    "clickable"
+  );
+
+
+  group.addEventListener(
+    "click",
+    () => {
+
+      if (
+        url &&
+        url !== "#"
+      ) {
+
+        window.open(
+          url,
+          "_blank"
+        );
+
+      }
+
+    }
+  );
+
+
+  studio.appendChild(
+    group
+  );
+
+}
+
+
+
+/* ============================================================
+   CLOSE STUDIO
+============================================================ */
+
+function closeStudio() {
+
+  /*
+   * Stop YouTube
+   */
+
+  youtubeFrame.src =
+    "";
+
+
+  youtubeOverlay.style.display =
+    "none";
+
+
+  closeStudioBtn.style.display =
+    "none";
+
+
+  /*
+   * Hide studio
+   */
+
+  studio.setAttribute(
+    "visible",
+    "false"
+  );
+
+
+  /*
+   * Return to selected gallery
+   */
+
+  gallery.setAttribute(
+    "visible",
+    "true"
+  );
+
+
+  backBtn.style.display =
+    "block";
+
+
+  /*
+   * Restore position
+   */
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 4.5"
+  );
+
+
+  currentStudio =
+    null;
+
+}
+
+
+
+/* ============================================================
+   YOUTUBE EMBED NORMALIZER
+============================================================ */
+
+function getYoutubeEmbed(
+  url
+) {
+
+  if (!url) {
+
+    return "";
+
+  }
+
+
+  /*
+   * Already embed URL
+   */
+
+  if (
+    url.includes(
+      "youtube.com/embed/"
+    )
+  ) {
+
+    return (
+      url +
+      (
+        url.includes("?")
+          ? "&"
+          : "?"
+      ) +
+      "autoplay=1&rel=0&modestbranding=1"
+    );
+
+  }
+
+
+  /*
+   * Standard watch URL
+   */
+
+  try {
+
+    const parsed =
+      new URL(
+        url
+      );
+
+
+    let id =
+      parsed.searchParams.get(
+        "v"
+      );
+
+
+    /*
+     * Short URL
+     */
+
+    if (
+      parsed.hostname === "youtu.be"
+    ) {
+
+      id =
+        parsed.pathname
+          .replace("/", "");
+
     }
 
-    /* ==========================================================
-       JOYSTICK TOUCH ENGINE (HP)
-       ========================================================== */
-    const rig = document.getElementById('rig');
-    const cam = document.getElementById('cam');
-    let joystickVector = { x: 0, y: 0 };
-    const SPEED = 0.08;
 
-    const joystick = nipplejs.create({
-      zone: document.getElementById('joystick-zone'),
-      mode: 'static',
-      position: { left: '60px', bottom: '60px' },
-      color: '#38bdf8',
-      size: 90
-    });
+    if (id) {
 
-    joystick.on('move', (evt, data) => {
-      if (data && data.vector) {
-        joystickVector.x = data.vector.x;
-        joystickVector.y = data.vector.y;
-      }
-    });
+      return (
+        "https://www.youtube.com/embed/" +
+        id +
+        "?autoplay=1&rel=0&modestbranding=1"
+      );
 
-    joystick.on('end', () => {
-      joystickVector = { x: 0, y: 0 };
-    });
-
-    function renderMovement() {
-      if (joystickVector.x !== 0 || joystickVector.y !== 0) {
-        const rotation = cam.getAttribute('rotation');
-        const angleY = THREE.MathUtils.degToRad(rotation.y);
-
-        const forward = joystickVector.y * SPEED;
-        const strafe = joystickVector.x * SPEED;
-
-        const dx = (strafe * Math.cos(angleY)) - (forward * Math.sin(angleY));
-        const dz = (-strafe * Math.sin(angleY)) - (forward * Math.cos(angleY));
-
-        const currentPos = rig.getAttribute('position');
-        rig.setAttribute('position', {
-          x: currentPos.x + dx,
-          y: currentPos.y,
-          z: currentPos.z + dz
-        });
-      }
-      requestAnimationFrame(renderMovement);
     }
 
-    renderMovement();
-  </script>
+  }
+  catch (error) {
+
+    console.warn(
+      "URL YouTube tidak valid:",
+      error
+    );
+
+  }
+
+
+  return "";
+
+}
+
+
+
+/* ============================================================
+   JOYSTICK
+============================================================ */
+
+let joystickVector = {
+
+  x: 0,
+
+  y: 0
+
+};
+
+
+const joystick =
+  nipplejs.create({
+
+    zone:
+      document.getElementById(
+        "joystick-zone"
+      ),
+
+    mode:
+      "static",
+
+    position: {
+
+      left: "60px",
+
+      bottom: "60px"
+
+    },
+
+    color:
+      COLORS.blue,
+
+    size:
+      90
+
+  });
+
+
+joystick.on(
+  "move",
+  (
+    event,
+    data
+  ) => {
+
+    if (
+      data &&
+      data.vector
+    ) {
+
+      joystickVector.x =
+        data.vector.x;
+
+      joystickVector.y =
+        data.vector.y;
+
+    }
+
+  }
+);
+
+
+joystick.on(
+  "end",
+  () => {
+
+    joystickVector = {
+
+      x: 0,
+
+      y: 0
+
+    };
+
+  }
+);
+
+
+
+/* ============================================================
+   PLAYER MOVEMENT
+============================================================ */
+
+const SPEED =
+  0.055;
+
+
+function movementLoop() {
+
+  /*
+   * Do not move camera
+   * while watching studio.
+   */
+
+  if (
+    !studio.getAttribute(
+      "visible"
+    )
+  ) {
+
+    if (
+      joystickVector.x !== 0 ||
+      joystickVector.y !== 0
+    ) {
+
+      const rotation =
+        camera.getAttribute(
+          "rotation"
+        );
+
+
+      const angle =
+        THREE.MathUtils.degToRad(
+          rotation.y
+        );
+
+
+      const forward =
+        joystickVector.y *
+        SPEED;
+
+
+      const strafe =
+        joystickVector.x *
+        SPEED;
+
+
+      const dx =
+        strafe *
+        Math.cos(angle)
+        -
+        forward *
+        Math.sin(angle);
+
+
+      const dz =
+        -strafe *
+        Math.sin(angle)
+        -
+        forward *
+        Math.cos(angle);
+
+
+      const current =
+        rig.getAttribute(
+          "position"
+        );
+
+
+      rig.setAttribute(
+        "position",
+        {
+
+          x:
+            current.x + dx,
+
+          y:
+            1.6,
+
+          z:
+            current.z + dz
+
+        }
+      );
+
+    }
+
+  }
+
+
+  /*
+   * Boundary
+   */
+
+  const pos =
+    rig.getAttribute(
+      "position"
+    );
+
+
+  pos.x =
+    Math.max(
+      -3.8,
+      Math.min(
+        3.8,
+        pos.x
+      )
+    );
+
+
+  /*
+   * Gallery boundary
+   */
+
+  if (
+    gallery.getAttribute(
+      "visible"
+    )
+  ) {
+
+    pos.z =
+      Math.max(
+        -42,
+        Math.min(
+          5,
+          pos.z
+        )
+      );
+
+  }
+
+
+  rig.setAttribute(
+    "position",
+    pos
+  );
+
+
+  requestAnimationFrame(
+    movementLoop
+  );
+
+}
+
+
+
+/* ============================================================
+   STARTUP
+============================================================ */
+
+buildYearHall();
+
+movementLoop();
+
+
+
+/*
+ * Remove loading
+ * after A-Frame loads.
+ */
+
+scene.addEventListener(
+  "loaded",
+  () => {
+
+    setTimeout(
+      () => {
+
+        document.getElementById(
+          "loading"
+        ).style.display =
+          "none";
+
+      },
+      500
+    );
+
+  }
+);
+
+
+</script>
+
 </body>
 </html>
