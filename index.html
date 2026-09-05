@@ -1,53 +1,62 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8" />
+
+  <meta charset="UTF-8">
 
   <meta
     name="viewport"
-    content="width=device-width,
-             initial-scale=1.0,
-             maximum-scale=1.0,
-             user-scalable=no"
-  />
+    content="
+      width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no
+    "
+  >
 
   <title>
-    Kopi Pahit — Virtual Gallery BPS Babel
+    KOPI PAHIT — Virtual Experience Gallery BPS Babel
   </title>
 
-  <!-- =========================================================
+
+  <!-- =====================================================
        A-FRAME
-  ========================================================== -->
+  ====================================================== -->
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-  <!-- =========================================================
+
+  <!-- =====================================================
        NIPPLE JS
-  ========================================================== -->
+  ====================================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
 
 
   <style>
 
-    /* =========================================================
+    /* =====================================================
        GLOBAL
-    ========================================================== */
+    ====================================================== */
 
     * {
       box-sizing: border-box;
     }
 
+
     html,
     body {
-
-      margin: 0;
-      padding: 0;
 
       width: 100%;
       height: 100%;
 
+      margin: 0;
+      padding: 0;
+
       overflow: hidden;
+
+      background: #f4f1e9;
 
       font-family:
         "Segoe UI",
@@ -56,76 +65,113 @@
         BlinkMacSystemFont,
         sans-serif;
 
-      background: #f5f1e8;
-    }
-
-
-    body {
       user-select: none;
       -webkit-user-select: none;
+
     }
 
 
-    /* =========================================================
+    button {
+      font-family: inherit;
+    }
+
+
+    /* =====================================================
        LOADING
-    ========================================================== */
+    ====================================================== */
 
     #loading {
 
       position: fixed;
+
       inset: 0;
 
-      z-index: 9999;
+      z-index: 99999;
 
       display: flex;
 
-      align-items: center;
-      justify-content: center;
-
       flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
 
       background:
         linear-gradient(
           145deg,
-          #f9f7f1,
+          #fbfaf6,
           #eef3f0
         );
 
-      color: #24455c;
+      color: #183c54;
+
     }
 
 
     #loading-logo {
 
-      width: 130px;
+      width: 150px;
+
+      max-width: 50vw;
 
       margin-bottom: 20px;
+
     }
 
 
     #loading-title {
 
-      font-size: 20px;
+      font-size: 27px;
 
       font-weight: 900;
 
-      letter-spacing: 2px;
+      letter-spacing: 4px;
+
+      color: #633b25;
+
     }
 
 
-    #loading-sub {
+    #loading-subtitle {
 
       margin-top: 8px;
 
-      color: #7b8792;
-
       font-size: 12px;
+
+      color: #75808a;
+
+      letter-spacing: 1px;
+
     }
 
 
-    /* =========================================================
-       DESKTOP / MOBILE HUD
-    ========================================================== */
+    #loading-status {
+
+      margin-top: 18px;
+
+      padding: 7px 14px;
+
+      border-radius: 20px;
+
+      background:
+        rgba(
+          7,
+          148,
+          210,
+          0.08
+        );
+
+      color: #0794d2;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+    }
+
+
+    /* =====================================================
+       HUD
+    ====================================================== */
 
     #hud {
 
@@ -135,22 +181,33 @@
 
       left: 50%;
 
-      transform: translateX(-50%);
+      transform:
+        translateX(-50%);
 
-      z-index: 1000;
+      z-index: 5000;
+
+      max-width: 90vw;
 
       padding: 9px 18px;
 
-      border-radius: 50px;
+      border-radius: 30px;
 
       background:
-        rgba(255,255,255,0.88);
+        rgba(
+          255,
+          255,
+          255,
+          0.92
+        );
 
       border:
-        1px solid rgba(0,142,204,0.20);
-
-      box-shadow:
-        0 8px 25px rgba(0,0,0,0.08);
+        1px solid
+        rgba(
+          7,
+          148,
+          210,
+          0.20
+        );
 
       color: #174e6d;
 
@@ -158,44 +215,108 @@
 
       font-weight: 800;
 
-      white-space: nowrap;
+      text-align: center;
+
+      pointer-events: none;
+
+      box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.08);
+
     }
 
 
-    #back-btn {
+    /* =====================================================
+       BACK YEAR
+    ====================================================== */
+
+    #back-year {
 
       position: fixed;
 
+      left: 18px;
       top: 18px;
 
-      left: 18px;
-
-      z-index: 1000;
+      z-index: 5500;
 
       display: none;
 
-      border: none;
-
       padding: 10px 15px;
+
+      border: none;
 
       border-radius: 12px;
 
-      background: rgba(255,255,255,0.90);
+      color: white;
 
-      color: #174e6d;
+      background:
+        #0794d2;
+
+      font-size: 11px;
 
       font-weight: 900;
 
       cursor: pointer;
 
       box-shadow:
-        0 8px 25px rgba(0,0,0,0.08);
+        0 8px 25px
+        rgba(0,0,0,0.10);
+
     }
 
 
-    /* =========================================================
+    #back-year:hover {
+      background: #067eae;
+    }
+
+
+    /* =====================================================
+       CLOSE STUDIO
+    ====================================================== */
+
+    #close-studio {
+
+      position: fixed;
+
+      right: 18px;
+      top: 18px;
+
+      z-index: 7500;
+
+      display: none;
+
+      padding: 10px 15px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      color: #ffffff;
+
+      background:
+        #f28c18;
+
+      font-size: 11px;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.15);
+
+    }
+
+
+    #close-studio:hover {
+      background: #d8740a;
+    }
+
+
+    /* =====================================================
        JOYSTICK
-    ========================================================== */
+    ====================================================== */
 
     #joystick-zone {
 
@@ -207,23 +328,28 @@
       width: 125px;
       height: 125px;
 
-      z-index: 1000;
+      z-index: 5000;
+
+      pointer-events: auto;
 
       touch-action: none;
+
     }
 
 
-    /* =========================================================
-       YOUTUBE CINEMA OVERLAY
-    ========================================================== */
+    /* =====================================================
+       YOUTUBE SCREEN
+       
+       HANYA ADA SATU IFRAME.
+    ====================================================== */
 
-    #youtube-overlay {
+    #youtube-layer {
 
       position: fixed;
 
       inset: 0;
 
-      z-index: 3000;
+      z-index: 5000;
 
       display: none;
 
@@ -232,30 +358,39 @@
 
       pointer-events: none;
 
-      background: transparent;
     }
 
 
-    #youtube-screen {
-
-      width: min(72vw, 900px);
-
-      aspect-ratio: 16 / 9;
+    #youtube-frame-container {
 
       position: relative;
 
+      width:
+        min(
+          62vw,
+          880px
+        );
+
+      aspect-ratio:
+        16 / 9;
+
       pointer-events: auto;
 
-      background: #000;
-
-      border-radius: 4px;
+      background:
+        #000000;
 
       border:
-        10px solid #111820;
+        7px solid
+        #111820;
 
       box-shadow:
-        0 0 0 2px #f28c18,
-        0 25px 80px rgba(0,0,0,0.7);
+
+        0 0 0 3px
+        #f28c18,
+
+        0 30px 80px
+        rgba(0,0,0,0.70);
+
     }
 
 
@@ -267,6 +402,7 @@
       border: none;
 
       display: block;
+
     }
 
 
@@ -275,11 +411,12 @@
       position: absolute;
 
       left: 50%;
-      top: -58px;
+      top: -50px;
 
-      transform: translateX(-50%);
+      transform:
+        translateX(-50%);
 
-      color: white;
+      color: #ffffff;
 
       font-size: 14px;
 
@@ -288,156 +425,148 @@
       letter-spacing: 2px;
 
       white-space: nowrap;
+
+      text-shadow:
+        0 2px 12px
+        rgba(0,0,0,0.85);
+
     }
 
 
-    #on-air {
+    #on-air-label {
 
       position: absolute;
 
-      top: 12px;
-      right: 12px;
+      top: 11px;
+      right: 11px;
 
-      padding: 6px 10px;
+      z-index: 20;
 
-      background: #e53935;
+      padding: 5px 9px;
 
-      color: white;
+      border-radius: 5px;
 
-      border-radius: 6px;
+      background: #df2929;
 
-      font-size: 10px;
+      color: #ffffff;
+
+      font-size: 9px;
 
       font-weight: 900;
 
       letter-spacing: 1px;
 
-      z-index: 4;
     }
 
 
-    /* =========================================================
-       STUDIO CLOSE
-    ========================================================== */
-
-    #close-studio {
-
-      position: fixed;
-
-      right: 22px;
-      top: 18px;
-
-      z-index: 3200;
-
-      display: none;
-
-      padding: 10px 15px;
-
-      border: none;
-
-      border-radius: 12px;
-
-      cursor: pointer;
-
-      color: white;
-
-      background: #f28c18;
-
-      font-weight: 900;
-    }
-
-
-    /* =========================================================
+    /* =====================================================
        MOBILE
-    ========================================================== */
+    ====================================================== */
 
-    @media(max-width: 700px) {
+    @media (max-width: 700px) {
 
       #hud {
 
         font-size: 9px;
 
-        max-width: 78vw;
+        max-width: 80vw;
 
         white-space: normal;
 
-        text-align: center;
       }
 
 
-      #youtube-screen {
+      #youtube-frame-container {
 
         width: 88vw;
 
-        border-width: 6px;
+        border-width: 5px;
+
       }
 
 
       #youtube-title {
 
-        font-size: 10px;
+        top: -31px;
 
-        top: -34px;
+        font-size: 9px;
+
+      }
+
+
+      #back-year,
+      #close-studio {
+
+        font-size: 9px;
+
+        padding:
+          9px 11px;
+
       }
 
     }
 
   </style>
+
 </head>
 
 
 <body>
 
 
-  <!-- =========================================================
-       LOADING SCREEN
-  ========================================================== -->
+  <!-- =====================================================
+       LOADING
+  ====================================================== -->
 
   <div id="loading">
 
     <img
       id="loading-logo"
-      src="assets/logo-bps.png"
-      alt="BPS"
-    />
+      src="./logo-bps.png"
+      alt="BPS Babel"
+    >
 
     <div id="loading-title">
       KOPI PAHIT
     </div>
 
-    <div id="loading-sub">
+    <div id="loading-subtitle">
       Virtual Experience Gallery · BPS Babel
+    </div>
+
+    <div id="loading-status">
+      MENYIAPKAN GALLERY...
     </div>
 
   </div>
 
 
-  <!-- =========================================================
+  <!-- =====================================================
        HUD
-  ========================================================== -->
+  ====================================================== -->
 
   <div id="hud">
 
-    WASD / JOYSTICK · JELAJAHI GALLERY · KLIK OBJEK UNTUK BERINTERAKSI
+    WASD / JOYSTICK
+    ·
+    JELAJAHI GALLERY
+    ·
+    KLIK POSTER UNTUK MASUK STUDIO
 
   </div>
 
 
-  <!-- =========================================================
-       BACK
-  ========================================================== -->
+  <!-- =====================================================
+       NAVIGATION
+  ====================================================== -->
 
   <button
-    id="back-btn"
+    id="back-year"
     onclick="backToYearHall()"
   >
     ← PILIH TAHUN
   </button>
 
-
-  <!-- =========================================================
-       CLOSE STUDIO
-  ========================================================== -->
 
   <button
     id="close-studio"
@@ -447,25 +576,26 @@
   </button>
 
 
-  <!-- =========================================================
-       YOUTUBE
-  ========================================================== -->
+  <!-- =====================================================
+       YOUTUBE OVERLAY
+  ====================================================== -->
 
-  <div id="youtube-overlay">
+  <div id="youtube-layer">
 
-    <div id="youtube-screen">
+    <div id="youtube-frame-container">
 
       <div id="youtube-title">
-        STUDIO 01
+        STUDIO · KOPI PAHIT
       </div>
 
-      <div id="on-air">
+      <div id="on-air-label">
         ● ON AIR
       </div>
 
       <iframe
         id="youtube-frame"
         src=""
+        title="Kopi Pahit Recording"
         allow="
           autoplay;
           encrypted-media;
@@ -480,22 +610,25 @@
   </div>
 
 
-  <!-- =========================================================
+  <!-- =====================================================
        JOYSTICK
-  ========================================================== -->
+  ====================================================== -->
 
   <div id="joystick-zone"></div>
 
 
-
-  <!-- =========================================================
+  <!-- =====================================================
        A-FRAME
-  ========================================================== -->
+  ====================================================== -->
 
   <a-scene
     id="scene"
 
-    vr-mode-ui="enabled: false"
+    embedded
+
+    vr-mode-ui="
+      enabled: false
+    "
 
     renderer="
       antialias: true;
@@ -504,139 +637,169 @@
   >
 
 
-    <!-- =======================================================
+    <!-- ===================================================
          ASSETS
-    ======================================================== -->
+         
+         Logo + poster dipanggil langsung dari path.
+    ==================================================== -->
 
-    <a-assets>
+    <a-assets
+      timeout="30000"
+    >
 
       <img
-        id="logoBPS"
-        src="assets/logo-bps.png"
+        id="logo-bps"
+        src="./logo-bps.png"
       >
 
       <img
-        id="logoKopi"
-        src="assets/logo-kopi-pahit.png"
+        id="logo-kopi"
+        src="./logo-kopi-pahit.png"
       >
 
     </a-assets>
 
 
-    <!-- =======================================================
+    <!-- ===================================================
          LIGHTING
-    ======================================================== -->
+    ==================================================== -->
 
     <a-entity
       light="
         type: ambient;
-        intensity: 0.85;
-        color: #ffffff
-      ">
-    </a-entity>
+        intensity: 0.95;
+        color: #ffffff;
+      "
+    ></a-entity>
 
 
     <a-entity
       light="
         type: directional;
-        intensity: 0.7;
-        color: #ffffff
+        intensity: 0.75;
+        color: #ffffff;
       "
-      position="0 8 5">
-    </a-entity>
+      position="0 8 5"
+    ></a-entity>
 
-
-    <!-- BLUE -->
 
     <a-entity
       light="
         type: point;
-        intensity: 1.0;
-        distance: 18;
-        color: #0794d2
+        intensity: 1.1;
+        distance: 22;
+        color: #0794d2;
       "
-      position="-4 4 -7">
-    </a-entity>
+      position="-5 4 -7"
+    ></a-entity>
 
-
-    <!-- ORANGE -->
 
     <a-entity
       light="
         type: point;
-        intensity: 1.0;
-        distance: 18;
-        color: #f28c18
+        intensity: 1.1;
+        distance: 22;
+        color: #f28c18;
       "
-      position="4 4 -7">
-    </a-entity>
+      position="5 4 -7"
+    ></a-entity>
 
 
+    <a-entity
+      light="
+        type: point;
+        intensity: 0.65;
+        distance: 18;
+        color: #65b82e;
+      "
+      position="0 4 -18"
+    ></a-entity>
 
-    <!-- =======================================================
+
+    <!-- ===================================================
          SKY
-    ======================================================== -->
+    ==================================================== -->
 
     <a-sky
-      color="#f3f0e8">
-    </a-sky>
+      color="#f4f1e9"
+    ></a-sky>
 
 
+    <!-- ===================================================
+         WORLD
+    ==================================================== -->
 
-    <!-- =======================================================
-         ROOTS
-    ======================================================== -->
+    <a-entity
+      id="year-hall"
+    ></a-entity>
 
-    <a-entity id="yearHall"></a-entity>
 
     <a-entity
       id="gallery"
-      visible="false">
-    </a-entity>
+      visible="false"
+    ></a-entity>
+
 
     <a-entity
       id="studio"
-      visible="false">
-    </a-entity>
+      visible="false"
+    ></a-entity>
 
 
-
-    <!-- =======================================================
+    <!-- ===================================================
          PLAYER
-    ======================================================== -->
+    ==================================================== -->
 
     <a-entity
-      id="rig"
+      id="player"
       position="0 1.6 6"
     >
 
       <a-camera
+
         id="camera"
 
-        wasd-controls="
-          acceleration: 14
+        look-controls="
+          pointerLockEnabled: false;
         "
 
-        look-controls="
-          pointerLockEnabled: false
+        wasd-controls="
+          acceleration: 14;
+          fly: false;
         "
       >
 
         <a-cursor
-          color="#f28c18"
 
-          scale="0.55 0.55 0.55"
+          id="cursor"
+
+          cursor="
+            fuse: false;
+            rayOrigin: mouse;
+          "
 
           raycaster="
-            objects:
-            .clickable
+            objects: .clickable;
+            far: 40;
           "
-        >
-        </a-cursor>
+
+          material="
+            shader: flat;
+            color: #f28c18;
+          "
+
+          scale="
+            0.60
+            0.60
+            0.60
+          "
+
+        ></a-cursor>
 
       </a-camera>
 
     </a-entity>
+
 
   </a-scene>
 
@@ -644,9 +807,8 @@
 
 <script>
 
-
 /* ============================================================
-   BPS COLOR SYSTEM
+   COLOR SYSTEM
 ============================================================ */
 
 const COLORS = {
@@ -661,10 +823,11 @@ const COLORS = {
 
   cream: "#f7f4ec",
 
-  dark: "#101820"
+  dark: "#101820",
+
+  brown: "#633b25"
 
 };
-
 
 
 /* ============================================================
@@ -673,9 +836,15 @@ const COLORS = {
 
 const galleryData = {
 
+
+  /* ==========================================================
+     2026
+  ========================================================== */
+
   2026: [
 
     {
+
       edisi: 1,
 
       judul:
@@ -684,11 +853,16 @@ const galleryData = {
       tanggal:
         "8 Juni 2026",
 
+      /*
+       * FILE ASLI:
+       * assets/2026/poster-01.png
+       */
+
       poster:
-        "assets/poster-01.png",
+        "assets/2026/poster-01.png",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_01",
+        "https://youtube.com/live/N3Xm3Fb4cVo",
 
       presensi:
         "LINK_PRESENSI_01",
@@ -698,10 +872,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_01"
+
     },
 
 
     {
+
       edisi: 2,
 
       judul:
@@ -711,10 +887,10 @@ const galleryData = {
         "Februari 2026",
 
       poster:
-        "assets/poster-02.jpg",
+        "assets/2026/poster-02.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_02",
+        "https://youtube.com/live/nDGdNbTJKVA",
 
       presensi:
         "LINK_PRESENSI_02",
@@ -724,10 +900,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_02"
+
     },
 
 
     {
+
       edisi: 3,
 
       judul:
@@ -737,10 +915,10 @@ const galleryData = {
         "April 2026",
 
       poster:
-        "assets/poster-03.jpeg",
+        "assets/2026/poster-03.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_03",
+        "https://youtube.com/live/fRaBFpyH2xg",
 
       presensi:
         "LINK_PRESENSI_03",
@@ -750,10 +928,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_03"
+
     },
 
 
     {
+
       edisi: 4,
 
       judul:
@@ -763,10 +943,10 @@ const galleryData = {
         "Mei 2026",
 
       poster:
-        "assets/poster-04.png",
+        "assets/2026/poster-04.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_04",
+        "https://youtube.com/live/Udzq5IdGj6o",
 
       presensi:
         "LINK_PRESENSI_04",
@@ -776,10 +956,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_04"
+
     },
 
 
     {
+
       edisi: 5,
 
       judul:
@@ -789,10 +971,10 @@ const galleryData = {
         "Juni 2026",
 
       poster:
-        "assets/poster-05.jpg",
+        "assets/2026/poster-05.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_05",
+        "https://youtube.com/live/s27FEmcuIOg",
 
       presensi:
         "LINK_PRESENSI_05",
@@ -802,10 +984,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_05"
+
     },
 
 
     {
+
       edisi: 6,
 
       judul:
@@ -815,10 +999,10 @@ const galleryData = {
         "Juli 2026",
 
       poster:
-        "assets/poster-06.jpeg",
+        "assets/2026/poster-06.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_06",
+        "https://youtube.com/live/m_PHl2NLhBQ",
 
       presensi:
         "LINK_PRESENSI_06",
@@ -828,10 +1012,12 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_06"
+
     },
 
 
     {
+
       edisi: 7,
 
       judul:
@@ -841,10 +1027,10 @@ const galleryData = {
         "4 September 2026",
 
       poster:
-        "assets/poster-07.png",
+        "assets/2026/poster-07.jpeg",
 
       youtube:
-        "https://www.youtube.com/embed/VIDEO_ID_07",
+        "https://youtube.com/live/Bf-9VQJxBSA",
 
       presensi:
         "LINK_PRESENSI_07",
@@ -854,15 +1040,15 @@ const galleryData = {
 
       laporan:
         "LINK_LAPORAN_07"
+
     }
 
   ],
 
 
-  /* ========================================================
-     TAHUN BERIKUTNYA
-     Tinggal tambahkan kegiatan baru.
-  ======================================================== */
+  /* ==========================================================
+     TAHUN KE DEPAN
+  ========================================================== */
 
   2027: [],
 
@@ -871,164 +1057,220 @@ const galleryData = {
 };
 
 
-
 /* ============================================================
-   GLOBAL VARIABLES
+   DOM
 ============================================================ */
 
 const scene =
-  document.getElementById("scene");
+  document.getElementById(
+    "scene"
+  );
+
 
 const yearHall =
-  document.getElementById("yearHall");
+  document.getElementById(
+    "year-hall"
+  );
+
 
 const gallery =
-  document.getElementById("gallery");
+  document.getElementById(
+    "gallery"
+  );
+
 
 const studio =
-  document.getElementById("studio");
+  document.getElementById(
+    "studio"
+  );
 
-const rig =
-  document.getElementById("rig");
+
+const player =
+  document.getElementById(
+    "player"
+  );
+
 
 const camera =
-  document.getElementById("camera");
+  document.getElementById(
+    "camera"
+  );
 
-const backBtn =
-  document.getElementById("back-btn");
 
-const closeStudioBtn =
-  document.getElementById("close-studio");
+const backYear =
+  document.getElementById(
+    "back-year"
+  );
 
-const youtubeOverlay =
-  document.getElementById("youtube-overlay");
+
+const closeStudioButton =
+  document.getElementById(
+    "close-studio"
+  );
+
+
+const youtubeLayer =
+  document.getElementById(
+    "youtube-layer"
+  );
+
 
 const youtubeFrame =
-  document.getElementById("youtube-frame");
+  document.getElementById(
+    "youtube-frame"
+  );
+
 
 const youtubeTitle =
-  document.getElementById("youtube-title");
+  document.getElementById(
+    "youtube-title"
+  );
 
 
+const loading =
+  document.getElementById(
+    "loading"
+  );
+
+
+const loadingStatus =
+  document.getElementById(
+    "loading-status"
+  );
+
+
+/* ============================================================
+   STATE
+============================================================ */
 
 let currentYear = null;
 
 let currentStudio = null;
 
-let studioDoorLeft = null;
+let currentPosterGroup = null;
 
-let studioDoorRight = null;
-
+let studioOpening = false;
 
 
 /* ============================================================
-   CREATE TEXT
+   TEXT
 ============================================================ */
 
-function textEntity(
+function createText(
   value,
   position,
   color,
-  width = 4,
+  width,
   align = "center"
 ) {
 
   const text =
-    document.createElement("a-text");
+    document.createElement(
+      "a-text"
+    );
+
 
   text.setAttribute(
     "value",
     value
   );
 
+
   text.setAttribute(
     "position",
     position
   );
+
 
   text.setAttribute(
     "color",
     color
   );
 
+
   text.setAttribute(
     "width",
     width
   );
+
 
   text.setAttribute(
     "align",
     align
   );
 
-  text.setAttribute(
-    "font",
-    "roboto"
-  );
 
   return text;
-}
 
+}
 
 
 /* ============================================================
    BOX
 ============================================================ */
 
-function boxEntity(
+function createBox(
   position,
   width,
   height,
   depth,
   color,
-  extra = ""
+  material = ""
 ) {
 
   const box =
-    document.createElement("a-box");
+    document.createElement(
+      "a-box"
+    );
+
 
   box.setAttribute(
     "position",
     position
   );
 
+
   box.setAttribute(
     "width",
     width
   );
+
 
   box.setAttribute(
     "height",
     height
   );
 
+
   box.setAttribute(
     "depth",
     depth
   );
+
 
   box.setAttribute(
     "color",
     color
   );
 
-  if (extra) {
+
+  if (material) {
 
     box.setAttribute(
       "material",
-      extra
+      material
     );
 
   }
+
 
   return box;
 
 }
 
 
-
 /* ============================================================
-   YEAR SELECTION HALL
+   YEAR HALL
 ============================================================ */
 
 function buildYearHall() {
@@ -1036,70 +1278,75 @@ function buildYearHall() {
   yearHall.innerHTML = "";
 
 
-  /*
-   * FLOOR
-   */
+  /* ========================================================
+     FLOOR
+  ======================================================== */
 
   yearHall.appendChild(
 
-    boxEntity(
-      "0 -0.12 -2",
+    createBox(
+
+      "0 -0.10 -2",
+
       14,
-      0.2,
+
+      0.20,
+
       18,
-      COLORS.cream
+
+      "#e1e6e3",
+
+      `
+        roughness: 0.40;
+        metalness: 0.12;
+      `
+
     )
 
   );
 
 
-  /*
-   * BLUE FLOOR RING
-   */
-
-  const blueLine =
-    boxEntity(
-      "0 0.01 -2",
-      8,
-      0.025,
-      0.12,
-      COLORS.blue
-    );
-
-  yearHall.appendChild(
-    blueLine
-  );
-
-
-  /*
-   * BACK WALL
-   */
+  /* ========================================================
+     BACK WALL
+  ======================================================== */
 
   yearHall.appendChild(
 
-    boxEntity(
-      "0 3 -7",
+    createBox(
+
+      "0 3 -8",
+
       14,
+
       6,
+
       0.25,
+
       COLORS.cream
+
     )
 
   );
 
 
-  /*
-   * SIDE WALL
-   */
+  /* ========================================================
+     SIDE WALLS
+  ======================================================== */
 
   yearHall.appendChild(
 
-    boxEntity(
-      "-7 3 -2",
+    createBox(
+
+      "-7 3 -3",
+
       0.25,
+
       6,
+
       10,
+
       COLORS.cream
+
     )
 
   );
@@ -1107,166 +1354,261 @@ function buildYearHall() {
 
   yearHall.appendChild(
 
-    boxEntity(
-      "7 3 -2",
+    createBox(
+
+      "7 3 -3",
+
       0.25,
+
       6,
+
       10,
+
       COLORS.cream
+
     )
 
   );
 
 
-  /*
-   * TOP COLOR BANDS
-   */
-
-  const blueBand =
-    boxEntity(
-      "-2.2 5.85 -6.80",
-      3.5,
-      0.10,
-      0.08,
-      COLORS.blue
-    );
-
-  const greenBand =
-    boxEntity(
-      "0 5.85 -6.80",
-      3.5,
-      0.10,
-      0.08,
-      COLORS.green
-    );
-
-  const orangeBand =
-    boxEntity(
-      "2.2 5.85 -6.80",
-      3.5,
-      0.10,
-      0.08,
-      COLORS.orange
-    );
-
+  /* ========================================================
+     BRAND COLORS
+  ======================================================== */
 
   yearHall.appendChild(
-    blueBand
-  );
 
-  yearHall.appendChild(
-    greenBand
-  );
+    createBox(
 
-  yearHall.appendChild(
-    orangeBand
+      "-3.2 5.55 -7.80",
+
+      3.0,
+
+      0.10,
+
+      0.08,
+
+      COLORS.blue,
+
+      `
+        emissive: ${COLORS.blue};
+        emissiveIntensity: 0.55;
+      `
+
+    )
+
   );
 
 
-  /*
-   * LOGO BPS
-   */
+  yearHall.appendChild(
+
+    createBox(
+
+      "0 5.55 -7.80",
+
+      3.0,
+
+      0.10,
+
+      0.08,
+
+      COLORS.green,
+
+      `
+        emissive: ${COLORS.green};
+        emissiveIntensity: 0.50;
+      `
+
+    )
+
+  );
+
+
+  yearHall.appendChild(
+
+    createBox(
+
+      "3.2 5.55 -7.80",
+
+      3.0,
+
+      0.10,
+
+      0.08,
+
+      COLORS.orange,
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.55;
+      `
+
+    )
+
+  );
+
+
+  /* ========================================================
+     BPS LOGO
+     
+     Root folder:
+     ./logo-bps.png
+  ======================================================== */
 
   const bpsLogo =
     document.createElement(
       "a-image"
     );
 
+
   bpsLogo.setAttribute(
     "src",
-    "#logoBPS"
+    "./logo-bps.png"
   );
+
 
   bpsLogo.setAttribute(
     "position",
-    "0 5.0 -6.70"
+    "0 4.95 -7.65"
   );
+
 
   bpsLogo.setAttribute(
     "width",
-    "2.5"
+    "2.65"
   );
+
 
   bpsLogo.setAttribute(
     "height",
-    "0.75"
+    "0.80"
   );
+
 
   yearHall.appendChild(
     bpsLogo
   );
 
 
-  /*
-   * KOPI PAHIT
-   */
+  /* ========================================================
+     KOPI PAHIT LOGO
+     
+     Root folder:
+     ./logo-kopi-pahit.png
+  ======================================================== */
 
   const kopiLogo =
     document.createElement(
       "a-image"
     );
 
+
   kopiLogo.setAttribute(
     "src",
-    "#logoKopi"
+    "./logo-kopi-pahit.png"
   );
+
 
   kopiLogo.setAttribute(
     "position",
-    "0 4.0 -6.70"
+    "0 3.95 -7.65"
   );
+
 
   kopiLogo.setAttribute(
     "width",
-    "3.4"
+    "3.55"
   );
+
 
   kopiLogo.setAttribute(
     "height",
-    "1.5"
+    "1.45"
   );
+
 
   yearHall.appendChild(
     kopiLogo
   );
 
 
-  /*
-   * SUBTITLE
-   */
+  /* ========================================================
+     TITLE
+  ======================================================== */
 
   yearHall.appendChild(
 
-    textEntity(
+    createText(
+
       "VIRTUAL EXPERIENCE GALLERY",
-      "0 3.0 -6.65",
+
+      "0 3.12 -7.58",
+
       COLORS.orange,
-      5
+
+      4.2
+
     )
 
   );
 
+
+  /* ========================================================
+     SUBTITLE
+  ======================================================== */
 
   yearHall.appendChild(
 
-    textEntity(
+    createText(
+
       "Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit",
-      "0 2.65 -6.65",
+
+      "0 2.70 -7.58",
+
       COLORS.navy,
-      3.7
+
+      3.05
+
     )
 
   );
 
 
-  /*
-   * CREATE YEAR CARDS
-   */
+  /* ========================================================
+     DIVIDER
+  ======================================================== */
+
+  yearHall.appendChild(
+
+    createBox(
+
+      "0 2.38 -7.55",
+
+      3.7,
+
+      0.035,
+
+      0.035,
+
+      COLORS.green,
+
+      `
+        emissive: ${COLORS.green};
+        emissiveIntensity: 0.45;
+      `
+
+    )
+
+  );
+
+
+  /* ========================================================
+     YEAR CARDS
+  ======================================================== */
 
   createYearCard(
     2026,
     "7 EDISI",
-    "-3.2 1.45 -6.4",
+    "-3.2 0.95 -7.20",
     true
   );
 
@@ -1274,7 +1616,7 @@ function buildYearHall() {
   createYearCard(
     2027,
     "BELUM ADA EDISI",
-    "0 1.45 -6.4",
+    "0 0.95 -7.20",
     false
   );
 
@@ -1282,25 +1624,25 @@ function buildYearHall() {
   createYearCard(
     2028,
     "BELUM ADA EDISI",
-    "3.2 1.45 -6.4",
+    "3.2 0.95 -7.20",
     false
   );
 
 
-  /*
-   * DECORATIONS
-   */
+  /* ========================================================
+     DECOR
+  ======================================================== */
 
   createPlant(
-    "-5.2 0 -4.0"
+    "-5.2 0 -4.8"
   );
 
+
   createPlant(
-    "5.2 0 -4.0"
+    "5.2 0 -4.8"
   );
 
 }
-
 
 
 /* ============================================================
@@ -1314,145 +1656,55 @@ function createYearCard(
   active
 ) {
 
-  const card =
+  const group =
     document.createElement(
       "a-entity"
     );
 
-  card.setAttribute(
+
+  group.setAttribute(
     "position",
     position
   );
 
 
-  /*
-   * PANEL
-   */
+  /* ========================================================
+     PANEL
+  ======================================================== */
 
   const panel =
-    boxEntity(
+    createBox(
+
       "0 0 0",
-      2.35,
-      3.0,
+
+      2.30,
+
+      2.80,
+
       0.18,
+
       "#ffffff",
+
       `
-        metalness: 0.05;
-        roughness: 0.55;
+        roughness: 0.58;
+        metalness: 0.03;
       `
+
     );
 
-  card.appendChild(
-    panel
-  );
-
-
-  /*
-   * TOP BAR
-   */
-
-  const color =
-    year === 2026
-      ? COLORS.blue
-      : year === 2027
-      ? COLORS.green
-      : COLORS.orange;
-
-
-  card.appendChild(
-
-    boxEntity(
-      "0 1.35 0.12",
-      2.20,
-      0.10,
-      0.03,
-      color
-    )
-
-  );
-
-
-  /*
-   * YEAR
-   */
-
-  card.appendChild(
-
-    textEntity(
-      String(year),
-      "0 0.65 0.13",
-      COLORS.navy,
-      4
-    )
-
-  );
-
-
-  /*
-   * SUBTITLE
-   */
-
-  card.appendChild(
-
-    textEntity(
-      subtitle,
-      "0 -0.05 0.13",
-      "#75818a",
-      2.7
-    )
-
-  );
-
-
-  /*
-   * BUTTON
-   */
-
-  const button =
-    boxEntity(
-      "0 -0.82 0.13",
-      1.65,
-      0.48,
-      0.06,
-      active
-        ? COLORS.blue
-        : "#b6bcc0"
-    );
-
-
-  card.appendChild(
-    button
-  );
-
-
-  card.appendChild(
-
-    textEntity(
-      active
-        ? "MASUK →"
-        : "SEGERA HADIR",
-      "0 -0.82 0.18",
-      "#ffffff",
-      1.8
-    )
-
-  );
-
-
-  /*
-   * CLICK
-   */
 
   if (active) {
 
-    card.classList.add(
+    panel.classList.add(
       "clickable"
     );
 
 
-    card.addEventListener(
+    panel.addEventListener(
       "click",
-      () => {
+      function(event) {
+
+        event.stopPropagation();
 
         enterYear(
           year
@@ -1464,94 +1716,220 @@ function createYearCard(
   }
 
 
-  yearHall.appendChild(
-    card
+  group.appendChild(
+    panel
   );
 
-}
 
+  /* ========================================================
+     COLOR STRIPE
+  ======================================================== */
 
+  const cardColor =
 
-/* ============================================================
-   SIMPLE PLANT
-============================================================ */
-
-function createPlant(position) {
-
-  const group =
-    document.createElement(
-      "a-entity"
-    );
-
-  group.setAttribute(
-    "position",
-    position
-  );
+    year === 2026
+      ? COLORS.blue
+      : year === 2027
+      ? COLORS.green
+      : COLORS.orange;
 
 
   group.appendChild(
 
-    boxEntity(
-      "0 0.25 0",
-      0.7,
-      0.5,
-      0.7,
-      "#ffffff"
+    createBox(
+
+      "0 1.30 0.14",
+
+      2.12,
+
+      0.09,
+
+      0.04,
+
+      cardColor,
+
+      `
+        emissive: ${cardColor};
+        emissiveIntensity: 0.40;
+      `
+
     )
 
   );
 
 
-  const trunk =
-    boxEntity(
-      "0 0.75 0",
-      0.10,
-      1.0,
-      0.10,
-      COLORS.green
-    );
+  /* ========================================================
+     YEAR
+  ======================================================== */
 
   group.appendChild(
-    trunk
+
+    createText(
+
+      String(year),
+
+      "0 0.62 0.14",
+
+      COLORS.navy,
+
+      3.6
+
+    )
+
   );
 
 
-  for (
-    let i = 0;
-    i < 3;
-    i++
-  ) {
+  /* ========================================================
+     COUNT
+  ======================================================== */
 
-    const leaf =
-      document.createElement(
-        "a-sphere"
-      );
+  group.appendChild(
 
-    leaf.setAttribute(
-      "radius",
-      "0.28"
+    createText(
+
+      subtitle,
+
+      "0 -0.02 0.14",
+
+      "#76818a",
+
+      2.40
+
+    )
+
+  );
+
+
+  /* ========================================================
+     BUTTON
+  ======================================================== */
+
+  const button =
+
+    createBox(
+
+      "0 -0.78 0.16",
+
+      1.72,
+
+      0.50,
+
+      0.12,
+
+      active
+        ? COLORS.blue
+        : "#b9bfc3",
+
+      active
+        ? `
+          emissive: ${COLORS.blue};
+          emissiveIntensity: 0.22;
+        `
+        : ""
+
     );
 
-    leaf.setAttribute(
-      "position",
-      `${(i-1)*0.25} 1.2 0`
+
+  if (active) {
+
+    button.classList.add(
+      "clickable"
     );
 
-    leaf.setAttribute(
-      "scale",
-      "1 0.65 1"
+
+    button.addEventListener(
+      "mouseenter",
+      function() {
+
+        button.setAttribute(
+          "scale",
+          "1.08 1.08 1.08"
+        );
+
+      }
     );
 
-    leaf.setAttribute(
-      "color",
-      COLORS.green
+
+    button.addEventListener(
+      "mouseleave",
+      function() {
+
+        button.setAttribute(
+          "scale",
+          "1 1 1"
+        );
+
+      }
     );
 
-    group.appendChild(
-      leaf
+
+    button.addEventListener(
+      "click",
+      function(event) {
+
+        event.stopPropagation();
+
+        enterYear(
+          year
+        );
+
+      }
     );
 
   }
+
+
+  group.appendChild(
+    button
+  );
+
+
+  /* ========================================================
+     BUTTON TEXT
+  ======================================================== */
+
+  group.appendChild(
+
+    createText(
+
+      active
+        ? "MASUK →"
+        : "SEGERA HADIR",
+
+      "0 -0.78 0.24",
+
+      "#ffffff",
+
+      1.7
+
+    )
+
+  );
+
+
+  /* ========================================================
+     STATUS
+  ======================================================== */
+
+  group.appendChild(
+
+    createText(
+
+      active
+        ? "Koleksi tersedia"
+        : "Koleksi belum tersedia",
+
+      "0 -1.10 0.14",
+
+      active
+        ? COLORS.green
+        : "#9ca4aa",
+
+      1.85
+
+    )
+
+  );
 
 
   yearHall.appendChild(
@@ -1561,18 +1939,136 @@ function createPlant(position) {
 }
 
 
+/* ============================================================
+   PLANT
+============================================================ */
+
+function createPlant(
+  position
+) {
+
+  const plant =
+    document.createElement(
+      "a-entity"
+    );
+
+
+  plant.setAttribute(
+    "position",
+    position
+  );
+
+
+  plant.appendChild(
+
+    createBox(
+      "0 0.25 0",
+      0.75,
+      0.50,
+      0.75,
+      "#ffffff"
+    )
+
+  );
+
+
+  plant.appendChild(
+
+    createBox(
+      "0 0.78 0",
+      0.10,
+      1.0,
+      0.10,
+      COLORS.green
+    )
+
+  );
+
+
+  [
+
+    "-0.25 1.25 0",
+    "0 1.45 0",
+    "0.25 1.25 0"
+
+  ].forEach(
+
+    function(pos) {
+
+      const leaf =
+        document.createElement(
+          "a-sphere"
+        );
+
+
+      leaf.setAttribute(
+        "radius",
+        "0.28"
+      );
+
+
+      leaf.setAttribute(
+        "position",
+        pos
+      );
+
+
+      leaf.setAttribute(
+        "scale",
+        "1 0.65 1"
+      );
+
+
+      leaf.setAttribute(
+        "color",
+        COLORS.green
+      );
+
+
+      plant.appendChild(
+        leaf
+      );
+
+    }
+
+  );
+
+
+  yearHall.appendChild(
+    plant
+  );
+
+}
+
 
 /* ============================================================
    ENTER YEAR
 ============================================================ */
 
-function enterYear(year) {
+function enterYear(
+  year
+) {
+
+  if (
+    studioOpening
+  ) {
+
+    return;
+
+  }
+
 
   currentYear =
     year;
 
 
   yearHall.setAttribute(
+    "visible",
+    "false"
+  );
+
+
+  studio.setAttribute(
     "visible",
     "false"
   );
@@ -1589,17 +2085,22 @@ function enterYear(year) {
   );
 
 
-  backBtn.style.display =
-    "block";
-
-
-  rig.setAttribute(
+  player.setAttribute(
     "position",
     "0 1.6 4.5"
   );
 
-}
 
+  camera.setAttribute(
+    "rotation",
+    "0 0 0"
+  );
+
+
+  backYear.style.display =
+    "block";
+
+}
 
 
 /* ============================================================
@@ -1607,6 +2108,27 @@ function enterYear(year) {
 ============================================================ */
 
 function backToYearHall() {
+
+  if (
+    studioOpening
+  ) {
+
+    return;
+
+  }
+
+
+  youtubeFrame.src =
+    "";
+
+
+  youtubeLayer.style.display =
+    "none";
+
+
+  closeStudioButton.style.display =
+    "none";
+
 
   gallery.setAttribute(
     "visible",
@@ -1626,104 +2148,140 @@ function backToYearHall() {
   );
 
 
-  backBtn.style.display =
+  backYear.style.display =
     "none";
 
 
-  closeStudioBtn.style.display =
-    "none";
-
-
-  youtubeOverlay.style.display =
-    "none";
-
-
-  youtubeFrame.src =
-    "";
-
-
-  rig.setAttribute(
+  player.setAttribute(
     "position",
     "0 1.6 6"
   );
 
-}
 
+  camera.setAttribute(
+    "rotation",
+    "0 0 0"
+  );
+
+
+  currentYear =
+    null;
+
+
+  currentStudio =
+    null;
+
+
+  currentPosterGroup =
+    null;
+
+}
 
 
 /* ============================================================
    BUILD GALLERY
 ============================================================ */
 
-function buildGallery(year) {
+function buildGallery(
+  year
+) {
 
   gallery.innerHTML = "";
 
 
-  /*
-   * FLOOR
-   */
+  /* ========================================================
+     FLOOR
+  ======================================================== */
 
   gallery.appendChild(
 
-    boxEntity(
-      "0 -0.12 -16",
+    createBox(
+
+      "0 -0.10 -20",
+
       10,
-      0.2,
-      35,
-      "#dde2df"
-    )
 
-  );
-
-
-  /*
-   * LEFT WALL
-   */
-
-  gallery.appendChild(
-
-    boxEntity(
-      "-4.8 2.7 -16",
       0.20,
-      5.4,
-      35,
-      "#faf8f2"
+
+      42,
+
+      "#dde3df",
+
+      `
+        roughness: 0.45;
+        metalness: 0.10;
+      `
+
     )
 
   );
 
 
-  /*
-   * RIGHT WALL
-   */
+  /* ========================================================
+     WALLS
+  ======================================================== */
 
   gallery.appendChild(
 
-    boxEntity(
-      "4.8 2.7 -16",
+    createBox(
+
+      "-4.8 2.7 -20",
+
       0.20,
-      5.4,
-      35,
-      "#faf8f2"
+
+      5.40,
+
+      42,
+
+      COLORS.cream
+
     )
 
   );
 
 
-  /*
-   * FLOOR STRIPES
-   */
+  gallery.appendChild(
+
+    createBox(
+
+      "4.8 2.7 -20",
+
+      0.20,
+
+      5.40,
+
+      42,
+
+      COLORS.cream
+
+    )
+
+  );
+
+
+  /* ========================================================
+     FLOOR STRIPS
+  ======================================================== */
 
   gallery.appendChild(
 
-    boxEntity(
-      "-4.1 0.02 -16",
+    createBox(
+
+      "-4.10 0.02 -20",
+
       0.10,
+
       0.04,
-      35,
+
+      42,
+
       COLORS.blue,
-      `emissive: ${COLORS.blue};`
+
+      `
+        emissive: ${COLORS.blue};
+        emissiveIntensity: 0.60;
+      `
+
     )
 
   );
@@ -1731,29 +2289,44 @@ function buildGallery(year) {
 
   gallery.appendChild(
 
-    boxEntity(
-      "4.1 0.02 -16",
+    createBox(
+
+      "4.10 0.02 -20",
+
       0.10,
+
       0.04,
-      35,
+
+      42,
+
       COLORS.green,
-      `emissive: ${COLORS.green};`
+
+      `
+        emissive: ${COLORS.green};
+        emissiveIntensity: 0.50;
+      `
+
     )
 
   );
 
 
-  /*
-   * HEADER
-   */
+  /* ========================================================
+     HEADER
+  ======================================================== */
 
   gallery.appendChild(
 
-    textEntity(
+    createText(
+
       `KOPI PAHIT · ${year}`,
-      "0 4.2 -4.2",
+
+      "0 4.10 -4.30",
+
       COLORS.navy,
+
       5
+
     )
 
   );
@@ -1761,48 +2334,69 @@ function buildGallery(year) {
 
   gallery.appendChild(
 
-    textEntity(
+    createText(
+
       "KONGKOW PINTAR PAHAM IT",
-      "0 3.75 -4.2",
+
+      "0 3.70 -4.30",
+
       COLORS.orange,
-      3.4
+
+      3.2
+
     )
 
   );
 
 
-  /*
-   * TIMELINE
-   */
+  /* ========================================================
+     TIMELINE
+  ======================================================== */
 
   gallery.appendChild(
 
-    boxEntity(
-      "0 0.28 -22",
-      7,
-      0.03,
-      0.03,
-      COLORS.blue
+    createBox(
+
+      "0 0.25 -22.5",
+
+      7.2,
+
+      0.04,
+
+      0.04,
+
+      COLORS.blue,
+
+      `
+        emissive: ${COLORS.blue};
+        emissiveIntensity: 0.5;
+      `
+
     )
 
   );
 
 
-  /*
-   * POSTERS
-   */
+  /* ========================================================
+     POSTERS
+  ======================================================== */
 
   const data =
     galleryData[year] || [];
 
 
   data.forEach(
-    (item, index) => {
+
+    function(
+      item,
+      index
+    ) {
 
       const row =
         Math.floor(
           index / 2
         );
+
 
       const left =
         index % 2 === 0;
@@ -1810,36 +2404,37 @@ function buildGallery(year) {
 
       const x =
         left
-          ? -3.65
-          : 3.65;
+          ? -3.55
+          : 3.55;
 
 
       const z =
         -7 -
-        row * 4.6;
+        row * 4.8;
 
 
       createPoster(
+
         item,
+
         x,
+
         z,
+
         left
+
       );
 
     }
+
   );
 
 
-  /*
-   * END WALL
-   */
-
-  createEndWall(
+  createGalleryEnd(
     data.length
   );
 
 }
-
 
 
 /* ============================================================
@@ -1847,10 +2442,15 @@ function buildGallery(year) {
 ============================================================ */
 
 function createPoster(
+
   item,
+
   x,
+
   z,
+
   left
+
 ) {
 
   const group =
@@ -1871,46 +2471,67 @@ function createPoster(
   );
 
 
-  /*
-   * BACK FRAME
-   */
+  group.classList.add(
+    "poster-group"
+  );
 
-  const frame =
-    boxEntity(
+
+  /* ========================================================
+     WHITE FRAME
+  ======================================================== */
+
+  group.appendChild(
+
+    createBox(
+
       "0 0 0",
+
       1.82,
+
       2.65,
+
       0.20,
+
       "#ffffff"
-    );
 
+    )
 
-  group.appendChild(
-    frame
   );
 
 
-  /*
-   * ORANGE FRAME
-   */
+  /* ========================================================
+     ORANGE FRAME
+  ======================================================== */
 
-  const orange =
-    boxEntity(
+  group.appendChild(
+
+    createBox(
+
       "0 0 0.12",
-      1.60,
-      2.43,
-      0.06,
-      COLORS.orange
-    );
 
-  group.appendChild(
-    orange
+      1.60,
+
+      2.42,
+
+      0.05,
+
+      COLORS.orange,
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.12;
+      `
+
+    )
+
   );
 
 
-  /*
-   * POSTER
-   */
+  /* ========================================================
+     POSTER IMAGE
+     
+     PATH LANGSUNG KE FILE.
+  ======================================================== */
 
   const image =
     document.createElement(
@@ -1938,7 +2559,7 @@ function createPoster(
 
   image.setAttribute(
     "position",
-    "0 0 0.16"
+    "0 0 0.17"
   );
 
 
@@ -1947,17 +2568,67 @@ function createPoster(
   );
 
 
-  /*
-   * HOVER EFFECT
-   */
+  /* ========================================================
+     DEBUG SUCCESS
+  ======================================================== */
+
+  image.addEventListener(
+
+    "materialtextureloaded",
+
+    function() {
+
+      console.log(
+
+        "✅ Poster loaded:",
+
+        item.edisi,
+
+        item.poster
+
+      );
+
+    }
+
+  );
+
+
+  /* ========================================================
+     DEBUG ERROR
+  ======================================================== */
+
+  image.addEventListener(
+
+    "materialtextureerror",
+
+    function() {
+
+      console.error(
+
+        "❌ Poster failed:",
+
+        item.edisi,
+
+        item.poster
+
+      );
+
+    }
+
+  );
+
+
+  /* ========================================================
+     HOVER
+  ======================================================== */
 
   image.addEventListener(
     "mouseenter",
-    () => {
+    function() {
 
       image.setAttribute(
         "scale",
-        "1.04 1.04 1.04"
+        "1.05 1.05 1.05"
       );
 
     }
@@ -1966,7 +2637,7 @@ function createPoster(
 
   image.addEventListener(
     "mouseleave",
-    () => {
+    function() {
 
       image.setAttribute(
         "scale",
@@ -1977,16 +2648,38 @@ function createPoster(
   );
 
 
+  /* ========================================================
+     CLICK
+  ======================================================== */
+
   image.addEventListener(
+
     "click",
-    () => {
+
+    function(event) {
+
+      if (
+        studioOpening
+      ) {
+
+        return;
+
+      }
+
+
+      event.stopPropagation();
+
 
       openStudio(
+
         item,
+
         group
+
       );
 
     }
+
   );
 
 
@@ -1995,58 +2688,74 @@ function createPoster(
   );
 
 
-  /*
-   * EDITION LABEL
-   */
+  /* ========================================================
+     EDITION
+  ======================================================== */
 
   group.appendChild(
 
-    textEntity(
+    createText(
+
       `EDISI #${String(item.edisi).padStart(2, "0")}`,
-      "0 1.55 0.16",
+
+      "0 1.53 0.16",
+
       COLORS.navy,
-      2.3
+
+      2.2
+
     )
 
   );
 
 
-  /*
-   * EVENT TITLE
-   */
+  /* ========================================================
+     DATE
+  ======================================================== */
 
   group.appendChild(
 
-    textEntity(
-      item.judul,
-      "0 -1.56 0.16",
-      "#53606a",
-      2.6
+    createText(
+
+      item.tanggal,
+
+      "0 -1.53 0.16",
+
+      "#68747d",
+
+      2.4
+
     )
 
   );
 
 
-  /*
-   * STAND
-   */
+  /* ========================================================
+     BASE
+  ======================================================== */
 
   group.appendChild(
 
-    boxEntity(
-      "0 -1.38 0",
-      1.9,
+    createBox(
+
+      "0 -1.37 0",
+
+      1.85,
+
       0.16,
+
       0.45,
-      "#eef1ef"
+
+      "#eef1ee"
+
     )
 
   );
 
 
-  /*
-   * TIMELINE DOT
-   */
+  /* ========================================================
+     TIMELINE DOT
+  ======================================================== */
 
   const dot =
     document.createElement(
@@ -2062,7 +2771,7 @@ function createPoster(
 
   dot.setAttribute(
     "position",
-    "0 -1.85 0"
+    "0 -1.84 0"
   );
 
 
@@ -2086,34 +2795,52 @@ function createPoster(
 }
 
 
-
 /* ============================================================
-   CREATE END WALL
+   GALLERY END
 ============================================================ */
 
-function createEndWall(
+function createGalleryEnd(
   count
 ) {
 
-  const endZ =
-    -7 -
+  if (
+    count === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const row =
     Math.max(
       0,
       Math.floor(
         (count - 1) / 2
       )
-    ) * 4.6 -
+    );
+
+
+  const z =
+    -7 -
+    row * 4.8 -
     5;
 
 
   gallery.appendChild(
 
-    boxEntity(
-      "0 2.7 " + endZ,
-      9.5,
+    createBox(
+
+      `0 2.7 ${z}`,
+
+      9.6,
+
       5.4,
+
       0.22,
+
       COLORS.cream
+
     )
 
   );
@@ -2121,11 +2848,16 @@ function createEndWall(
 
   gallery.appendChild(
 
-    textEntity(
+    createText(
+
       "KOPI PAHIT",
-      `0 3.55 ${endZ - 0.2}`,
+
+      `0 3.55 ${z - 0.20}`,
+
       COLORS.navy,
+
       4
+
     )
 
   );
@@ -2133,11 +2865,16 @@ function createEndWall(
 
   gallery.appendChild(
 
-    textEntity(
+    createText(
+
       `${count} EDISI · SATU PERJALANAN`,
-      `0 3.0 ${endZ - 0.2}`,
+
+      `0 3.0 ${z - 0.20}`,
+
       COLORS.orange,
+
       3
+
     )
 
   );
@@ -2145,11 +2882,16 @@ function createEndWall(
 
   gallery.appendChild(
 
-    textEntity(
+    createText(
+
       "SETIAP DISKUSI MENINGGALKAN JEJAK",
-      `0 2.5 ${endZ - 0.2}`,
+
+      `0 2.5 ${z - 0.20}`,
+
       COLORS.green,
+
       2.8
+
     )
 
   );
@@ -2157,49 +2899,111 @@ function createEndWall(
 }
 
 
-
 /* ============================================================
    OPEN STUDIO
 ============================================================ */
 
 function openStudio(
+
   item,
+
   posterGroup
+
 ) {
+
+  if (
+    studioOpening
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    !item ||
+    !posterGroup
+  ) {
+
+    return;
+
+  }
+
+
+  studioOpening =
+    true;
+
 
   currentStudio =
     item;
 
 
-  /*
-   * Build studio world
-   */
-
-  buildStudio(
-    item
-  );
+  currentPosterGroup =
+    posterGroup;
 
 
-  /*
-   * First:
-   * animate "poster door".
-   *
-   * Poster becomes the
-   * doorway visual.
-   */
+  /* ========================================================
+     HIDE POSTER
+  ======================================================== */
 
-  createPosterDoor(
+  const poster =
+    posterGroup.querySelector(
+      "a-image"
+    );
+
+
+  if (
+    poster
+  ) {
+
+    poster.setAttribute(
+      "visible",
+      "false"
+    );
+
+  }
+
+
+  /* ========================================================
+     CREATE DOOR
+  ======================================================== */
+
+  createStudioDoor(
     posterGroup
   );
 
 
-  /*
-   * After opening:
-   * switch to studio.
-   */
+  /* ========================================================
+     START OPENING
+  ======================================================== */
 
   setTimeout(
-    () => {
+
+    function() {
+
+      animateStudioDoor(
+        posterGroup
+      );
+
+    },
+
+    80
+
+  );
+
+
+  /* ========================================================
+     AFTER DOOR
+  ======================================================== */
+
+  setTimeout(
+
+    function() {
+
+      buildStudio(
+        item
+      );
+
 
       gallery.setAttribute(
         "visible",
@@ -2219,28 +3023,23 @@ function openStudio(
       );
 
 
-      backBtn.style.display =
+      backYear.style.display =
         "none";
 
 
-      closeStudioBtn.style.display =
+      closeStudioButton.style.display =
         "block";
 
 
-      /*
-       * Move visitor into
-       * cinema room.
-       */
+      /* ====================================================
+         CAMERA
+      ==================================================== */
 
-      rig.setAttribute(
+      player.setAttribute(
         "position",
-        "0 1.6 3.8"
+        "0 1.6 2.4"
       );
 
-
-      /*
-       * Face screen.
-       */
 
       camera.setAttribute(
         "rotation",
@@ -2248,86 +3047,107 @@ function openStudio(
       );
 
 
-      /*
-       * Youtube overlay
-       */
+      /* ====================================================
+         YOUTUBE
+      ==================================================== */
 
       youtubeTitle.innerText =
         `STUDIO ${String(item.edisi).padStart(2, "0")} · KOPI PAHIT #${item.edisi}`;
 
 
-      youtubeFrame.src =
-        getYoutubeEmbed(
+      const embedURL =
+        normalizeYoutubeUrl(
           item.youtube
         );
 
 
-      youtubeOverlay.style.display =
-        "flex";
+      if (
+        embedURL
+      ) {
+
+        youtubeFrame.src =
+          embedURL;
+
+
+        youtubeLayer.style.display =
+          "flex";
+
+      }
+
+
+      studioOpening =
+        false;
 
     },
-    950
+
+    1000
+
   );
 
 }
 
 
-
 /* ============================================================
-   POSTER DOOR
+   CREATE CLOSED STUDIO DOOR
 ============================================================ */
 
-function createPosterDoor(
-  posterGroup
+function createStudioDoor(
+  group
 ) {
 
-  /*
-   * Hide poster.
-   */
+  /* ========================================================
+     CLEAR OLD DOOR
+  ======================================================== */
 
-  const poster =
-    posterGroup.querySelector(
-      "a-image"
+  group
+    .querySelectorAll(
+      ".temporary-studio-door"
+    )
+    .forEach(
+
+      function(element) {
+
+        element.remove();
+
+      }
+
     );
 
 
-  if (poster) {
-
-    poster.setAttribute(
-      "visible",
-      "false"
-    );
-
-  }
-
-
-  /*
-   * Dark doorway
-   */
+  /* ========================================================
+     DARK OPENING
+  ======================================================== */
 
   const opening =
-    boxEntity(
+
+    createBox(
+
       "0 0 0.25",
+
       1.58,
+
       2.25,
+
       0.08,
+
       COLORS.dark
+
     );
 
 
   opening.classList.add(
-    "temp-door"
+    "temporary-studio-door"
   );
 
 
-  posterGroup.appendChild(
+  group.appendChild(
     opening
   );
 
 
-  /*
-   * LEFT PIVOT
-   */
+  /* ========================================================
+     LEFT PIVOT
+  ======================================================== */
 
   const leftPivot =
     document.createElement(
@@ -2337,17 +3157,40 @@ function createPosterDoor(
 
   leftPivot.setAttribute(
     "position",
-    "-0.78 0 0.30"
+    "-0.79 0 0.30"
+  );
+
+
+  leftPivot.setAttribute(
+    "rotation",
+    "0 0 0"
+  );
+
+
+  leftPivot.classList.add(
+    "temporary-studio-door"
   );
 
 
   const leftDoor =
-    boxEntity(
-      "0.39 0 0",
-      0.78,
+
+    createBox(
+
+      "0.395 0 0",
+
+      0.79,
+
       2.22,
-      0.09,
-      COLORS.orange
+
+      0.10,
+
+      COLORS.orange,
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.20;
+      `
+
     );
 
 
@@ -2356,9 +3199,9 @@ function createPosterDoor(
   );
 
 
-  /*
-   * RIGHT PIVOT
-   */
+  /* ========================================================
+     RIGHT PIVOT
+  ======================================================== */
 
   const rightPivot =
     document.createElement(
@@ -2368,17 +3211,40 @@ function createPosterDoor(
 
   rightPivot.setAttribute(
     "position",
-    "0.78 0 0.30"
+    "0.79 0 0.30"
+  );
+
+
+  rightPivot.setAttribute(
+    "rotation",
+    "0 0 0"
+  );
+
+
+  rightPivot.classList.add(
+    "temporary-studio-door"
   );
 
 
   const rightDoor =
-    boxEntity(
-      "-0.39 0 0",
-      0.78,
+
+    createBox(
+
+      "-0.395 0 0",
+
+      0.79,
+
       2.22,
-      0.09,
-      COLORS.orange
+
+      0.10,
+
+      COLORS.orange,
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.20;
+      `
+
     );
 
 
@@ -2387,66 +3253,132 @@ function createPosterDoor(
   );
 
 
-  posterGroup.appendChild(
+  group.appendChild(
     leftPivot
   );
 
 
-  posterGroup.appendChild(
+  group.appendChild(
     rightPivot
   );
 
 
-  /*
-   * Door labels.
-   */
+  /* ========================================================
+     LABEL
+  ======================================================== */
 
-  const studioText =
-    textEntity(
+  const studioLabel =
+
+    createText(
+
       "STUDIO",
-      "0 1.15 0.38",
+
+      "0 1.15 0.40",
+
       "#ffffff",
-      1.6
+
+      1.60
+
     );
 
 
-  studioText.classList.add(
-    "temp-door"
+  studioLabel.classList.add(
+    "temporary-studio-door"
   );
 
 
-  posterGroup.appendChild(
-    studioText
+  group.appendChild(
+    studioLabel
   );
 
 
-  /*
-   * OPEN ANIMATION
-   */
+  /* ========================================================
+     STORE REFERENCE
+  ======================================================== */
 
-  leftPivot.setAttribute(
-    "animation__open",
-    `
-      property: rotation;
-      to: 0 85 0;
-      dur: 800;
-      easing: easeInOutCubic;
-    `
-  );
+  group._studioLeftDoor =
+    leftPivot;
 
 
-  rightPivot.setAttribute(
-    "animation__open",
-    `
-      property: rotation;
-      to: 0 -85 0;
-      dur: 800;
-      easing: easeInOutCubic;
-    `
-  );
+  group._studioRightDoor =
+    rightPivot;
 
 }
 
+
+/* ============================================================
+   ANIMATE DOOR
+============================================================ */
+
+function animateStudioDoor(
+  group
+) {
+
+  if (
+    !group
+  ) {
+
+    return;
+
+  }
+
+
+  const left =
+    group._studioLeftDoor;
+
+
+  const right =
+    group._studioRightDoor;
+
+
+  if (
+    !left ||
+    !right
+  ) {
+
+    return;
+
+  }
+
+
+  /* ========================================================
+     LEFT
+  ======================================================== */
+
+  left.setAttribute(
+
+    "animation__open",
+
+    `
+      property: rotation;
+      from: 0 0 0;
+      to: 0 85 0;
+      dur: 850;
+      easing: easeInOutCubic;
+    `
+
+  );
+
+
+  /* ========================================================
+     RIGHT
+  ======================================================== */
+
+  right.setAttribute(
+
+    "animation__open",
+
+    `
+      property: rotation;
+      from: 0 0 0;
+      to: 0 -85 0;
+      dur: 850;
+      easing: easeInOutCubic;
+    `
+
+  );
+
+}
 
 
 /* ============================================================
@@ -2460,87 +3392,126 @@ function buildStudio(
   studio.innerHTML = "";
 
 
-  /*
-   * FLOOR
-   */
+  /* ========================================================
+     FLOOR
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
+    createBox(
+
       "0 -0.10 -2",
+
       12,
-      0.2,
+
+      0.20,
+
       13,
-      "#202832"
+
+      "#202932",
+
+      `
+        roughness: 0.50;
+        metalness: 0.05;
+      `
+
     )
 
   );
 
 
-  /*
-   * LEFT WALL
-   */
+  /* ========================================================
+     LEFT WALL
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
+    createBox(
+
       "-6 3 -2",
+
       0.25,
+
       6,
+
       13,
-      "#101820"
+
+      "#0d151c"
+
     )
 
   );
 
 
-  /*
-   * RIGHT WALL
-   */
+  /* ========================================================
+     RIGHT WALL
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
+    createBox(
+
       "6 3 -2",
+
       0.25,
+
       6,
+
       13,
-      "#101820"
+
+      "#0d151c"
+
     )
 
   );
 
 
-  /*
-   * BACK WALL
-   */
+  /* ========================================================
+     BACK WALL
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
+    createBox(
+
       "0 3 -8",
+
       12,
+
       6,
+
       0.25,
-      "#0c1218"
+
+      "#091016"
+
     )
 
   );
 
 
-  /*
-   * ORANGE LIGHT STRIPS
-   */
+  /* ========================================================
+     SIDE LIGHTS
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
-      "-5.7 1.0 -2",
+    createBox(
+
+      "-5.65 1.4 -2",
+
       0.06,
-      2.0,
+
+      2.8,
+
       12,
+
       COLORS.orange,
-      `emissive: ${COLORS.orange};`
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.8;
+      `
+
     )
 
   );
@@ -2548,165 +3519,223 @@ function buildStudio(
 
   studio.appendChild(
 
-    boxEntity(
-      "5.7 1.0 -2",
+    createBox(
+
+      "5.65 1.4 -2",
+
       0.06,
-      2.0,
+
+      2.8,
+
       12,
+
       COLORS.orange,
-      `emissive: ${COLORS.orange};`
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.8;
+      `
+
     )
 
   );
 
 
-  /*
-   * SCREEN FRAME
-   */
+  /* ========================================================
+     CINEMA SCREEN FRAME
+     
+     Frame 3D saja.
+     Video tetap satu iframe HTML.
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
-      "0 3.15 -7.75",
-      5.1,
-      3.0,
+    createBox(
+
+      "0 1.60 -4.65",
+
+      5.85,
+
+      3.25,
+
       0.30,
+
       "#111820"
+
     )
 
   );
 
 
-  /*
-   * ORANGE SCREEN BORDER
-   */
+  /* ========================================================
+     ORANGE SCREEN BORDER
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
-      "0 3.15 -7.56",
-      4.75,
-      2.65,
+    createBox(
+
+      "0 1.60 -4.45",
+
+      5.35,
+
+      2.83,
+
       0.06,
+
       COLORS.orange,
-      `emissive: ${COLORS.orange};`
+
+      `
+        emissive: ${COLORS.orange};
+        emissiveIntensity: 0.55;
+      `
+
     )
 
   );
 
 
-  /*
-   * BLACK SCREEN
-   */
+  /* ========================================================
+     STUDIO TITLE
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
-      "0 3.15 -7.48",
-      4.45,
-      2.35,
-      0.03,
-      "#000000"
-    )
+    createText(
 
-  );
-
-
-  /*
-   * STUDIO LABEL
-   */
-
-  studio.appendChild(
-
-    textEntity(
       `STUDIO ${String(item.edisi).padStart(2, "0")}`,
-      "0 5.1 -7.35",
+
+      "0 3.52 -4.30",
+
       "#ffffff",
-      4
+
+      3.7
+
     )
 
   );
 
 
-  /*
-   * ON AIR
-   */
+  /* ========================================================
+     ON AIR
+  ======================================================== */
 
-  const onAir =
-    boxEntity(
-      "0 4.55 -7.38",
-      1.10,
+  studio.appendChild(
+
+    createBox(
+
+      "0 3.10 -4.31",
+
+      1.15,
+
       0.32,
+
       0.06,
-      "#d92525"
-    );
 
-  studio.appendChild(
-    onAir
+      "#df2929",
+
+      `
+        emissive: #df2929;
+        emissiveIntensity: 0.65;
+      `
+
+    )
+
   );
 
 
   studio.appendChild(
 
-    textEntity(
+    createText(
+
       "● ON AIR",
-      "0 4.55 -7.28",
+
+      "0 3.10 -4.20",
+
       "#ffffff",
-      1.5
+
+      1.6
+
     )
 
   );
 
 
-  /*
-   * KOPI PAHIT LOGO
-   */
+  /* ========================================================
+     KOPI PAHIT
+  ======================================================== */
 
   studio.appendChild(
 
-    textEntity(
+    createText(
+
       "KOPI PAHIT",
-      "0 5.65 -7.35",
+
+      "0 4.14 -4.30",
+
       COLORS.orange,
+
       2.7
+
     )
 
   );
 
 
-  /*
-   * CINEMA SEATS
-   */
+  studio.appendChild(
+
+    createText(
+
+      "KONGKOW PINTAR PAHAM IT",
+
+      "0 3.88 -4.30",
+
+      "#c4cfd6",
+
+      2.0
+
+    )
+
+  );
+
+
+  /* ========================================================
+     EVENT TITLE
+  ======================================================== */
+
+  studio.appendChild(
+
+    createText(
+
+      item.judul,
+
+      "0 0.30 -4.30",
+
+      "#ffffff",
+
+      4.0
+
+    )
+
+  );
+
+
+  /* ========================================================
+     SEATS
+  ======================================================== */
 
   createCinemaSeats();
 
 
-  /*
-   * DOCUMENT PANEL
-   */
+  /* ========================================================
+     DOCUMENT PANEL
+  ======================================================== */
 
   createDocumentPanel(
     item
   );
 
-
-  /*
-   * SIDE TITLE
-   */
-
-  studio.appendChild(
-
-    textEntity(
-      item.judul,
-      "0 0.45 -7.35",
-      "#ffffff",
-      4
-    )
-
-  );
-
 }
-
 
 
 /* ============================================================
@@ -2716,19 +3745,26 @@ function buildStudio(
 function createCinemaSeats() {
 
   const rows = [
-    1.0,
-    2.0,
-    3.0
+
+    0.8,
+    1.8,
+    2.8
+
   ];
 
 
   rows.forEach(
-    (z, rowIndex) => {
+
+    function(z) {
 
       for (
+
         let i = -3;
+
         i <= 3;
+
         i++
+
       ) {
 
         const seat =
@@ -2738,40 +3774,51 @@ function createCinemaSeats() {
 
 
         seat.setAttribute(
+
           "position",
+
           `${i * 0.9} 0.55 ${z}`
+
         );
 
 
-        /*
-         * seat base
-         */
+        /* BASE */
 
         seat.appendChild(
 
-          boxEntity(
+          createBox(
+
             "0 0 0",
+
             0.62,
-            0.40,
+
+            0.35,
+
             0.62,
-            "#3a4652"
+
+            "#394652"
+
           )
 
         );
 
 
-        /*
-         * seat back
-         */
+        /* BACK */
 
         seat.appendChild(
 
-          boxEntity(
-            "0 0.45 0.24",
+          createBox(
+
+            "0 0.48 0.22",
+
             0.62,
+
             0.85,
+
             0.20,
-            "#27333e"
+
+            "#27343e"
+
           )
 
         );
@@ -2784,10 +3831,10 @@ function createCinemaSeats() {
       }
 
     }
+
   );
 
 }
-
 
 
 /* ============================================================
@@ -2799,67 +3846,96 @@ function createDocumentPanel(
 ) {
 
   const x =
-    -4.15;
+    -4.10;
 
 
-  /*
-   * PANEL BACKGROUND
-   */
+  /* ========================================================
+     PANEL
+  ======================================================== */
 
   studio.appendChild(
 
-    boxEntity(
-      `${x} 2.55 -6.8`,
-      2.2,
-      3.3,
-      0.15,
-      "#131c24"
+    createBox(
+
+      `${x} 2.45 -6.65`,
+
+      2.25,
+
+      3.20,
+
+      0.16,
+
+      "#131d25"
+
     )
 
   );
 
 
-  /*
-   * TITLE
-   */
+  /* ========================================================
+     HEADER
+  ======================================================== */
 
   studio.appendChild(
 
-    textEntity(
+    createText(
+
       "DOKUMEN KEGIATAN",
-      `${x} 3.85 -6.68`,
+
+      `${x} 3.75 -6.50`,
+
       "#ffffff",
-      2.1
+
+      2.10
+
     )
 
   );
 
 
+  /* ========================================================
+     BUTTONS
+  ======================================================== */
+
   createDocumentButton(
+
     item.presensi,
+
     "DAFTAR HADIR",
-    `${x} 3.1 -6.68`,
+
+    `${x} 3.03 -6.49`,
+
     COLORS.blue
+
   );
 
 
   createDocumentButton(
+
     item.notulen,
+
     "NOTULEN",
-    `${x} 2.45 -6.68`,
+
+    `${x} 2.37 -6.49`,
+
     COLORS.green
+
   );
 
 
   createDocumentButton(
+
     item.laporan,
+
     "LAPORAN KEGIATAN",
-    `${x} 1.8 -6.68`,
+
+    `${x} 1.71 -6.49`,
+
     COLORS.orange
+
   );
 
 }
-
 
 
 /* ============================================================
@@ -2867,10 +3943,15 @@ function createDocumentPanel(
 ============================================================ */
 
 function createDocumentButton(
+
   url,
+
   label,
+
   position,
+
   color
+
 ) {
 
   const group =
@@ -2886,12 +3967,24 @@ function createDocumentButton(
 
 
   const button =
-    boxEntity(
+
+    createBox(
+
       "0 0 0",
-      1.85,
+
+      1.90,
+
       0.46,
+
       0.08,
-      color
+
+      color,
+
+      `
+        emissive: ${color};
+        emissiveIntensity: 0.15;
+      `
+
     );
 
 
@@ -2907,38 +4000,63 @@ function createDocumentButton(
 
   group.appendChild(
 
-    textEntity(
+    createText(
+
       label,
-      "0 0 0.07",
+
+      "0 0 0.08",
+
       "#ffffff",
-      1.9
+
+      1.78
+
     )
 
   );
 
 
-  group.classList.add(
-    "clickable"
-  );
+  button.addEventListener(
 
-
-  group.addEventListener(
     "click",
-    () => {
+
+    function(event) {
+
+      event.stopPropagation();
+
 
       if (
+
         url &&
-        url !== "#"
+
+        url !== "#" &&
+
+        !url.startsWith(
+          "LINK_"
+        )
+
       ) {
 
         window.open(
+
           url,
-          "_blank"
+
+          "_blank",
+
+          "noopener,noreferrer"
+
+        );
+
+      }
+      else {
+
+        alert(
+          "Link dokumen belum diisi."
         );
 
       }
 
     }
+
   );
 
 
@@ -2949,32 +4067,36 @@ function createDocumentButton(
 }
 
 
-
 /* ============================================================
    CLOSE STUDIO
 ============================================================ */
 
 function closeStudio() {
 
-  /*
-   * Stop YouTube
-   */
+  if (
+    studioOpening
+  ) {
+
+    return;
+
+  }
+
+
+  /* ========================================================
+     STOP YOUTUBE
+  ======================================================== */
 
   youtubeFrame.src =
     "";
 
 
-  youtubeOverlay.style.display =
+  youtubeLayer.style.display =
     "none";
 
 
-  closeStudioBtn.style.display =
-    "none";
-
-
-  /*
-   * Hide studio
-   */
+  /* ========================================================
+     HIDE STUDIO
+  ======================================================== */
 
   studio.setAttribute(
     "visible",
@@ -2982,9 +4104,9 @@ function closeStudio() {
   );
 
 
-  /*
-   * Return to selected gallery
-   */
+  /* ========================================================
+     SHOW GALLERY
+  ======================================================== */
 
   gallery.setAttribute(
     "visible",
@@ -2992,36 +4114,109 @@ function closeStudio() {
   );
 
 
-  backBtn.style.display =
+  /* ========================================================
+     UI
+  ======================================================== */
+
+  closeStudioButton.style.display =
+    "none";
+
+
+  backYear.style.display =
     "block";
 
 
-  /*
-   * Restore position
-   */
+  /* ========================================================
+     RESTORE POSTER
+  ======================================================== */
 
-  rig.setAttribute(
+  if (
+    currentPosterGroup
+  ) {
+
+    const poster =
+      currentPosterGroup.querySelector(
+        "a-image"
+      );
+
+
+    if (
+      poster
+    ) {
+
+      poster.setAttribute(
+        "visible",
+        "true"
+      );
+
+    }
+
+
+    currentPosterGroup
+      .querySelectorAll(
+        ".temporary-studio-door"
+      )
+      .forEach(
+
+        function(element) {
+
+          element.remove();
+
+        }
+
+      );
+
+
+    delete
+      currentPosterGroup
+        ._studioLeftDoor;
+
+
+    delete
+      currentPosterGroup
+        ._studioRightDoor;
+
+  }
+
+
+  /* ========================================================
+     CAMERA
+  ======================================================== */
+
+  player.setAttribute(
     "position",
     "0 1.6 4.5"
+  );
+
+
+  camera.setAttribute(
+    "rotation",
+    "0 0 0"
   );
 
 
   currentStudio =
     null;
 
+
+  currentPosterGroup =
+    null;
+
 }
 
 
-
 /* ============================================================
-   YOUTUBE EMBED NORMALIZER
+   YOUTUBE NORMALIZER
 ============================================================ */
 
-function getYoutubeEmbed(
+function normalizeYoutubeUrl(
   url
 ) {
 
-  if (!url) {
+  if (
+    !url ||
+    url === "#"
+  ) {
 
     return "";
 
@@ -3029,31 +4224,19 @@ function getYoutubeEmbed(
 
 
   /*
-   * Already embed URL
+   * Placeholder
    */
 
   if (
     url.includes(
-      "youtube.com/embed/"
+      "VIDEO_ID_"
     )
   ) {
 
-    return (
-      url +
-      (
-        url.includes("?")
-          ? "&"
-          : "?"
-      ) +
-      "autoplay=1&rel=0&modestbranding=1"
-    );
+    return "";
 
   }
 
-
-  /*
-   * Standard watch URL
-   */
 
   try {
 
@@ -3063,43 +4246,155 @@ function getYoutubeEmbed(
       );
 
 
-    let id =
-      parsed.searchParams.get(
-        "v"
-      );
+    let videoId =
+      "";
 
 
-    /*
-     * Short URL
-     */
+    /* ======================================================
+       WATCH
+    ====================================================== */
 
     if (
-      parsed.hostname === "youtu.be"
+
+      parsed.hostname.includes(
+        "youtube.com"
+      )
+
+      &&
+
+      parsed.pathname ===
+        "/watch"
+
     ) {
 
-      id =
-        parsed.pathname
-          .replace("/", "");
+      videoId =
+        parsed.searchParams.get(
+          "v"
+        ) || "";
 
     }
 
 
-    if (id) {
+    /* ======================================================
+       LIVE
+    ====================================================== */
+
+    else if (
+
+      parsed.hostname.includes(
+        "youtube.com"
+      )
+
+      &&
+
+      parsed.pathname.startsWith(
+        "/live/"
+      )
+
+    ) {
+
+      const parts =
+        parsed.pathname.split(
+          "/"
+        );
+
+
+      videoId =
+        parts[2] || "";
+
+    }
+
+
+    /* ======================================================
+       EMBED
+    ====================================================== */
+
+    else if (
+
+      parsed.hostname.includes(
+        "youtube.com"
+      )
+
+      &&
+
+      parsed.pathname.startsWith(
+        "/embed/"
+      )
+
+    ) {
+
+      const parts =
+        parsed.pathname.split(
+          "/"
+        );
+
+
+      videoId =
+        parts[2] || "";
+
+    }
+
+
+    /* ======================================================
+       YOUTU.BE
+    ====================================================== */
+
+    else if (
+
+      parsed.hostname ===
+        "youtu.be"
+
+    ) {
+
+      videoId =
+
+        parsed.pathname
+
+          .replace(
+            /^\/+/,
+            ""
+          )
+
+          .split(
+            "/"
+          )[0];
+
+    }
+
+
+    if (
+      videoId
+    ) {
 
       return (
+
         "https://www.youtube.com/embed/" +
-        id +
-        "?autoplay=1&rel=0&modestbranding=1"
+
+        videoId +
+
+        "?autoplay=1" +
+
+        "&rel=0" +
+
+        "&modestbranding=1"
+
       );
 
     }
 
   }
-  catch (error) {
+  catch (
+    error
+  ) {
 
-    console.warn(
-      "URL YouTube tidak valid:",
+    console.error(
+
+      "YouTube URL error:",
+
+      url,
+
       error
+
     );
 
   }
@@ -3108,7 +4403,6 @@ function getYoutubeEmbed(
   return "";
 
 }
-
 
 
 /* ============================================================
@@ -3137,9 +4431,11 @@ const joystick =
 
     position: {
 
-      left: "60px",
+      left:
+        "60px",
 
-      bottom: "60px"
+      bottom:
+        "60px"
 
     },
 
@@ -3153,11 +4449,13 @@ const joystick =
 
 
 joystick.on(
+
   "move",
-  (
+
+  function(
     event,
     data
-  ) => {
+  ) {
 
     if (
       data &&
@@ -3167,18 +4465,22 @@ joystick.on(
       joystickVector.x =
         data.vector.x;
 
+
       joystickVector.y =
         data.vector.y;
 
     }
 
   }
+
 );
 
 
 joystick.on(
+
   "end",
-  () => {
+
+  function() {
 
     joystickVector = {
 
@@ -3189,23 +4491,22 @@ joystick.on(
     };
 
   }
+
 );
 
 
-
 /* ============================================================
-   PLAYER MOVEMENT
+   MOVEMENT
 ============================================================ */
 
-const SPEED =
+const MOVEMENT_SPEED =
   0.055;
 
 
 function movementLoop() {
 
   /*
-   * Do not move camera
-   * while watching studio.
+   * Movement disabled inside studio.
    */
 
   if (
@@ -3215,8 +4516,11 @@ function movementLoop() {
   ) {
 
     if (
+
       joystickVector.x !== 0 ||
+
       joystickVector.y !== 0
+
     ) {
 
       const rotation =
@@ -3233,38 +4537,62 @@ function movementLoop() {
 
       const forward =
         joystickVector.y *
-        SPEED;
+        MOVEMENT_SPEED;
 
 
       const strafe =
         joystickVector.x *
-        SPEED;
+        MOVEMENT_SPEED;
 
 
       const dx =
-        strafe *
-        Math.cos(angle)
+
+        (
+          strafe *
+          Math.cos(
+            angle
+          )
+        )
+
         -
-        forward *
-        Math.sin(angle);
+
+        (
+          forward *
+          Math.sin(
+            angle
+          )
+        );
 
 
       const dz =
-        -strafe *
-        Math.sin(angle)
+
+        (
+          -strafe *
+          Math.sin(
+            angle
+          )
+        )
+
         -
-        forward *
-        Math.cos(angle);
+
+        (
+          forward *
+          Math.cos(
+            angle
+          )
+        );
 
 
       const current =
-        rig.getAttribute(
+        player.getAttribute(
           "position"
         );
 
 
-      rig.setAttribute(
+      player.setAttribute(
+
         "position",
+
         {
 
           x:
@@ -3277,6 +4605,7 @@ function movementLoop() {
             current.z + dz
 
         }
+
       );
 
     }
@@ -3284,49 +4613,84 @@ function movementLoop() {
   }
 
 
-  /*
-   * Boundary
-   */
+  /* ========================================================
+     LIMIT X
+  ======================================================== */
 
   const pos =
-    rig.getAttribute(
+    player.getAttribute(
       "position"
     );
 
 
   pos.x =
     Math.max(
+
       -3.8,
+
       Math.min(
         3.8,
         pos.x
       )
+
     );
 
 
-  /*
-   * Gallery boundary
-   */
+  /* ========================================================
+     YEAR HALL Z
+  ======================================================== */
 
   if (
-    gallery.getAttribute(
+
+    yearHall.getAttribute(
       "visible"
     )
+
   ) {
 
     pos.z =
       Math.max(
-        -42,
+
+        -4,
+
         Math.min(
-          5,
+          6,
           pos.z
         )
+
       );
 
   }
 
 
-  rig.setAttribute(
+  /* ========================================================
+     GALLERY Z
+  ======================================================== */
+
+  if (
+
+    gallery.getAttribute(
+      "visible"
+    )
+
+  ) {
+
+    pos.z =
+      Math.max(
+
+        -42,
+
+        Math.min(
+          5,
+          pos.z
+        )
+
+      );
+
+  }
+
+
+  player.setAttribute(
     "position",
     pos
   );
@@ -3339,43 +4703,101 @@ function movementLoop() {
 }
 
 
-
 /* ============================================================
    STARTUP
 ============================================================ */
 
 buildYearHall();
 
+
 movementLoop();
 
 
-
-/*
- * Remove loading
- * after A-Frame loads.
- */
+/* ============================================================
+   A-FRAME LOADED
+============================================================ */
 
 scene.addEventListener(
+
   "loaded",
-  () => {
+
+  function() {
+
+    console.log(
+      "✅ A-Frame loaded"
+    );
+
+
+    loadingStatus.innerText =
+      "GALLERY SIAP";
+
 
     setTimeout(
-      () => {
 
-        document.getElementById(
-          "loading"
-        ).style.display =
+      function() {
+
+        loading.style.display =
           "none";
 
       },
-      500
+
+      700
+
     );
 
   }
+
 );
 
+
+/* ============================================================
+   DEBUG URL
+============================================================ */
+
+window.addEventListener(
+
+  "load",
+
+  function() {
+
+    console.log(
+      "======================================"
+    );
+
+    console.log(
+      "KOPI PAHIT VIRTUAL GALLERY"
+    );
+
+    console.log(
+      "Poster configuration:"
+    );
+
+
+    galleryData[2026].forEach(
+
+      function(item) {
+
+        console.log(
+
+          `Edisi #${item.edisi}: ${item.poster}`
+
+        );
+
+      }
+
+    );
+
+
+    console.log(
+      "======================================"
+    );
+
+  }
+
+);
 
 </script>
 
 </body>
+
 </html>
