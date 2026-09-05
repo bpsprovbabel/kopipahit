@@ -309,79 +309,177 @@
 
 
     /* =====================================================
-       JOYSTICK
+       DUAL JOYSTICK CONTROLS
     ====================================================== */
-
-    #joystick-zone {
-
+    .joystick-zone {
       position: fixed;
-
-      left: 18px;
       bottom: 18px;
-
       width: 125px;
       height: 125px;
-
       z-index: 5000;
-
       pointer-events: auto;
-
       touch-action: none;
-
     }
-
+    #joystick-zone { left: 18px; }
+    #look-joystick-zone { right: 18px; }
+    .joystick-caption {
+      position: fixed;
+      bottom: 8px;
+      z-index: 5001;
+      color: rgba(255,255,255,.72);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      pointer-events: none;
+      text-shadow: 0 2px 6px rgba(0,0,0,.55);
+    }
+    #move-caption { left: 48px; }
+    #look-caption { right: 48px; }
 
     /* =====================================================
-       YOUTUBE SCREEN — aligned with the 3D cinema screen
+       YOUTUBE CINEMA FRAME
+       Video HTML berada tepat di depan area layar studio.
     ====================================================== */
-    #youtube-layer { position:fixed; inset:0; z-index:5000; display:none; align-items:center; justify-content:center; pointer-events:none; }
-    #youtube-frame-container { position:relative; width:min(44vw,760px); aspect-ratio:16/9; pointer-events:auto; background:#000; border:0; border-radius:2px; overflow:hidden; box-shadow:0 10px 35px rgba(0,0,0,.28); }
-    #youtube-frame { width:100%; height:100%; border:0; display:block; }
-    #gyro-button { display:none; position:fixed; right:18px; bottom:18px; z-index:7000; border:0; border-radius:999px; padding:11px 15px; background:rgba(24,60,84,.94); color:#fff; font-size:11px; font-weight:900; box-shadow:0 8px 25px rgba(0,0,0,.18); touch-action:manipulation; }
-    #studio-docs { position:fixed; right:18px; bottom:18px; z-index:6500; display:none; width:205px; padding:12px; border-radius:14px; background:rgba(13,21,28,.94); border:1px solid rgba(242,140,24,.45); box-shadow:0 14px 35px rgba(0,0,0,.28); backdrop-filter:blur(8px); }
-    #studio-docs-title { color:#fff; font-size:10px; font-weight:900; letter-spacing:1.4px; margin-bottom:8px; }
-    .studio-doc-button { display:block; width:100%; margin-top:7px; padding:9px 10px; border:0; border-radius:8px; color:#fff; font-size:10px; font-weight:900; text-align:left; cursor:pointer; }
-    .studio-doc-button.blue { background:#0794d2; } .studio-doc-button.green { background:#65b82e; } .studio-doc-button.orange { background:#f28c18; }
+    #youtube-layer {
+      position:fixed;
+      inset:0;
+      z-index:5000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+    }
+    #youtube-frame-container {
+      position:relative;
+      width:min(62vw, 880px);
+      aspect-ratio:16/9;
+      pointer-events:auto;
+      background:#05080b;
+      border:7px solid #111820;
+      border-radius:6px;
+      overflow:visible;
+      box-shadow:
+        0 0 0 3px #f28c18,
+        0 0 0 7px rgba(242,140,24,.13),
+        0 28px 75px rgba(0,0,0,.68),
+        0 0 70px rgba(242,140,24,.18);
+    }
+    #youtube-frame-container::before {
+      content:"";
+      position:absolute;
+      inset:-13px -13px;
+      border:1px solid rgba(242,140,24,.28);
+      border-radius:10px;
+      pointer-events:none;
+    }
+    #youtube-frame-container::after {
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:-16px;
+      width:30%;
+      height:5px;
+      transform:translateX(-50%);
+      background:#f28c18;
+      border-radius:999px;
+      box-shadow:0 0 18px rgba(242,140,24,.7);
+      pointer-events:none;
+    }
+    #youtube-frame {
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+      border-radius:0;
+      background:#000;
+    }
+    #youtube-title {
+      position:absolute;
+      left:50%;
+      top:-47px;
+      transform:translateX(-50%);
+      color:#fff;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:2px;
+      white-space:nowrap;
+      text-shadow:0 2px 12px rgba(0,0,0,.85);
+    }
+    #on-air-label {
+      position:absolute;
+      top:11px;
+      right:11px;
+      z-index:20;
+      padding:5px 9px;
+      border-radius:5px;
+      background:#df2929;
+      color:#fff;
+      font-size:9px;
+      font-weight:900;
+      letter-spacing:1px;
+      box-shadow:0 4px 12px rgba(0,0,0,.35);
+    }
+
+    /* =====================================================
+       DOCUMENTS
+    ====================================================== */
+    #studio-docs {
+      position:fixed;
+      right:18px;
+      bottom:155px;
+      z-index:6500;
+      display:none;
+      width:220px;
+      padding:13px;
+      border-radius:16px;
+      background:rgba(13,21,28,.92);
+      border:1px solid rgba(242,140,24,.50);
+      box-shadow:0 14px 35px rgba(0,0,0,.30);
+      backdrop-filter:blur(10px);
+    }
+    #studio-docs-title {
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:1.4px;
+      margin-bottom:8px;
+    }
+    .studio-doc-button {
+      display:block;
+      width:100%;
+      margin-top:7px;
+      padding:9px 10px;
+      border:0;
+      border-radius:8px;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      text-align:left;
+      cursor:pointer;
+      transition:transform .18s ease, filter .18s ease;
+    }
+    .studio-doc-button:hover { transform:translateX(-2px); filter:brightness(1.08); }
+    .studio-doc-button.blue { background:#0794d2; }
+    .studio-doc-button.green { background:#65b82e; }
+    .studio-doc-button.orange { background:#f28c18; }
 
     /* =====================================================
        MOBILE
     ====================================================== */
-
-    @media (hover: none) and (pointer: coarse) { #gyro-button { display:block; } }
-
-    @media (max-width: 700px) {
-
-      #hud {
-
-        font-size: 9px;
-
-        max-width: 80vw;
-
-        white-space: normal;
-
-      }
-
-
-      #loading-logos { gap:14px; }
-      #loading-logo-bps { width:105px; }
-      #loading-logo-kopi { width:125px; }
-
-      #youtube-frame-container { width:74vw; }
-
-      #studio-docs { left:12px; right:12px; bottom:12px; width:auto; padding:9px; }
+    @media (max-width:700px) {
+      #hud { font-size:9px; max-width:78vw; white-space:normal; top:10px; }
+      #youtube-frame-container { width:88vw; border-width:5px; }
+      #youtube-title { top:-31px; font-size:9px; }
+      #youtube-frame-container::before { inset:-9px; }
+      #studio-docs { left:12px; right:12px; bottom:148px; width:auto; padding:9px; }
       .studio-doc-button { display:inline-block; width:calc(33.333% - 6px); margin-right:5px; margin-top:0; padding:8px 7px; font-size:9px; }
       .studio-doc-button:last-child { margin-right:0; }
-
-      #back-year,
-      #close-studio {
-
-        font-size: 9px;
-
-        padding:
-          9px 11px;
-
-      }
-
+      .joystick-zone { width:105px; height:105px; bottom:18px; }
+      #joystick-zone { left:5px; }
+      #look-joystick-zone { right:5px; }
+      #move-caption { left:34px; }
+      #look-caption { right:34px; }
+      #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
   </style>
@@ -424,7 +522,7 @@
 
   <div id="hud">
 
-    WASD / JOYSTICK
+    WASD / JOYSTICK KIRI · JOYSTICK KANAN UNTUK MELIHAT
     ·
     JELAJAHI GALLERY
     ·
@@ -461,6 +559,9 @@
 
     <div id="youtube-frame-container">
 
+      <div id="youtube-title">STUDIO · KOPI PAHIT</div>
+      <div id="on-air-label">● ON AIR</div>
+
       <iframe
         id="youtube-frame"
         src=""
@@ -483,9 +584,10 @@
        JOYSTICK
   ====================================================== -->
 
-  <div id="joystick-zone"></div>
-
-  <button id="gyro-button" type="button" onclick="enableGyro()">🧭 AKTIFKAN GYRO</button>
+  <div id="joystick-zone" class="joystick-zone"></div>
+  <div id="look-joystick-zone" class="joystick-zone"></div>
+  <div id="move-caption" class="joystick-caption">GERAK</div>
+  <div id="look-caption" class="joystick-caption">LIHAT</div>
 
   <div id="studio-docs">
     <div id="studio-docs-title">DOKUMEN KEGIATAN · BUKA TAB BARU</div>
@@ -1019,7 +1121,6 @@ const loadingStatus =
     "loading-status"
   );
 
-const gyroButton = document.getElementById("gyro-button");
 const studioDocs = document.getElementById("studio-docs");
 const docButtons = { presensi:document.getElementById("doc-presensi"), notulen:document.getElementById("doc-notulen"), laporan:document.getElementById("doc-laporan") };
 
@@ -1485,6 +1586,18 @@ function buildYearHall() {
 
   );
 
+
+  /* ========================================================
+     FRONT ARCH / DECORATIVE PORTAL
+  ======================================================== */
+  yearHall.appendChild(createBox("-6.25 2.8 -7.35", 0.18, 5.2, 0.35, COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.30;`));
+  yearHall.appendChild(createBox("6.25 2.8 -7.35", 0.18, 5.2, 0.35, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.30;`));
+  yearHall.appendChild(createBox("0 5.25 -7.35", 12.5, 0.18, 0.35, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.30;`));
+  yearHall.appendChild(createBox("0 0.08 -6.95", 12.2, 0.08, 1.0, "#d9dfdc",
+    `roughness: 0.8; metalness: 0.05;`));
 
   /* ========================================================
      YEAR CARDS
@@ -1976,10 +2089,8 @@ function enterYear(
   );
 
 
-  camera.setAttribute(
-    "rotation",
-    "0 0 0"
-  );
+  camera.setAttribute("rotation", "0 0 0");
+  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   backYear.style.display =
@@ -2010,8 +2121,7 @@ function backToYearHall() {
   youtubeLayer.style.display =
     "none";
   studioDocs.style.display = "none";
-  if (("ontouchstart" in window) || navigator.maxTouchPoints > 0) gyroButton.style.display = "block";
-  camera.setAttribute("look-controls", "enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   closeStudioButton.style.display =
@@ -2046,10 +2156,8 @@ function backToYearHall() {
   );
 
 
-  camera.setAttribute(
-    "rotation",
-    "0 0 0"
-  );
+  camera.setAttribute("rotation", "0 0 0");
+  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   currentYear =
@@ -2073,255 +2181,59 @@ function backToYearHall() {
 function buildGallery(
   year
 ) {
-
   gallery.innerHTML = "";
 
-
-  /* ========================================================
-     FLOOR
-  ======================================================== */
-
-  gallery.appendChild(
-
-    createBox(
-
-      "0 -0.10 -20",
-
-      10,
-
-      0.20,
-
-      42,
-
-      "#dde3df",
-
-      `
-        roughness: 0.45;
-        metalness: 0.10;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     WALLS
-  ======================================================== */
-
-  gallery.appendChild(
-
-    createBox(
-
-      "-4.8 2.7 -20",
-
-      0.20,
-
-      5.40,
-
-      42,
-
-      COLORS.cream
-
-    )
-
-  );
-
-
-  gallery.appendChild(
-
-    createBox(
-
-      "4.8 2.7 -20",
-
-      0.20,
-
-      5.40,
-
-      42,
-
-      COLORS.cream
-
-    )
-
-  );
-
-
-  /* ========================================================
-     FLOOR STRIPS
-  ======================================================== */
-
-  gallery.appendChild(
-
-    createBox(
-
-      "-4.10 0.02 -20",
-
-      0.10,
-
-      0.04,
-
-      42,
-
-      COLORS.blue,
-
-      `
-        emissive: ${COLORS.blue};
-        emissiveIntensity: 0.60;
-      `
-
-    )
-
-  );
-
-
-  gallery.appendChild(
-
-    createBox(
-
-      "4.10 0.02 -20",
-
-      0.10,
-
-      0.04,
-
-      42,
-
-      COLORS.green,
-
-      `
-        emissive: ${COLORS.green};
-        emissiveIntensity: 0.50;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     HEADER
-  ======================================================== */
-
-  gallery.appendChild(
-
-    createText(
-
-      `KOPI PAHIT · ${year}`,
-
-      "0 4.10 -4.30",
-
-      COLORS.navy,
-
-      5
-
-    )
-
-  );
-
-
-  gallery.appendChild(
-
-    createText(
-
-      "KONGKOW PINTAR PAHAM IT",
-
-      "0 3.70 -4.30",
-
-      COLORS.orange,
-
-      3.2
-
-    )
-
-  );
-
-
-  /* ========================================================
-     TIMELINE
-  ======================================================== */
-
-  gallery.appendChild(
-
-    createBox(
-
-      "0 0.25 -22.5",
-
-      7.2,
-
-      0.04,
-
-      0.04,
-
-      COLORS.blue,
-
-      `
-        emissive: ${COLORS.blue};
-        emissiveIntensity: 0.5;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     POSTERS
-  ======================================================== */
-
-  const data =
-    galleryData[year] || [];
-
-
-  data.forEach(
-
-    function(
-      item,
-      index
-    ) {
-
-      const row =
-        Math.floor(
-          index / 2
-        );
-
-
-      const left =
-        index % 2 === 0;
-
-
-      const x =
-        left
-          ? -3.55
-          : 3.55;
-
-
-      const z =
-        -7 -
-        row * 4.8;
-
-
-      createPoster(
-
-        item,
-
-        x,
-
-        z,
-
-        left
-
-      );
-
-    }
-
-  );
-
-
-  createGalleryEnd(
-    data.length
-  );
-
+  // Premium corridor floor + carpet runner
+  gallery.appendChild(createBox("0 -0.10 -20", 10, 0.20, 42, "#d6d0c4", `roughness: 0.82; metalness: 0.04;`));
+  gallery.appendChild(createBox("0 0.015 -20", 2.55, 0.035, 40.5, "#24313a", `roughness: 1; metalness: 0;`));
+  gallery.appendChild(createBox("0 0.038 -20", 2.05, 0.018, 40.0, "#633b25", `roughness: 1; metalness: 0;`));
+  gallery.appendChild(createBox("0 0.055 -20", 0.055, 0.012, 39.5, COLORS.orange, `emissive: ${COLORS.orange}; emissiveIntensity: 0.35;`));
+
+  // Warm architectural walls
+  gallery.appendChild(createBox("-4.8 2.7 -20", 0.20, 5.40, 42, "#e9e4da", `roughness: 0.75; metalness: 0.02;`));
+  gallery.appendChild(createBox("4.8 2.7 -20", 0.20, 5.40, 42, "#e9e4da", `roughness: 0.75; metalness: 0.02;`));
+  gallery.appendChild(createBox("-4.65 0.72 -20", 0.08, 1.45, 41.5, "#bdb4a5"));
+  gallery.appendChild(createBox("4.65 0.72 -20", 0.08, 1.45, 41.5, "#bdb4a5"));
+
+  // Ceiling beams / light rails
+  gallery.appendChild(createBox("0 5.55 -20", 9.6, 0.18, 42, "#d3cec3"));
+  for (let z=-5; z>=-39; z-=4.8) {
+    gallery.appendChild(createBox(`0 5.31 ${z}`, 7.4, 0.055, 0.08, COLORS.orange, `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`));
+    gallery.appendChild(createBox(`-4.35 5.30 ${z}`, 0.10, 0.10, 0.80, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`));
+    gallery.appendChild(createBox(`4.35 5.30 ${z}`, 0.10, 0.10, 0.80, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
+  }
+
+  // Gallery edge lighting
+  gallery.appendChild(createBox("-4.10 0.04 -20", 0.10, 0.05, 42, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.70;`));
+  gallery.appendChild(createBox("4.10 0.04 -20", 0.10, 0.05, 42, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.60;`));
+
+  // Entrance branding
+  gallery.appendChild(createText(`KOPI PAHIT · ${year}`, "0 4.15 -4.30", COLORS.navy, 5.0));
+  gallery.appendChild(createText("KONGKOW PINTAR PAHAM IT", "0 3.72 -4.30", COLORS.orange, 3.2));
+  gallery.appendChild(createBox("-1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`));
+  gallery.appendChild(createBox("1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
+
+  // Lounge islands + plants to make the corridor feel occupied
+  [-11,-21,-31].forEach((z,i)=>{
+    const c=i%2===0?COLORS.blue:COLORS.green;
+    gallery.appendChild(createBox(`-2.25 0.28 ${z}`,1.25,0.18,0.55,"#765944"));
+    gallery.appendChild(createBox(`-2.25 0.52 ${z}`,1.08,0.30,0.42,"#34434e"));
+    gallery.appendChild(createBox(`2.25 0.28 ${z-1.0}`,1.25,0.18,0.55,"#765944"));
+    gallery.appendChild(createBox(`2.25 0.52 ${z-1.0}`,1.08,0.30,0.42,"#34434e"));
+    gallery.appendChild(createBox(`-2.25 0.66 ${z-0.27}`,0.62,0.025,0.025,c,`emissive: ${c}; emissiveIntensity: 0.5;`));
+  });
+  [-5.2,-14.8,-24.4,-34].forEach((z)=>{ createPlant(`-4.12 0 ${z}`); createPlant(`4.12 0 ${z-2.0}`); });
+
+  // Timeline
+  gallery.appendChild(createBox("0 0.20 -22.5",7.2,0.04,0.04,COLORS.blue,`emissive: ${COLORS.blue}; emissiveIntensity: 0.5;`));
+
+  const data=galleryData[year]||[];
+  data.forEach(function(item,index){
+    const row=Math.floor(index/2);
+    const left=index%2===0;
+    createPoster(item,left?-3.55:3.55,-7-row*4.8,left);
+  });
+  createGalleryEnd(data.length);
 }
 
 
@@ -2792,455 +2704,52 @@ function createGalleryEnd(
 ============================================================ */
 
 function openStudio(
-
   item,
-
   posterGroup
-
 ) {
+  if (studioOpening || !item || !posterGroup) return;
+  studioOpening=true; currentStudio=item; currentPosterGroup=posterGroup;
+  const poster=posterGroup.querySelector("a-image");
+  if (poster) poster.setAttribute("visible","false");
 
-  if (
-    studioOpening
-  ) {
+  // Restore the portal-opening transition from the poster.
+  createStudioDoor(posterGroup);
+  animateStudioDoor(posterGroup);
 
-    return;
-
-  }
-
-
-  if (
-    !item ||
-    !posterGroup
-  ) {
-
-    return;
-
-  }
-
-
-  studioOpening =
-    true;
-
-
-  currentStudio =
-    item;
-
-
-  currentPosterGroup =
-    posterGroup;
-
-
-  /* ========================================================
-     HIDE POSTER
-  ======================================================== */
-
-  const poster =
-    posterGroup.querySelector(
-      "a-image"
-    );
-
-
-  if (
-    poster
-  ) {
-
-    poster.setAttribute(
-      "visible",
-      "false"
-    );
-
-  }
-
-
-  /* ========================================================
-     MASUK STUDIO — tanpa pintu animasi
-  ======================================================== */
-
-  /* ========================================================
-     AFTER DOOR
-  ======================================================== */
-
-  setTimeout(
-
-    function() {
-
-      buildStudio(
-        item
-      );
-
-
-      gallery.setAttribute(
-        "visible",
-        "false"
-      );
-
-
-      yearHall.setAttribute(
-        "visible",
-        "false"
-      );
-
-
-      studio.setAttribute(
-        "visible",
-        "true"
-      );
-
-
-      backYear.style.display =
-        "none";
-
-
-      closeStudioButton.style.display =
-        "block";
-
-
-      /* ====================================================
-         CAMERA
-      ==================================================== */
-
-      player.setAttribute(
-        "position",
-        "0 1.6 2.4"
-      );
-
-
-      camera.setAttribute(
-        "rotation",
-        "0 0 0"
-      );
-
-
-
-      camera.setAttribute(
-        "look-controls",
-        "enabled: false; magicWindowTrackingEnabled: false; touchEnabled: false; mouseEnabled: false;"
-      );
-
-      /* ====================================================
-         YOUTUBE
-      ==================================================== */
-
-
-      const embedURL =
-        normalizeYoutubeUrl(
-          item.youtube
-        );
-
-
-      if (embedURL) {
-        youtubeFrame.src = embedURL;
-        youtubeLayer.style.display = "flex";
-      }
-
-      setupStudioDocuments(item);
-      studioDocs.style.display = "block";
-      if (("ontouchstart" in window) || navigator.maxTouchPoints > 0) gyroButton.style.display = "none";
-
-
-      studioOpening =
-        false;
-
-    },
-
-    120
-
-  );
-
+  setTimeout(function(){
+    buildStudio(item);
+    gallery.setAttribute("visible","false");
+    yearHall.setAttribute("visible","false");
+    studio.setAttribute("visible","true");
+    backYear.style.display="none";
+    closeStudioButton.style.display="block";
+    player.setAttribute("position","0 1.6 2.4");
+    camera.setAttribute("rotation","0 0 0");
+    camera.setAttribute("look-controls","enabled: false; magicWindowTrackingEnabled: false; touchEnabled: false; mouseEnabled: false; pointerLockEnabled: false;");
+    const embedURL=normalizeYoutubeUrl(item.youtube);
+    if(embedURL){
+      youtubeTitle.innerText=`STUDIO ${String(item.edisi).padStart(2,"0")} · KOPI PAHIT #${item.edisi}`;
+      youtubeFrame.src=embedURL; youtubeLayer.style.display="flex";
+    }
+    setupStudioDocuments(item); studioDocs.style.display="block"; studioOpening=false;
+  },900);
 }
 
-
-/* ============================================================
-   CREATE CLOSED STUDIO DOOR
-============================================================ */
-
-function createStudioDoor(
-  group
-) {
-
-  /* ========================================================
-     CLEAR OLD DOOR
-  ======================================================== */
-
-  group
-    .querySelectorAll(
-      ".temporary-studio-door"
-    )
-    .forEach(
-
-      function(element) {
-
-        element.remove();
-
-      }
-
-    );
-
-
-  /* ========================================================
-     DARK OPENING
-  ======================================================== */
-
-  const opening =
-
-    createBox(
-
-      "0 0 0.25",
-
-      1.58,
-
-      2.25,
-
-      0.08,
-
-      COLORS.dark
-
-    );
-
-
-  opening.classList.add(
-    "temporary-studio-door"
-  );
-
-
-  group.appendChild(
-    opening
-  );
-
-
-  /* ========================================================
-     LEFT PIVOT
-  ======================================================== */
-
-  const leftPivot =
-    document.createElement(
-      "a-entity"
-    );
-
-
-  leftPivot.setAttribute(
-    "position",
-    "-0.79 0 0.30"
-  );
-
-
-  leftPivot.setAttribute(
-    "rotation",
-    "0 0 0"
-  );
-
-
-  leftPivot.classList.add(
-    "temporary-studio-door"
-  );
-
-
-  const leftDoor =
-
-    createBox(
-
-      "0.395 0 0",
-
-      0.79,
-
-      2.22,
-
-      0.10,
-
-      COLORS.orange,
-
-      `
-        emissive: ${COLORS.orange};
-        emissiveIntensity: 0.20;
-      `
-
-    );
-
-
-  leftPivot.appendChild(
-    leftDoor
-  );
-
-
-  /* ========================================================
-     RIGHT PIVOT
-  ======================================================== */
-
-  const rightPivot =
-    document.createElement(
-      "a-entity"
-    );
-
-
-  rightPivot.setAttribute(
-    "position",
-    "0.79 0 0.30"
-  );
-
-
-  rightPivot.setAttribute(
-    "rotation",
-    "0 0 0"
-  );
-
-
-  rightPivot.classList.add(
-    "temporary-studio-door"
-  );
-
-
-  const rightDoor =
-
-    createBox(
-
-      "-0.395 0 0",
-
-      0.79,
-
-      2.22,
-
-      0.10,
-
-      COLORS.orange,
-
-      `
-        emissive: ${COLORS.orange};
-        emissiveIntensity: 0.20;
-      `
-
-    );
-
-
-  rightPivot.appendChild(
-    rightDoor
-  );
-
-
-  group.appendChild(
-    leftPivot
-  );
-
-
-  group.appendChild(
-    rightPivot
-  );
-
-
-  /* ========================================================
-     LABEL
-  ======================================================== */
-
-  const studioLabel =
-
-    createText(
-
-      "STUDIO",
-
-      "0 1.15 0.40",
-
-      "#ffffff",
-
-      1.60
-
-    );
-
-
-  studioLabel.classList.add(
-    "temporary-studio-door"
-  );
-
-
-  group.appendChild(
-    studioLabel
-  );
-
-
-  /* ========================================================
-     STORE REFERENCE
-  ======================================================== */
-
-  group._studioLeftDoor =
-    leftPivot;
-
-
-  group._studioRightDoor =
-    rightPivot;
-
+function createStudioDoor(group){
+  group.querySelectorAll(".temporary-studio-door").forEach(el=>el.remove());
+  const opening=createBox("0 0 0.25",1.58,2.25,0.08,"#070b10"); opening.classList.add("temporary-studio-door"); group.appendChild(opening);
+  const header=createBox("0 1.17 0.31",1.82,0.08,0.10,COLORS.orange,`emissive: ${COLORS.orange}; emissiveIntensity: 0.65;`); header.classList.add("temporary-studio-door"); group.appendChild(header);
+  const leftPivot=document.createElement("a-entity"); leftPivot.setAttribute("position","-0.79 0 0.31"); leftPivot.classList.add("temporary-studio-door");
+  leftPivot.appendChild(createBox("0.395 0 0",0.79,2.22,0.10,COLORS.orange,`emissive: ${COLORS.orange}; emissiveIntensity: 0.18;`));
+  const rightPivot=document.createElement("a-entity"); rightPivot.setAttribute("position","0.79 0 0.31"); rightPivot.classList.add("temporary-studio-door");
+  rightPivot.appendChild(createBox("-0.395 0 0",0.79,2.22,0.10,COLORS.orange,`emissive: ${COLORS.orange}; emissiveIntensity: 0.18;`));
+  const label=createText("STUDIO", "0 0.08 0.40", "#ffffff", 1.55); label.classList.add("temporary-studio-door");
+  group.appendChild(leftPivot); group.appendChild(rightPivot); group.appendChild(label); group._studioLeftDoor=leftPivot; group._studioRightDoor=rightPivot;
 }
-
-
-/* ============================================================
-   ANIMATE DOOR
-============================================================ */
-
-function animateStudioDoor(
-  group
-) {
-
-  if (
-    !group
-  ) {
-
-    return;
-
-  }
-
-
-  const left =
-    group._studioLeftDoor;
-
-
-  const right =
-    group._studioRightDoor;
-
-
-  if (
-    !left ||
-    !right
-  ) {
-
-    return;
-
-  }
-
-
-  /* ========================================================
-     LEFT
-  ======================================================== */
-
-  left.setAttribute(
-
-    "animation__open",
-
-    `
-      property: rotation;
-      from: 0 0 0;
-      to: 0 85 0;
-      dur: 850;
-      easing: easeInOutCubic;
-    `
-
-  );
-
-
-  /* ========================================================
-     RIGHT
-  ======================================================== */
-
-  right.setAttribute(
-
-    "animation__open",
-
-    `
-      property: rotation;
-      from: 0 0 0;
-      to: 0 -85 0;
-      dur: 850;
-      easing: easeInOutCubic;
-    `
-
-  );
-
+function animateStudioDoor(group){
+  const left=group&&group._studioLeftDoor, right=group&&group._studioRightDoor; if(!left||!right) return;
+  left.setAttribute("animation__open","property: rotation; from: 0 0 0; to: 0 86 0; dur: 760; easing: easeInOutCubic;");
+  right.setAttribute("animation__open","property: rotation; from: 0 0 0; to: 0 -86 0; dur: 760; easing: easeInOutCubic;");
 }
 
 
@@ -3249,6 +2758,7 @@ function animateStudioDoor(
 ============================================================ */
 
 function buildStudio(
+
   item
 ) {
 
@@ -3405,58 +2915,60 @@ function buildStudio(
 
 
   /* ========================================================
-     CINEMA SCREEN FRAME
-     
-     Frame 3D saja.
-     Video tetap satu iframe HTML.
+     CINEMA STAGE — layar video adalah overlay HTML.
+     Tidak ada frame 3D di belakang iframe.
   ======================================================== */
-
-  studio.appendChild(
-
-    createBox(
-
-      "0 1.60 -4.65",
-
-      5.85,
-
-      3.25,
-
-      0.30,
-
-      "#111820"
-
-    )
-
-  );
-
+  studio.appendChild(createBox(
+    "0 0.04 -4.55", 6.7, 0.10, 0.35, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`
+  ));
 
   /* ========================================================
-     ORANGE SCREEN BORDER
+     CARPET / RUG
   ======================================================== */
+  studio.appendChild(createBox(
+    "0 0.035 -1.25", 8.6, 0.035, 6.4, "#26313a",
+    `roughness: 0.95; metalness: 0;`
+  ));
+  studio.appendChild(createBox(
+    "0 0.058 -2.25", 7.4, 0.018, 3.7, "#633b25",
+    `roughness: 1; metalness: 0;`
+  ));
 
-  studio.appendChild(
+  // More lived-in studio details: rug border, host table and coffee cups
+  studio.appendChild(createBox("0 0.070 -2.25", 7.65, 0.018, 3.95, "#9b7a62"));
+  studio.appendChild(createBox("0 0.082 -2.25", 7.20, 0.014, 3.50, "#633b25"));
+  studio.appendChild(createBox("0 0.52 1.0", 2.0, 0.16, 0.90, "#633b25", `roughness: 0.78; metalness: 0.02;`));
+  studio.appendChild(createBox("0 0.28 1.0", 0.12, 0.45, 0.12, "#202b33"));
+  studio.appendChild(createBox("-0.70 0.28 1.0", 0.10, 0.45, 0.10, "#202b33"));
+  studio.appendChild(createBox("0.70 0.28 1.0", 0.10, 0.45, 0.10, "#202b33"));
+  [-0.48,0.48].forEach(function(x,i){ const cup=document.createElement("a-cylinder"); cup.setAttribute("radius","0.11"); cup.setAttribute("height","0.18"); cup.setAttribute("position",`${x} 0.76 1.0`); cup.setAttribute("color",i===0?"#f3efe6":"#26343e"); studio.appendChild(cup); });
 
-    createBox(
+  /* ========================================================
+     CEILING ACCENTS
+  ======================================================== */
+  studio.appendChild(createBox(
+    "-4.7 5.45 -3.5", 0.08, 0.08, 8.0, COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`
+  ));
+  studio.appendChild(createBox(
+    "4.7 5.45 -3.5", 0.08, 0.08, 8.0, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`
+  ));
 
-      "0 1.60 -4.45",
+  /* ========================================================
+     ACOUSTIC WALL PANELS
+  ======================================================== */
+  [-3.9,-2.8,2.8,3.9].forEach(function(x, i){
+    studio.appendChild(createBox(
+      `${x} 3.0 -7.78`, 0.72, 2.1, 0.08,
+      i % 2 === 0 ? "#18242d" : "#22313b"
+    ));
+  });
 
-      5.35,
-
-      2.83,
-
-      0.06,
-
-      COLORS.orange,
-
-      `
-        emissive: ${COLORS.orange};
-        emissiveIntensity: 0.55;
-      `
-
-    )
-
-  );
-
+  /* Decorative wall strips */
+  studio.appendChild(createBox("0 4.75 -7.78", 8.8, 0.05, 0.05, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`));
 
   /* ========================================================
      STUDIO TITLE
@@ -3584,19 +3096,28 @@ function buildStudio(
 
 
   /* ========================================================
+     SIDE DECOR — podium + coffee table + plants
+  ======================================================== */
+  studio.appendChild(createBox("-4.55 0.55 -0.65", 1.0, 1.0, 0.75, "#151f27"));
+  studio.appendChild(createBox("-4.55 1.08 -0.65", 0.78, 0.08, 0.55, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.35;`));
+  studio.appendChild(createBox("4.55 0.42 -0.65", 1.15, 0.12, 0.70, "#633b25"));
+  studio.appendChild(createBox("4.55 0.75 -0.65", 0.10, 0.65, 0.10, "#222c33"));
+  studio.appendChild(createBox("4.55 1.10 -0.65", 0.75, 0.08, 0.45, "#3b2620"));
+
+  /* small stage blocks */
+  studio.appendChild(createBox("-4.55 0.06 -3.65", 1.35, 0.08, 0.65, COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.25;`));
+  studio.appendChild(createBox("4.55 0.06 -3.65", 1.35, 0.08, 0.65, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.25;`));
+
+  /* ========================================================
      SEATS
   ======================================================== */
 
   createCinemaSeats();
 
 
-  /* ========================================================
-     DOCUMENT PANEL
-  ======================================================== */
-
-  createDocumentPanel(
-    item
-  );
 
 }
 
@@ -3701,142 +3222,6 @@ function createCinemaSeats() {
 
 
 /* ============================================================
-   DOCUMENT PANEL
-============================================================ */
-
-function createDocumentPanel(item) { return; }
-
-
-/* ============================================================
-   DOCUMENT BUTTON
-============================================================ */
-
-function createDocumentButton(
-
-  url,
-
-  label,
-
-  position,
-
-  color
-
-) {
-
-  const group =
-    document.createElement(
-      "a-entity"
-    );
-
-
-  group.setAttribute(
-    "position",
-    position
-  );
-
-
-  const button =
-
-    createBox(
-
-      "0 0 0",
-
-      1.90,
-
-      0.46,
-
-      0.08,
-
-      color,
-
-      `
-        emissive: ${color};
-        emissiveIntensity: 0.15;
-      `
-
-    );
-
-
-  button.classList.add(
-    "clickable"
-  );
-
-
-  group.appendChild(
-    button
-  );
-
-
-  group.appendChild(
-
-    createText(
-
-      label,
-
-      "0 0 0.08",
-
-      "#ffffff",
-
-      1.78
-
-    )
-
-  );
-
-
-  button.addEventListener(
-
-    "click",
-
-    function(event) {
-
-      event.stopPropagation();
-
-
-      if (
-
-        url &&
-
-        url !== "#" &&
-
-        !url.startsWith(
-          "LINK_"
-        )
-
-      ) {
-
-        window.open(
-
-          url,
-
-          "_blank",
-
-          "noopener,noreferrer"
-
-        );
-
-      }
-      else {
-
-        alert(
-          "Link dokumen belum diisi."
-        );
-
-      }
-
-    }
-
-  );
-
-
-  studio.appendChild(
-    group
-  );
-
-}
-
-
-/* ============================================================
    CLOSE STUDIO
 ============================================================ */
 
@@ -3922,32 +3307,15 @@ function closeStudio() {
     }
 
 
-    currentPosterGroup
-      .querySelectorAll(
-        ".temporary-studio-door"
-      )
-      .forEach(
-
-        function(element) {
-
-          element.remove();
-
-        }
-
-      );
-
-
-    delete
-      currentPosterGroup
-        ._studioLeftDoor;
-
-
-    delete
-      currentPosterGroup
-        ._studioRightDoor;
 
   }
 
+
+  if (currentPosterGroup) {
+    currentPosterGroup.querySelectorAll(".temporary-studio-door").forEach(function(element){ element.remove(); });
+    delete currentPosterGroup._studioLeftDoor;
+    delete currentPosterGroup._studioRightDoor;
+  }
 
   /* ========================================================
      CAMERA
@@ -3959,11 +3327,8 @@ function closeStudio() {
   );
 
 
-  camera.setAttribute(
-    "rotation",
-    "0 0 0"
-  );
-  camera.setAttribute("look-controls", "enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("rotation", "0 0 0");
+  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
 
 
   currentStudio =
@@ -3990,20 +3355,6 @@ function setupStudioDocuments(item){
   docButtons.laporan.onclick=e=>{e.stopPropagation();openDocumentLink(links.laporan,"Laporan kegiatan")};
 }
 
-/* ============================================================
-   GYROSCOPE / MOBILE LOOK
-============================================================ */
-async function enableGyro(){
-  try{
-    if(typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function"){
-      const permission=await DeviceOrientationEvent.requestPermission();
-      if(permission!=="granted"){ gyroButton.innerText="🧭 GYRO DITOLAK"; return; }
-    }
-    camera.setAttribute("look-controls","enabled:true; magicWindowTrackingEnabled:true; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
-    gyroButton.innerText="✓ GYRO AKTIF";
-  }catch(error){ console.warn("Gyro permission error:",error); gyroButton.innerText="↻ COBA LAGI"; }
-}
-function prepareMobileControls(){ if(("ontouchstart" in window)||navigator.maxTouchPoints>0) gyroButton.style.display="block"; }
 
 /* ============================================================
    YOUTUBE NORMALIZER
@@ -4206,94 +3557,53 @@ function normalizeYoutubeUrl(
 
 
 /* ============================================================
-   JOYSTICK
+   DUAL JOYSTICK
+   Kiri = bergerak, kanan = melihat/menoleh.
 ============================================================ */
+const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+let joystickVector = { x:0, y:0 };
+let lookVector = { x:0, y:0 };
 
-let joystickVector = {
+const joystick = nipplejs.create({
+  zone: document.getElementById("joystick-zone"),
+  mode: "static",
+  position: { left:"50%", top:"50%" },
+  color: COLORS.blue,
+  size: 88,
+  restOpacity: 0.7
+});
 
-  x: 0,
+const lookJoystick = nipplejs.create({
+  zone: document.getElementById("look-joystick-zone"),
+  mode: "static",
+  position: { left:"50%", top:"50%" },
+  color: COLORS.orange,
+  size: 88,
+  restOpacity: 0.7
+});
 
-  y: 0
+joystick.on("move", function(event,data){
+  if(data && data.vector){ joystickVector.x=data.vector.x; joystickVector.y=data.vector.y; }
+});
+joystick.on("end", function(){ joystickVector={x:0,y:0}; });
 
-};
+lookJoystick.on("move", function(event,data){
+  if(data && data.vector){ lookVector.x=data.vector.x; lookVector.y=data.vector.y; }
+});
+lookJoystick.on("end", function(){ lookVector={x:0,y:0}; });
 
-
-const joystick =
-  nipplejs.create({
-
-    zone:
-      document.getElementById(
-        "joystick-zone"
-      ),
-
-    mode:
-      "static",
-
-    position: {
-
-      left:
-        "60px",
-
-      bottom:
-        "60px"
-
-    },
-
-    color:
-      COLORS.blue,
-
-    size:
-      90
-
-  });
-
-
-joystick.on(
-
-  "move",
-
-  function(
-    event,
-    data
-  ) {
-
-    if (
-      data &&
-      data.vector
-    ) {
-
-      joystickVector.x =
-        data.vector.x;
-
-
-      joystickVector.y =
-        data.vector.y;
-
-    }
-
+function lookLoop(){
+  if(isTouchDevice && (lookVector.x!==0 || lookVector.y!==0)){
+    const rot=camera.getAttribute("rotation");
+    const sensitivity = studio.getAttribute("visible") ? 2.0 : 2.35;
+    rot.y -= lookVector.x * sensitivity;
+    rot.x -= lookVector.y * sensitivity;
+    rot.x=Math.max(-70, Math.min(70, rot.x));
+    camera.setAttribute("rotation", rot);
   }
-
-);
-
-
-joystick.on(
-
-  "end",
-
-  function() {
-
-    joystickVector = {
-
-      x: 0,
-
-      y: 0
-
-    };
-
-  }
-
-);
-
+  requestAnimationFrame(lookLoop);
+}
+lookLoop();
 
 /* ============================================================
    MOVEMENT
@@ -4508,7 +3818,7 @@ function movementLoop() {
 ============================================================ */
 
 buildYearHall();
-prepareMobileControls();
+
 
 
 movementLoop();
