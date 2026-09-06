@@ -1867,10 +1867,10 @@ function buildYearHall() {
     `emissive: ${COLORS.green}; emissiveIntensity: 0.42;`));
 
       /* ========================================================
-     LEFT / RIGHT IMAGE SCREENS — FLUSH TO WALL
+     LEFT / RIGHT IMAGE SCREENS — 4:5 WITH FRAME
   ======================================================== */
-  // Same V47 layout, but each screen is physically attached to the wall
-  // and has no colored border.
+  // Poster source is 1080 × 1350 px = exact 4:5.
+  // Keep the image at 1.86 × 2.325 m and restore the dark frame around it.
   const screenSlots = [
     { z: 0.8,  left: "./assets/screen-left-2.png",  right: "./assets/screen-right-2.png" },
     { z: -4.1, left: "./assets/screen-left.png",     right: "./assets/screen-right.png" },
@@ -1882,23 +1882,22 @@ function buildYearHall() {
     const rotY = side === "left" ? 90 : -90;
 
     const panel = document.createElement("a-entity");
-    panel.setAttribute("position", `${x} 3.05 ${z}`);
+    // Raised so the poster's full lower edge clears the dark lower wall band.
+    panel.setAttribute("position", `${x} 3.38 ${z}`);
     panel.setAttribute("rotation", `0 ${rotY} 0`);
 
-    // Very thin backing plate so the panel sits directly on the wall.
-    // 4:5 exact — mengikuti file poster 1080 × 1350 px.
-    // Backing dibuat sama persis dengan bidang gambar agar tidak ada
-    // margin/ruang kosong yang membuat poster terlihat "kekecilan".
+    // Dark outer frame, restored to match the earlier Lobby screen design.
     panel.appendChild(createBox(
       "0 0 0",
-      1.86, 2.325, 0.035,
-      "#e7e3dc",
-      "roughness: 0.72; metalness: 0.02;"
+      2.08, 2.55, 0.14,
+      "#17242d",
+      "roughness: 0.48; metalness: 0.08;"
     ));
 
+    // Exact 4:5 poster image: 1080 × 1350 px.
     const img = document.createElement("a-image");
     img.setAttribute("src", imagePath);
-    img.setAttribute("position", "0 0 0.028");
+    img.setAttribute("position", "0 0 0.09");
     img.setAttribute("width", "1.86");
     img.setAttribute("height", "2.325");
     img.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
