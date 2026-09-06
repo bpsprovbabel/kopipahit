@@ -573,11 +573,11 @@
       #joystick-zone, #look-joystick-zone {
         display:block;
         width:108px; height:108px;
-        bottom:28vh;
+        bottom:14vh;
       }
       #joystick-zone { left:12px; }
       #look-joystick-zone { right:12px; }
-      #look-touch-hint { display:block; bottom:calc(28vh - 20px); right:12px; font-size:7px; }
+      #look-touch-hint { display:block; bottom:calc(14vh - 20px); right:12px; font-size:7px; }
       #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
@@ -876,10 +876,7 @@
           mouseEnabled: true;
         "
 
-        wasd-controls="
-          acceleration: 14;
-          fly: false;
-        "
+        wasd-controls="enabled: false;"
       >
 
         <a-cursor
@@ -3436,40 +3433,46 @@ lookJoystick.on("move", function(event,data){
 });
 lookJoystick.on("end", function(){ lookJoystickVector={x:0,y:0}; });
 
-const LOOK_YAW_SPEED = 1.15;
-const LOOK_PITCH_SPEED = 0.90;
-const LOOK_SMOOTH = 0.38;
+const LOOK_YAW_SPEED = 0.030;   // radians/frame at full joystick deflection
+const LOOK_PITCH_SPEED = 0.022;
+const LOOK_SMOOTH = 0.32;
 let targetYaw = 0;
 let targetPitch = 0;
 
 function syncLookTargets(){
-  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
-  targetYaw = r.y;
-  targetPitch = r.x;
+  const obj = camera && camera.object3D ? camera.object3D : null;
+  if(!obj) return;
+  targetYaw = obj.rotation.y;
+  targetPitch = obj.rotation.x;
 }
 syncLookTargets();
 
-function normalizeAngle(a){
-  while(a > 180) a -= 360;
-  while(a < -180) a += 360;
+function normalizeRad(a){
+  while(a > Math.PI) a -= Math.PI * 2;
+  while(a < -Math.PI) a += Math.PI * 2;
   return a;
 }
 
 function lookLoop(){
-  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
-  if(isTouchDevice && !studio.getAttribute('visible')){
-    // Right joystick: push right = look right, push down = look down.
-    if(lookJoystickVector.x !== 0 || lookJoystickVector.y !== 0){
-      targetYaw += lookJoystickVector.x * LOOK_YAW_SPEED;
-      targetPitch += lookJoystickVector.y * LOOK_PITCH_SPEED;
-      targetPitch = Math.max(-65, Math.min(65, targetPitch));
+  const obj = camera && camera.object3D ? camera.object3D : null;
+
+  if(obj && !studio.getAttribute('visible')){
+    if(isTouchDevice){
+      // RIGHT JOYSTICK: X = yaw, Y = pitch.
+      // Update the actual camera Object3D so this works reliably on Android.
+      if(Math.abs(lookJoystickVector.x) > 0.001 || Math.abs(lookJoystickVector.y) > 0.001){
+        targetYaw -= lookJoystickVector.x * LOOK_YAW_SPEED;
+        targetPitch -= lookJoystickVector.y * LOOK_PITCH_SPEED;
+        targetPitch = Math.max(THREE.MathUtils.degToRad(-65), Math.min(THREE.MathUtils.degToRad(65), targetPitch));
+      }
+
+      const dy = normalizeRad(targetYaw - obj.rotation.y);
+      const dp = targetPitch - obj.rotation.x;
+      obj.rotation.y += dy * LOOK_SMOOTH;
+      obj.rotation.x += dp * LOOK_SMOOTH;
+      obj.rotation.x = Math.max(THREE.MathUtils.degToRad(-65), Math.min(THREE.MathUtils.degToRad(65), obj.rotation.x));
+      obj.rotation.z = 0;
     }
-    const dy = normalizeAngle(targetYaw - r.y);
-    const dp = targetPitch - r.x;
-    r.y += dy * LOOK_SMOOTH;
-    r.x += dp * LOOK_SMOOTH;
-    r.x = Math.max(-65, Math.min(65, r.x));
-    camera.setAttribute('rotation', r);
   }
   requestAnimationFrame(lookLoop);
 }
