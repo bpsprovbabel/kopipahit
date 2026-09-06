@@ -740,6 +740,7 @@
        HELP / CARA PENGGUNAAN
   ====================================================== -->
   <button id="help-button" type="button" aria-label="Buka cara penggunaan">❔ CARA PENGGUNAAN</button>
+  <audio id="room-audio" preload="auto" loop playsinline></audio>
 
   <div id="help-modal" aria-hidden="true">
     <div id="help-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
@@ -1439,6 +1440,61 @@ let studioOpening = false;
 let selectedPosterItem = null;
 let selectedPosterGroup = null;
 
+// Musik latar per ruang. Musik lobby dan gallery berjalan berulang,
+// sedangkan saat Studio dibuka musik ruang dihentikan agar audio YouTube
+// menjadi audio utama.
+const ROOM_AUDIO = {
+  lobby: "./assets/music/The_Velvet_Curtain.mp3",
+  gallery: "./assets/music/Pintu_Teater_Terbuka.mp3"
+};
+let activeRoomAudio = null;
+let audioUnlocked = false;
+const roomAudio = document.getElementById("room-audio");
+
+function setRoomAudio(room) {
+  if (!roomAudio) return;
+
+  const nextSrc = ROOM_AUDIO[room] || null;
+
+  if (!nextSrc) {
+    roomAudio.pause();
+    roomAudio.removeAttribute("src");
+    roomAudio.load();
+    activeRoomAudio = null;
+    return;
+  }
+
+  if (activeRoomAudio === nextSrc && !roomAudio.paused) return;
+
+  const shouldPlay = audioUnlocked;
+  roomAudio.pause();
+
+  if (roomAudio.src !== new URL(nextSrc, window.location.href).href) {
+    roomAudio.src = nextSrc;
+    roomAudio.load();
+  }
+
+  activeRoomAudio = nextSrc;
+  roomAudio.loop = true;
+  roomAudio.volume = 0.38;
+
+  if (shouldPlay) {
+    const playPromise = roomAudio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+  }
+}
+
+function startLobbyAudioFromUserGesture() {
+  audioUnlocked = true;
+  setRoomAudio("lobby");
+  const playPromise = roomAudio && roomAudio.play ? roomAudio.play() : null;
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch(() => {});
+  }
+}
+
 
 /* ============================================================
    TEXT
@@ -1647,7 +1703,7 @@ function buildYearHall() {
   const bpsLogo = document.createElement("a-image");
   bpsLogo.setAttribute("src", "./assets/logo-bps.png");
   bpsLogo.setAttribute("position", "0 5.05 6.115");
-  bpsLogo.setAttribute("rotation", "0 0 180");
+  bpsLogo.setAttribute("rotation", "0 0 0");
   bpsLogo.setAttribute("width", "2.42");
   bpsLogo.setAttribute("height", "0.86");
   bpsLogo.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
@@ -2129,6 +2185,7 @@ function closeHelpModal() {
 if (helpButton) helpButton.addEventListener("click", openHelpModal);
 if (helpStartButton) {
   helpStartButton.addEventListener("click", function() {
+    startLobbyAudioFromUserGesture();
     try { localStorage.setItem("kopiPahitHelpSeen", "1"); } catch (_) {}
     closeHelpModal();
   });
@@ -2138,6 +2195,20 @@ if (helpModal) {
     if (e.target === helpModal) closeHelpModal();
   });
 }
+
+window.addEventListener("pointerdown", function() {
+  if (!audioUnlocked && helpModal && helpModal.style.display !== "flex") {
+    audioUnlocked = true;
+    setRoomAudio(currentYear ? "gallery" : "lobby");
+  }
+}, { once: true, passive: true });
+
+window.addEventListener("keydown", function() {
+  if (!audioUnlocked && helpModal && helpModal.style.display !== "flex") {
+    audioUnlocked = true;
+    setRoomAudio(currentYear ? "gallery" : "lobby");
+  }
+}, { once: true });
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape" && helpModal && helpModal.style.display === "flex") {
     closeHelpModal();
@@ -2187,6 +2258,8 @@ function enterYear(
   buildGallery(
     year
   );
+
+  setRoomAudio("gallery");
 
 
   // Start just inside the gallery entrance, as if the user has just
@@ -2254,6 +2327,8 @@ function backToYearHall() {
     "visible",
     "true"
   );
+
+  setRoomAudio("lobby");
 
 
   backYear.style.display =
@@ -2683,7 +2758,7 @@ function createGalleryExitDoor() {
   const exitSign = document.createElement("a-image");
   exitSign.setAttribute("src", "./assets/pintu-keluar.png");
   exitSign.setAttribute("position", "0 4.72 -0.24");
-  exitSign.setAttribute("rotation", "0 0 180");
+  exitSign.setAttribute("rotation", "0 0 0");
   exitSign.setAttribute("width", "2.30");
   exitSign.setAttribute("height", "0.66");
   exitSign.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
@@ -2978,6 +3053,7 @@ function openStudio(
     gallery.setAttribute("visible","false");
     yearHall.setAttribute("visible","false");
     studio.setAttribute("visible","true");
+    setRoomAudio(null);
     backYear.style.display="none";
     closeStudioButton.style.display="block";
     player.setAttribute("position","0 1.6 1.45");
@@ -3526,6 +3602,8 @@ function closeStudio() {
     "visible",
     "true"
   );
+
+  setRoomAudio("gallery");
 
 
   /* ========================================================
