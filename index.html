@@ -599,7 +599,7 @@
 
 
 <body>
-<div id="mouse-look-hint">KLIK & TAHAN MOUSE UNTUK MELIHAT · WASD / JOYSTICK KIRI: JALAN · JOYSTICK KANAN: ARAH</div>
+<div id="mouse-look-hint">KLIK POSTER / PINTU LANGSUNG · KLIK & TAHAN MOUSE UNTUK MELIHAT · WASD / JOYSTICK KIRI: JALAN · JOYSTICK KANAN: ARAH</div>
 
 
   <!-- =====================================================
@@ -885,28 +885,6 @@
 
         wasd-controls="enabled: false;"
       >
-
-        <a-cursor
-
-          id="cursor"
-
-          raycaster="
-            objects: .clickable;
-            far: 40;
-          "
-
-          material="
-            shader: flat;
-            color: #f28c18;
-          "
-
-          scale="
-            0.60
-            0.60
-            0.60
-          "
-
-        ></a-cursor>
 
       </a-camera>
 
@@ -1635,73 +1613,51 @@ function buildYearHall() {
   yearHall.appendChild(createBox("0 2.32 -10.28", 2.75, 0.025, 0.025, COLORS.green,
     `emissive: ${COLORS.green}; emissiveIntensity: 0.42;`));
 
-    /* ========================================================
-     LEFT / RIGHT IMAGE SCREENS — 3 PER SIDE
+      /* ========================================================
+     LEFT / RIGHT IMAGE SCREENS — FLUSH TO WALL
   ======================================================== */
-  // Every screen is a wall-mounted 4:5 image panel.
-  // Change only the PNG/JPG files in /assets.
+  // Same V46 layout, but each screen is physically attached to the wall
+  // and has no colored border.
   const screenSlots = [
     { z: 0.8,  left: "./assets/screen-left-2.png",  right: "./assets/screen-right-2.png" },
     { z: -4.1, left: "./assets/screen-left.png",     right: "./assets/screen-right.png" },
     { z: -8.7, left: "./assets/screen-left-3.png",  right: "./assets/screen-right-3.png" }
   ];
 
-  function addMainLobbyScreen(side, z, imagePath, color) {
-    const x = side === "left" ? -6.82 : 6.82;
+  function addWallScreen(side, z, imagePath) {
+    const x = side === "left" ? -6.875 : 6.875;
     const rotY = side === "left" ? 90 : -90;
 
     const panel = document.createElement("a-entity");
     panel.setAttribute("position", `${x} 3.05 ${z}`);
     panel.setAttribute("rotation", `0 ${rotY} 0`);
 
-    // Single backplate to avoid z-fighting / blinking.
+    // Very thin backing plate so the panel sits directly on the wall.
     panel.appendChild(createBox(
       "0 0 0",
-      2.18, 2.78, 0.16,
-      "#17242d",
-      "roughness: 0.48; metalness: 0.08;"
+      1.96, 2.60, 0.035,
+      "#e7e3dc",
+      "roughness: 0.72; metalness: 0.02;"
     ));
 
-    // Image, 4:5, offset toward the room.
     const img = document.createElement("a-image");
     img.setAttribute("src", imagePath);
-    img.setAttribute("position", "0 0 0.105");
+    img.setAttribute("position", "0 0 0.028");
     img.setAttribute("width", "1.86");
     img.setAttribute("height", "2.325");
     img.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
-    img.addEventListener("error", () => {
-      // Keep the frame visible even when an optional image has not been uploaded yet.
-      img.setAttribute("visible", "false");
-    });
+    img.addEventListener("error", () => img.setAttribute("visible", "false"));
     panel.appendChild(img);
-
-    // Thin neon border, slightly in front of the image.
-    panel.appendChild(createBox(
-      "0 1.18 0.135", 1.88, 0.045, 0.035, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`
-    ));
-    panel.appendChild(createBox(
-      "0 -1.18 0.135", 1.88, 0.045, 0.035, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`
-    ));
-    panel.appendChild(createBox(
-      "-0.94 0 0.135", 0.045, 2.37, 0.035, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`
-    ));
-    panel.appendChild(createBox(
-      "0.94 0 0.135", 0.045, 2.37, 0.035, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`
-    ));
 
     yearHall.appendChild(panel);
   }
 
-  screenSlots.forEach((slot, i) => {
-    addMainLobbyScreen("left",  slot.z, slot.left,  i === 0 ? COLORS.blue : (i === 1 ? COLORS.green : COLORS.blue));
-    addMainLobbyScreen("right", slot.z, slot.right, i === 0 ? COLORS.orange : (i === 1 ? COLORS.green : COLORS.orange));
+  screenSlots.forEach(slot => {
+    addWallScreen("left", slot.z, slot.left);
+    addWallScreen("right", slot.z, slot.right);
   });
 
-  /* ========================================================
+/* ========================================================
      PODIUM FOR YEAR CARDS
   ======================================================== */
   yearHall.appendChild(createCylinder("0 0.26 -3.55", 3.9, 0.52, "#f6f1e8"));
@@ -1713,74 +1669,6 @@ function buildYearHall() {
   /* ========================================================
      YEAR CARDS
   ======================================================== */
-
-  // Additional image screens in the MAIN LOBBY.
-  // These are intentionally added here (not in Gallery).
-  // Use:
-  // assets/screen-left-2.png
-  // assets/screen-left-3.png
-  // assets/screen-right-2.png
-  // assets/screen-right-3.png
-  // Each image is displayed inside a clean 4:5 frame.
-
-  function addMainLobbyScreen(position, rotationY, accent, imagePath) {
-    const frame = createBox(
-      position,
-      2.05, 2.82, 0.14,
-      "#17242d",
-      "roughness: 0.48; metalness: 0.08;"
-    );
-    frame.setAttribute("rotation", `0 ${rotationY} 0`);
-    yearHall.appendChild(frame);
-
-    const panel = document.createElement("a-image");
-    panel.setAttribute("src", imagePath);
-    panel.setAttribute("position", position);
-    panel.setAttribute("rotation", `0 ${rotationY} 0`);
-    panel.setAttribute("width", "1.82");
-    panel.setAttribute("height", "2.275");
-    panel.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
-    panel.addEventListener("error", () => {
-      panel.setAttribute("visible", "false");
-    });
-    yearHall.appendChild(panel);
-
-    // Thin neon edge at the outer face.
-    const rail = createBox(
-      position,
-      1.91, 2.36, 0.035,
-      accent,
-      `emissive: ${accent}; emissiveIntensity: 0.68;`
-    );
-    rail.setAttribute("rotation", `0 ${rotationY} 0`);
-    yearHall.appendChild(rail);
-  }
-
-  addMainLobbyScreen(
-    "-5.75 2.95 -3.1",
-    90,
-    COLORS.blue,
-    "./assets/screen-left-2.png"
-  );
-  addMainLobbyScreen(
-    "-5.75 2.95 3.2",
-    90,
-    COLORS.green,
-    "./assets/screen-left-3.png"
-  );
-  addMainLobbyScreen(
-    "5.75 2.95 -3.1",
-    -90,
-    COLORS.orange,
-    "./assets/screen-right-2.png"
-  );
-  addMainLobbyScreen(
-    "5.75 2.95 3.2",
-    -90,
-    COLORS.green,
-    "./assets/screen-right-3.png"
-  );
-
   createYearCard(2026, "", "-2.05 2.00 -3.55", true);
   createYearCard(2027, "", "0 2.00 -3.55", false);
   createYearCard(2028, "", "2.05 2.00 -3.55", false);
@@ -2186,6 +2074,24 @@ function backToYearHall() {
 ============================================================ */
 
 
+/*
+  GALLERY LAYOUT (TOP VIEW)
+  ┌──────────────────────────────────────────────┐
+  │ POSTER   POSTER   POSTER        POSTER ...   │  ← LEFT WALL
+  │                                              │
+  │          ┌──── CENTRAL WALKING PATH ────┐    │
+  │          │                              │    │
+  │          │                              │    │
+  │          └──────────────────────────────┘    │
+  │ POSTER   POSTER   POSTER        POSTER ...   │  ← RIGHT WALL
+  │                                              │
+  │                 END SCREEN                    │
+  └──────────────────────────────────────────────┘
+       ↑ entrance / return door to main lobby
+
+  All wall screens/posters sit on the wall plane.
+  The center remains clear for movement.
+*/
 function buildGallery(year) {
   gallery.innerHTML = "";
 
@@ -2451,7 +2357,7 @@ function buildGallery(year) {
     const left = index % 2 === 0;
     createPoster(
       item,
-      left ? -3.35 : 3.35,
+      left ? -4.10 : 4.10,
       -6.2 - row * 4.6,
       left
     );
@@ -2461,99 +2367,138 @@ function buildGallery(year) {
 }
 
 function createGalleryExitDoor() {
+  // Same visual model as the MAIN LOBBY entrance door (V46),
+  // but positioned at the Gallery entrance/return point.
+  // Decorative only: no click/open interaction.
   const group = document.createElement("a-entity");
   group.setAttribute("position", "0 0 0.62");
   group.classList.add("gallery-exit-door");
 
-  // Wall/door recess
-  group.appendChild(
-    createBox(
-      "0 2.35 0",
-      2.05, 3.15, 0.18,
-      "#eef0ec",
-      "roughness: 0.65; metalness: 0.03;"
-    )
-  );
+  // Outer jamb / frame.
+  group.appendChild(createBox(
+    "0 2.05 0",
+    2.30, 4.10, 0.16,
+    "#f1eee7",
+    "roughness: 0.52; metalness: 0.04;"
+  ));
 
-  // Dark opening
-  const opening = createBox(
-    "0 1.75 -0.13",
-    1.35, 2.70, 0.08,
-    "#081019",
-    "roughness: 0.9; metalness: 0;"
-  );
-  opening.classList.add("gallery-exit-clickable");
-  group.appendChild(opening);
+  // Recessed inner opening.
+  group.appendChild(createBox(
+    "0 2.05 -0.10",
+    1.90, 3.72, 0.07,
+    "#d9dde0",
+    "roughness: 0.34; metalness: 0.10;"
+  ));
 
-  // Neon frame
-  const frameParts = [
-    ["0 3.08 -0.20", 1.92, 0.07, 0.05, COLORS.blue],
-    ["-0.96 1.75 -0.20", 0.07, 2.70, 0.05, COLORS.blue],
-    ["0.96 1.75 -0.20", 0.07, 2.70, 0.05, COLORS.green],
-    ["0 0.42 -0.20", 1.92, 0.07, 0.05, COLORS.orange]
-  ];
-  frameParts.forEach(([pos,w,h,d,color]) => {
-    const b = createBox(
-      pos, w, h, d, color,
-      `emissive: ${color}; emissiveIntensity: 0.50;`
-    );
-    b.classList.add("gallery-exit-clickable");
-    group.appendChild(b);
+  // Two glass door leaves.
+  const glassMat = "opacity: 0.72; transparent: true; roughness: 0.22; metalness: 0.12;";
+  group.appendChild(createBox(
+    "-0.50 2.05 -0.16",
+    0.90, 3.58, 0.045,
+    "#dfe8ec",
+    glassMat
+  ));
+  group.appendChild(createBox(
+    "0.50 2.05 -0.16",
+    0.90, 3.58, 0.045,
+    "#dfe8ec",
+    glassMat
+  ));
+
+  // Center mullion / seam.
+  group.appendChild(createBox(
+    "0 2.05 -0.20",
+    0.075, 3.58, 0.045,
+    "#f6f3ec",
+    "roughness: 0.40; metalness: 0.06;"
+  ));
+
+  // Top and bottom frame.
+  group.appendChild(createBox(
+    "0 3.84 -0.20",
+    1.92, 0.07, 0.045,
+    "#f6f3ec"
+  ));
+  group.appendChild(createBox(
+    "0 0.26 -0.20",
+    1.92, 0.07, 0.045,
+    "#f6f3ec"
+  ));
+
+  // Same orange / blue edge accents as the lobby door.
+  group.appendChild(createBox(
+    "-0.96 2.05 -0.24",
+    0.045, 3.62, 0.04,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.62;`
+  ));
+  group.appendChild(createBox(
+    "0.96 2.05 -0.24",
+    0.045, 3.62, 0.04,
+    COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.62;`
+  ));
+
+  // Same simple center handles.
+  group.appendChild(createBox(
+    "-0.105 2.05 -0.28",
+    0.028, 0.52, 0.028,
+    "#7c807f",
+    "roughness: 0.28; metalness: 0.58;"
+  ));
+  group.appendChild(createBox(
+    "0.105 2.05 -0.28",
+    0.028, 0.52, 0.028,
+    "#7c807f",
+    "roughness: 0.28; metalness: 0.58;"
+  ));
+
+  // Image-driven sign above the door, matching the lobby's signage concept.
+  // Change only: assets/pintu-keluar.png
+  const exitSignFrame = createBox(
+    "0 4.72 -0.18",
+    2.55, 0.78, 0.10,
+    "#f7f2e9",
+    "roughness: 0.50; metalness: 0.03;"
+  );
+  group.appendChild(exitSignFrame);
+
+  const exitSign = document.createElement("a-image");
+  exitSign.setAttribute("src", "./assets/pintu-keluar.png");
+  exitSign.setAttribute("position", "0 4.72 -0.24");
+  exitSign.setAttribute("width", "2.30");
+  exitSign.setAttribute("height", "0.66");
+  exitSign.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+  exitSign.addEventListener("error", () => {
+    exitSign.setAttribute("visible", "false");
   });
+  group.appendChild(exitSign);
 
-  const label = createText(
-    "← KEMBALI KE LOBI UTAMA",
-    "0 3.42 -0.23",
-    COLORS.navy,
-    2.55
-  );
-  group.appendChild(label);
-
-  const sub = createText(
-    "PILIH TAHUN",
-    "0 3.12 -0.23",
+  group.appendChild(createBox(
+    "0 4.31 -0.22",
+    2.18, 0.04, 0.035,
     COLORS.orange,
-    1.65
-  );
-  group.appendChild(sub);
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.48;`
+  ));
 
-  // Small illuminated lintel to make the doorway read as part of the gallery.
-  const lintel = createBox(
-    "0 3.65 -0.16",
-    2.55, 0.09, 0.05,
-    COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.60;`
-  );
-  group.appendChild(lintel);
 
-  // Transparent full-area click target, slightly in front.
-  const hit = createBox(
-    "0 1.76 -0.26",
-    2.05, 2.95, 0.035,
+  // Invisible click surface: direct left-click opens the return action.
+  // No cursor/ring targeting is required.
+  const exitHit = createBox(
+    "0 2.05 -0.32",
+    2.05, 3.45, 0.04,
     "#ffffff",
     "transparent: true; opacity: 0; depthWrite: false;"
   );
-  hit.classList.add("clickable", "gallery-exit-clickable");
-  hit.addEventListener("mouseenter", () => {
-    group.setAttribute("scale", "1.03 1.03 1.03");
-  });
-  hit.addEventListener("mouseleave", () => {
-    group.setAttribute("scale", "1 1 1");
-  });
-  hit.addEventListener("click", (e) => {
-    e.stopPropagation();
+  exitHit.classList.add("clickable", "gallery-exit-hit");
+  exitHit.addEventListener("click", (event) => {
+    event.stopPropagation();
     backToYearHall();
   });
-  group.appendChild(hit);
+  group.appendChild(exitHit);
 
   gallery.appendChild(group);
 }
-
-
-/* ============================================================
-   CREATE POSTER
-============================================================ */
-
 
 function createPoster(item, x, z, left) {
   const group = document.createElement("a-entity");
@@ -3776,6 +3721,121 @@ function resetMouseLook() {
   mouseImpulseY = 0;
   if (camera?.object3D) syncMouseTargetToCamera();
 }
+
+
+/* ============================================================
+   DIRECT MOUSE CLICK INTERACTION
+   ------------------------------------------------------------
+   Left-click anywhere on an interactive 3D object. No A-Frame
+   center cursor/ring and no aiming reticle are required.
+============================================================ */
+const directMouseRaycaster = new THREE.Raycaster();
+const directMouseNDC = new THREE.Vector2();
+
+function getCanvasPoint(event) {
+  const canvas = scene?.canvas;
+  if (!canvas) return null;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+
+  directMouseNDC.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  directMouseNDC.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+  return directMouseNDC;
+}
+
+function findInteractiveObject(object3D) {
+  let node = object3D;
+  while (node) {
+    const el = node.el;
+    if (el?.classList?.contains("clickable")) return el;
+    if (el?.classList?.contains("gallery-exit-hit")) return el;
+
+    // Some clickable children are nested below an entity that carries the
+    // interaction class.
+    const parentEl = el?.parentElement;
+    if (parentEl?.classList?.contains("clickable")) return parentEl;
+    if (parentEl?.classList?.contains("gallery-exit-hit")) return parentEl;
+
+    node = node.parent;
+  }
+  return null;
+}
+
+function handleDirectSceneClick(event) {
+  if (isTouchDevice) return;
+  if (event.button !== 0) return;
+  if (!scene?.renderer || !camera?.object3D) return;
+  if (targetIsUI(event.target)) return;
+
+  // Do not treat a mouse click used for camera dragging as a scene click
+  // unless the press/release happens without significant movement.
+  const point = getCanvasPoint(event);
+  if (!point) return;
+
+  const renderCamera =
+    camera?.getObject3D?.("camera") ||
+    camera?.object3D;
+  if (!renderCamera || !renderCamera.isCamera) return;
+
+  directMouseRaycaster.setFromCamera(point, renderCamera);
+  const roots = [
+    yearHall?.object3D,
+    gallery?.object3D,
+    studio?.object3D
+  ].filter(Boolean);
+
+  if (!roots.length) return;
+
+  const objects = [];
+  roots.forEach(root => {
+    root.traverse(obj => {
+      if (obj.visible) objects.push(obj);
+    });
+  });
+
+  const intersections = directMouseRaycaster.intersectObjects(objects, false);
+  for (const hit of intersections) {
+    const target = findInteractiveObject(hit.object);
+    if (!target) continue;
+
+    // Dispatch the same click event that existing poster/door handlers use.
+    target.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      button: 0
+    }));
+    return;
+  }
+}
+
+let sceneMouseDownX = 0;
+let sceneMouseDownY = 0;
+
+window.addEventListener("mousedown", (e) => {
+  if (isTouchDevice || e.button !== 0) return;
+  if (targetIsUI(e.target)) return;
+  if (!targetIsCanvas(e.target)) return;
+  sceneMouseDownX = e.clientX;
+  sceneMouseDownY = e.clientY;
+}, true);
+
+window.addEventListener("mouseup", (e) => {
+  if (isTouchDevice || e.button !== 0) return;
+  if (targetIsUI(e.target)) return;
+  if (!targetIsCanvas(e.target)) return;
+
+  const moved = Math.hypot(
+    e.clientX - sceneMouseDownX,
+    e.clientY - sceneMouseDownY
+  );
+
+  // A tiny threshold distinguishes a normal click from mouse-look dragging.
+  if (moved <= 4) handleDirectSceneClick(e);
+}, true);
 
 window.addEventListener("mousedown", (e) => {
   if (isTouchDevice || e.button !== 0) return;
