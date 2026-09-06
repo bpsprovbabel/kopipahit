@@ -311,44 +311,37 @@
     /* =====================================================
        MOBILE MOVEMENT + SWIPE LOOK
     ====================================================== */
-    #joystick-zone {
+    #joystick-zone, #look-joystick-zone {
       position: fixed;
-      left: 16px;
-      bottom: 18px;
       width: 118px;
       height: 118px;
       z-index: 5200;
       pointer-events: auto;
       touch-action: none;
+      display: none;
     }
+    #joystick-zone { left: 20px; }
+    #look-joystick-zone { right: 20px; }
     #look-touch-hint {
       display: none;
       position: fixed;
-      right: 16px;
-      bottom: 18px;
+      right: 18px;
+      bottom: 2vh;
       z-index: 5100;
-      padding: 9px 12px;
+      padding: 8px 11px;
       border-radius: 999px;
-      color: rgba(255,255,255,.88);
+      color: rgba(255,255,255,.90);
       background: rgba(16,24,32,.55);
       border: 1px solid rgba(255,255,255,.20);
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 900;
-      letter-spacing: .7px;
+      letter-spacing: .6px;
       pointer-events: none;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       text-shadow: 0 2px 6px rgba(0,0,0,.55);
     }
-     #touch-look-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 4700;
-      pointer-events: none;
-      touch-action: none;
-      background: transparent;
-    }
+    #touch-look-overlay { display:none !important; }
 
     /* =====================================================
        YOUTUBE CINEMA FRAME
@@ -577,9 +570,14 @@
       #studio-docs { left:12px; right:12px; bottom:148px; width:auto; padding:9px; }
       .studio-doc-button { display:inline-block; width:calc(33.333% - 6px); margin-right:5px; margin-top:0; padding:8px 7px; font-size:9px; }
       .studio-doc-button:last-child { margin-right:0; }
-      #joystick-zone { width:108px; height:108px; left:12px; bottom:14px; }
-      #look-touch-hint { display:block; bottom:18px; right:12px; font-size:8px; }
-      #touch-look-overlay { display:block; pointer-events:auto; }
+      #joystick-zone, #look-joystick-zone {
+        display:block;
+        width:108px; height:108px;
+        bottom:28vh;
+      }
+      #joystick-zone { left:12px; }
+      #look-joystick-zone { right:12px; }
+      #look-touch-hint { display:block; bottom:calc(28vh - 20px); right:12px; font-size:7px; }
       #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
@@ -717,7 +715,8 @@
 
   <div id="touch-look-overlay" aria-hidden="true"></div>
   <div id="joystick-zone" class="joystick-zone" aria-label="Joystick gerak"></div>
-  <div id="look-touch-hint">GESER LAYAR = LIHAT</div>
+  <div id="look-joystick-zone" class="joystick-zone" aria-label="Joystick arah pandang"></div>
+  <div id="look-touch-hint">JOYSTICK KANAN = LIHAT</div>
 
   <div id="studio-docs">
     <div id="studio-docs-title">DOKUMEN KEGIATAN · BUKA TAB BARU</div>
@@ -862,7 +861,7 @@
 
     <a-entity
       id="player"
-      position="0 1.65 10"
+      position="0 1.65 16.5"
     >
 
       <a-camera
@@ -1475,22 +1474,22 @@ function buildYearHall() {
   ======================================================== */
   // Hero sambutan dibuat sebagai banner 16:9 yang lebih ringkas agar
   // menjadi fokus latar tanpa menutupi Year Card di bawahnya.
-  const backFrame=createBox("0 4.58 -7.64", 5.72, 3.26, 0.18, "#fffaf0",
+  const backFrame=createBox("0 4.18 -7.64", 4.87, 2.78, 0.18, "#fffaf0",
     `roughness: 0.45; metalness: 0.02;`);
   yearHall.appendChild(backFrame);
 
   const welcomeImage=document.createElement('a-image');
   welcomeImage.setAttribute('src','./assets/sambutan.png');
-  welcomeImage.setAttribute('position','0 4.58 -7.50');
-  welcomeImage.setAttribute('width','5.50');
-  welcomeImage.setAttribute('height','3.09');
+  welcomeImage.setAttribute('position','0 4.18 -7.50');
+  welcomeImage.setAttribute('width','4.65');
+  welcomeImage.setAttribute('height','2.61');
   welcomeImage.setAttribute('material','shader: flat; color: #ffffff;');
   yearHall.appendChild(welcomeImage);
 
   // Caption/logo strip, cukup sebagai elemen arsitektur; tidak mengganggu isi sambutan.
-  yearHall.appendChild(createBox("0 2.98 -7.30", 5.82, 0.07, 0.18, COLORS.orange,
+  yearHall.appendChild(createBox("0 2.72 -7.30", 4.95, 0.07, 0.18, COLORS.orange,
     `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`));
-  yearHall.appendChild(createBox("0 2.76 -7.20", 3.25, 0.025, 0.025, COLORS.green,
+  yearHall.appendChild(createBox("0 2.55 -7.20", 2.75, 0.025, 0.025, COLORS.green,
     `emissive: ${COLORS.green}; emissiveIntensity: 0.42;`));
 
   /* ========================================================
@@ -1877,7 +1876,7 @@ function enterYear(
 
   player.setAttribute(
     "position",
-    "0 1.65 10"
+    "0 1.65 16.5"
   );
 
 
@@ -1944,7 +1943,7 @@ function backToYearHall() {
 
   player.setAttribute(
     "position",
-    "0 1.65 10"
+    "0 1.65 16.5"
   );
 
 
@@ -3157,7 +3156,7 @@ function closeStudio() {
 
   player.setAttribute(
     "position",
-    "0 1.65 10"
+    "0 1.65 16.5"
   );
 
 
@@ -3391,13 +3390,15 @@ function normalizeYoutubeUrl(
 
 
 /* ============================================================
-   SINGLE JOYSTICK + SWIPE LOOK
-   Kiri = bergerak, swipe layar = melihat.
+   DUAL JOYSTICK MOBILE
+   Kiri = bergerak, kanan = melihat.
+   Posisi joystick dinaikkan agar tidak bertabrakan dengan browser controls.
 ============================================================ */
 const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 let joystickVector = { x:0, y:0 };
+let lookJoystickVector = { x:0, y:0 };
 
-const joystick = nipplejs.create({
+const movementJoystick = nipplejs.create({
   zone: document.getElementById("joystick-zone"),
   mode: "static",
   position: { left:"50%", top:"50%" },
@@ -3408,26 +3409,38 @@ const joystick = nipplejs.create({
   fadeTime: 120
 });
 
-joystick.on("move", function(event,data){
+const lookJoystick = nipplejs.create({
+  zone: document.getElementById("look-joystick-zone"),
+  mode: "static",
+  position: { left:"50%", top:"50%" },
+  color: COLORS.orange,
+  size: 88,
+  restOpacity: 0.72,
+  threshold: 0.08,
+  fadeTime: 120
+});
+
+movementJoystick.on("move", function(event,data){
   if(data && data.vector){
     joystickVector.x = data.vector.x;
     joystickVector.y = data.vector.y;
   }
 });
-joystick.on("end", function(){ joystickVector={x:0,y:0}; });
+movementJoystick.on("end", function(){ joystickVector={x:0,y:0}; });
 
-/* ============================================================
-   TOUCH LOOK — ANDROID / MOBILE
-   Overlay transparan menangkap gesture secara langsung. Joystick tetap
-   berada di atasnya sehingga kiri tetap khusus untuk gerak.
-============================================================ */
-let lookTouch = null;
-let lookTouchStart = null;
-const lookSensitivity = 0.18;
-const lookSmooth = 0.30;
+lookJoystick.on("move", function(event,data){
+  if(data && data.vector){
+    lookJoystickVector.x = data.vector.x;
+    lookJoystickVector.y = data.vector.y;
+  }
+});
+lookJoystick.on("end", function(){ lookJoystickVector={x:0,y:0}; });
+
+const LOOK_YAW_SPEED = 1.15;
+const LOOK_PITCH_SPEED = 0.90;
+const LOOK_SMOOTH = 0.38;
 let targetYaw = 0;
 let targetPitch = 0;
-const touchLookOverlay = document.getElementById('touch-look-overlay');
 
 function syncLookTargets(){
   const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
@@ -3442,111 +3455,19 @@ function normalizeAngle(a){
   return a;
 }
 
-function touchIsBlocked(){
-  return studioOpening || (studio.getAttribute('visible') === true || studio.getAttribute('visible') === 'true') ||
-    document.getElementById('poster-action-modal')?.style.display === 'flex' ||
-    document.getElementById('poster-detail-modal')?.style.display === 'flex';
-}
-
-function getClickedClickableAtTouch(clientX, clientY){
-  if(!scene?.renderer || !scene?.camera) return;
-  const canvas = scene.canvas;
-  if(!canvas) return;
-  const rect = canvas.getBoundingClientRect();
-  const ndc = new THREE.Vector2(
-    ((clientX - rect.left) / rect.width) * 2 - 1,
-    -((clientY - rect.top) / rect.height) * 2 + 1
-  );
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(ndc, scene.camera);
-
-  const objects = Array.from(document.querySelectorAll('.clickable'))
-    .map(el => el.object3D)
-    .filter(Boolean);
-  if(!objects.length) return;
-
-  const intersections = raycaster.intersectObjects(objects, true);
-  if(!intersections.length) return;
-
-  let hit = intersections[0].object;
-  while(hit && !hit.el) hit = hit.parent;
-  if(hit?.el){
-    hit.el.emit('click', { originalEvent: null });
-  }
-}
-
-function startLookTouch(e){
-  if(!isTouchDevice || !e.touches || e.touches.length !== 1 || touchIsBlocked()) return;
-  const t = e.touches[0];
-  // Ignore touches physically inside the joystick, even if the overlay is underneath it.
-  const j = document.getElementById('joystick-zone')?.getBoundingClientRect();
-  if(j && t.clientX >= j.left && t.clientX <= j.right && t.clientY >= j.top && t.clientY <= j.bottom) return;
-  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
-  targetYaw = r.y;
-  targetPitch = r.x;
-  lookTouch = {x:t.clientX, y:t.clientY};
-  lookTouchStart = {x:t.clientX, y:t.clientY};
-}
-
-function moveLookTouch(e){
-  if(!lookTouch || !e.touches || e.touches.length !== 1) return;
-  const t = e.touches[0];
-  const dx = t.clientX - lookTouch.x;
-  const dy = t.clientY - lookTouch.y;
-  // Finger right -> view right; finger down -> look down.
-  targetYaw -= dx * lookSensitivity;
-  targetPitch += dy * lookSensitivity;
-  targetPitch = Math.max(-65, Math.min(65, targetPitch));
-  lookTouch = {x:t.clientX, y:t.clientY};
-  e.preventDefault();
-}
-
-function endLookTouch(e){
-  if(!lookTouchStart) return;
-  const t = e.changedTouches?.[0];
-  if(t){
-    const dx = t.clientX - lookTouchStart.x;
-    const dy = t.clientY - lookTouchStart.y;
-    const distance = Math.hypot(dx,dy);
-    if(distance < 16 && !touchIsBlocked()){
-      getClickedClickableAtTouch(t.clientX, t.clientY);
-    }
-  }
-  lookTouch = null;
-  lookTouchStart = null;
-}
-
-if(touchLookOverlay){
-  touchLookOverlay.addEventListener('touchstart', startLookTouch, {passive:true});
-  touchLookOverlay.addEventListener('touchmove', moveLookTouch, {passive:false});
-  touchLookOverlay.addEventListener('touchend', endLookTouch, {passive:true});
-  touchLookOverlay.addEventListener('touchcancel', () => { lookTouch=null; lookTouchStart=null; }, {passive:true});
-}
-
-// Fallback for Android/browser combinations that suppress events on the overlay.
-scene.addEventListener('loaded', () => {
-  const canvas = scene.canvas;
-  if(!canvas) return;
-  canvas.style.touchAction = 'none';
-  canvas.addEventListener('touchstart', (e) => {
-    if(lookTouch) return;
-    startLookTouch(e);
-  }, {passive:true});
-  canvas.addEventListener('touchmove', (e) => {
-    if(lookTouch) moveLookTouch(e);
-  }, {passive:false});
-  canvas.addEventListener('touchend', (e) => {
-    if(lookTouchStart) endLookTouch(e);
-  }, {passive:true});
-});
-
 function lookLoop(){
   const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
   if(isTouchDevice && !studio.getAttribute('visible')){
+    // Right joystick: push right = look right, push down = look down.
+    if(lookJoystickVector.x !== 0 || lookJoystickVector.y !== 0){
+      targetYaw += lookJoystickVector.x * LOOK_YAW_SPEED;
+      targetPitch += lookJoystickVector.y * LOOK_PITCH_SPEED;
+      targetPitch = Math.max(-65, Math.min(65, targetPitch));
+    }
     const dy = normalizeAngle(targetYaw - r.y);
     const dp = targetPitch - r.x;
-    r.y += dy * lookSmooth;
-    r.x += dp * lookSmooth;
+    r.y += dy * LOOK_SMOOTH;
+    r.x += dp * LOOK_SMOOTH;
     r.x = Math.max(-65, Math.min(65, r.x));
     camera.setAttribute('rotation', r);
   }
