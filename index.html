@@ -725,7 +725,7 @@
       }
       #joystick-zone { left:12px; }
       #look-joystick-zone { right:12px; }
-      #look-touch-hint { display:block; bottom:calc(14vh - 20px); right:12px; font-size:7px; }
+      #look-touch-hint { display:none; }
       #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
@@ -1486,9 +1486,22 @@ function setRoomAudio(room) {
   }
 }
 
-function startLobbyAudioFromUserGesture() {
+function getCurrentAudioRoom() {
+  // The help modal can be opened from any room. Determine the actual
+  // visible room instead of assuming the Lobby every time.
+  if (studio && studio.getAttribute && studio.getAttribute("visible") === true) {
+    return null;
+  }
+  if (gallery && gallery.getAttribute && gallery.getAttribute("visible") === true) {
+    return "gallery";
+  }
+  return "lobby";
+}
+
+function startRoomAudioFromUserGesture() {
   audioUnlocked = true;
-  setRoomAudio("lobby");
+  const room = getCurrentAudioRoom();
+  setRoomAudio(room);
   const playPromise = roomAudio && roomAudio.play ? roomAudio.play() : null;
   if (playPromise && typeof playPromise.catch === "function") {
     playPromise.catch(() => {});
@@ -1701,7 +1714,7 @@ function buildYearHall() {
   yearHall.appendChild(bpsLogoMount);
 
   const bpsLogo = document.createElement("a-image");
-  bpsLogo.setAttribute("src", "./assets/logo-bps.png");
+  bpsLogo.setAttribute("src", "./assets/signage-lobby.png");
   bpsLogo.setAttribute("position", "0 5.05 6.115");
   bpsLogo.setAttribute("rotation", "0 0 0");
   bpsLogo.setAttribute("scale", "-1 1 1");
@@ -2188,7 +2201,7 @@ if (helpStartButton) {
   helpStartButton.addEventListener("click", function() {
     // The button click itself is the user gesture that unlocks audio.
     // Start the lobby track immediately, with looping enabled.
-    startLobbyAudioFromUserGesture();
+    startRoomAudioFromUserGesture();
     try { localStorage.setItem("kopiPahitHelpSeen", "1"); } catch (_) {}
     closeHelpModal();
   });
@@ -2201,15 +2214,13 @@ if (helpModal) {
 
 window.addEventListener("pointerdown", function() {
   if (!audioUnlocked && helpModal && helpModal.style.display !== "flex") {
-    audioUnlocked = true;
-    setRoomAudio(currentYear ? "gallery" : "lobby");
+    startRoomAudioFromUserGesture();
   }
 }, { once: true, passive: true });
 
 window.addEventListener("keydown", function() {
   if (!audioUnlocked && helpModal && helpModal.style.display !== "flex") {
-    audioUnlocked = true;
-    setRoomAudio(currentYear ? "gallery" : "lobby");
+    startRoomAudioFromUserGesture();
   }
 }, { once: true });
 document.addEventListener("keydown", function(e) {
@@ -2749,7 +2760,7 @@ function createGalleryExitDoor() {
   ));
 
   // Image-driven sign above the door, matching the lobby's signage concept.
-  // Change only: assets/pintu-keluar.png
+  // Gallery door signage: assets/signage-gallery.png
   const exitSignFrame = createBox(
     "0 4.72 -0.18",
     2.55, 0.78, 0.10,
@@ -2759,7 +2770,7 @@ function createGalleryExitDoor() {
   group.appendChild(exitSignFrame);
 
   const exitSign = document.createElement("a-image");
-  exitSign.setAttribute("src", "./assets/pintu-keluar.png");
+  exitSign.setAttribute("src", "./assets/signage-gallery.png");
   exitSign.setAttribute("position", "0 4.72 -0.24");
   exitSign.setAttribute("rotation", "0 0 0");
   exitSign.setAttribute("scale", "-1 1 1");
