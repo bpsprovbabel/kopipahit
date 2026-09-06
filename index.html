@@ -2539,17 +2539,19 @@ function buildGallery(year) {
   headerImageFront.setAttribute("position", `0 4.18 ${headerZ - 0.15}`);
   headerImageFront.setAttribute("width", "3.82");
   headerImageFront.setAttribute("height", "0.72");
+  headerImageFront.setAttribute("scale", "-1 1 1");
   headerImageFront.setAttribute("material", "shader: flat; color: #ffffff; side: double;");
   gallery.appendChild(headerImageFront);
 
-  // Back side — rotate 180° around Y so the artwork is horizontally flipped
-  // and reads correctly when the sign is viewed from the opposite direction.
+  // Back side — face the opposite direction; both sides use horizontal flip so the
+  // gallery-header artwork renders with the requested orientation.
   const headerImageBack = document.createElement("a-image");
   headerImageBack.setAttribute("src", `./assets/${year}/gallery-header.png`);
   headerImageBack.setAttribute("position", `0 4.18 ${headerZ + 0.15}`);
   headerImageBack.setAttribute("rotation", "0 180 0");
   headerImageBack.setAttribute("width", "3.82");
   headerImageBack.setAttribute("height", "0.72");
+  headerImageBack.setAttribute("scale", "-1 1 1");
   headerImageBack.setAttribute("material", "shader: flat; color: #ffffff; side: double;");
   gallery.appendChild(headerImageBack);
 
