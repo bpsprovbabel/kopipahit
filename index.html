@@ -35,15 +35,151 @@
 
 
   <style>
-#mouse-look-hint{
- position:fixed; z-index:99999; left:50%; top:14px; transform:translateX(-50%);
- padding:8px 14px; border:1px solid rgba(0,140,220,.25); border-radius:999px;
- background:rgba(255,255,255,.94); color:#18445d;
- font:700 11px/1.25 Arial,sans-serif; box-shadow:0 6px 18px rgba(0,0,0,.12);
- pointer-events:none; white-space:nowrap; text-align:center;
+/* =====================================================
+   HELP / USAGE UI
+===================================================== */
+#mouse-look-hint,
+#hud {
+  display:none !important;
 }
-@media(max-width:600px){
- #mouse-look-hint{top:10px;max-width:82vw;white-space:normal;font-size:10px;}
+
+#help-button {
+  position:fixed;
+  top:18px;
+  right:170px;
+  z-index:6800;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:999px;
+  padding:10px 15px;
+  background:rgba(24,49,63,.94);
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.35px;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+  transition:transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+#help-button:hover {
+  transform:translateY(-2px);
+  filter:brightness(1.08);
+}
+
+#help-modal {
+  position:fixed;
+  inset:0;
+  z-index:9600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(7,14,19,.78);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+
+#help-card {
+  width:min(720px,94vw);
+  max-height:90vh;
+  overflow:auto;
+  padding:26px 26px 22px;
+  border-radius:24px;
+  background:linear-gradient(145deg,rgba(29,40,49,.99),rgba(11,18,24,.99));
+  border:1px solid rgba(242,140,24,.48);
+  box-shadow:0 30px 90px rgba(0,0,0,.55),0 0 45px rgba(242,140,24,.12);
+}
+
+#help-title {
+  margin:0;
+  color:#fff;
+  font-size:21px;
+  font-weight:950;
+  letter-spacing:1px;
+  text-align:center;
+}
+
+#help-subtitle {
+  margin:7px 0 20px;
+  color:#b7c4cd;
+  font-size:11px;
+  line-height:1.5;
+  text-align:center;
+}
+
+.help-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.help-item {
+  padding:14px 15px;
+  border-radius:16px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.help-item-label {
+  color:#f7a13a;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.7px;
+  margin-bottom:6px;
+}
+
+.help-item-text {
+  color:#eef4f7;
+  font-size:11px;
+  line-height:1.55;
+}
+
+.help-footer {
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.08);
+  text-align:center;
+}
+
+#help-start-button {
+  min-width:220px;
+  border:0;
+  border-radius:14px;
+  padding:13px 20px;
+  background:#f28c18;
+  color:#fff;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.4px;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(242,140,24,.22);
+  transition:transform .16s ease, filter .16s ease;
+}
+#help-start-button:hover {
+  transform:translateY(-2px);
+  filter:brightness(1.07);
+}
+
+.help-note {
+  margin-top:10px;
+  color:#8797a2;
+  font-size:9px;
+  line-height:1.45;
+}
+
+@media(max-width:700px){
+  #help-button {
+    top:10px;
+    right:10px;
+    padding:9px 12px;
+    font-size:9px;
+  }
+  #help-modal { padding:14px; }
+  #help-card { padding:20px 16px 16px; border-radius:20px; }
+  #help-title { font-size:18px; }
+  .help-grid { grid-template-columns:1fr; gap:9px; }
+  .help-item { padding:12px 13px; }
+  .help-item-text { font-size:10px; }
+  #help-start-button { width:100%; min-width:0; }
 }
 
 
@@ -599,8 +735,45 @@
 
 
 <body>
-<div id="mouse-look-hint">KLIK POSTER / PINTU LANGSUNG · KLIK & TAHAN MOUSE UNTUK MELIHAT · WASD / JOYSTICK KIRI: JALAN · JOYSTICK KANAN: ARAH</div>
 
+  <!-- =====================================================
+       HELP / CARA PENGGUNAAN
+  ====================================================== -->
+  <button id="help-button" type="button" aria-label="Buka cara penggunaan">❔ CARA PENGGUNAAN</button>
+
+  <div id="help-modal" aria-hidden="true">
+    <div id="help-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <h2 id="help-title">CARA MENGGUNAKAN VIRTUAL ROOM</h2>
+      <div id="help-subtitle">Kenali kontrol dasar berikut sebelum mulai menjelajahi Lobby, Gallery, dan Studio Kopi Pahit.</div>
+
+      <div class="help-grid">
+        <div class="help-item">
+          <div class="help-item-label">💻 KOMPUTER</div>
+          <div class="help-item-text"><strong>W A S D</strong> atau tombol panah untuk berjalan. <strong>Klik &amp; tahan mouse lalu geser</strong> untuk melihat ke kiri, kanan, atas, atau bawah.</div>
+        </div>
+
+        <div class="help-item">
+          <div class="help-item-label">📱 HP / TABLET</div>
+          <div class="help-item-text"><strong>Joystick kiri</strong> untuk berjalan. <strong>Joystick kanan</strong> untuk mengarahkan pandangan.</div>
+        </div>
+
+        <div class="help-item">
+          <div class="help-item-label">🖱️ INTERAKSI</div>
+          <div class="help-item-text">Klik langsung <strong>poster, pintu, atau tombol</strong> untuk menjalankan aksi. Klik poster untuk melihat detail atau masuk ke Studio.</div>
+        </div>
+
+        <div class="help-item">
+          <div class="help-item-label">🚪 KELUAR / KEMBALI</div>
+          <div class="help-item-text">Gunakan tombol navigasi di layar untuk berpindah ruangan.</div>
+        </div>
+      </div>
+
+      <div class="help-footer">
+        <button id="help-start-button" type="button">🚀 MULAI MENJELAJAH</button>
+        <div class="help-note">Panel ini dapat dibuka kembali kapan saja melalui tombol “❔ CARA PENGGUNAAN”.</div>
+      </div>
+    </div>
+  </div>
 
   <!-- =====================================================
        LOADING
@@ -1228,6 +1401,10 @@ const loadingStatus =
     "loading-status"
   );
 
+const helpButton = document.getElementById("help-button");
+const helpModal = document.getElementById("help-modal");
+const helpStartButton = document.getElementById("help-start-button");
+
 const studioDocs = document.getElementById("studio-docs");
 const docButtons = { presensi:document.getElementById("doc-presensi"), notulen:document.getElementById("doc-notulen"), laporan:document.getElementById("doc-laporan") };
 const posterActionModal = document.getElementById("poster-action-modal");
@@ -1253,6 +1430,10 @@ let currentYear = null;
 let currentStudio = null;
 
 let currentPosterGroup = null;
+
+// Simpan state terakhir di Gallery agar saat keluar dari Studio pengguna
+// kembali tepat ke posisi dan arah pandang sebelum membuka poster.
+let savedGalleryState = null;
 
 let studioOpening = false;
 let selectedPosterItem = null;
@@ -1466,6 +1647,7 @@ function buildYearHall() {
   const bpsLogo = document.createElement("a-image");
   bpsLogo.setAttribute("src", "./assets/logo-bps.png");
   bpsLogo.setAttribute("position", "0 5.05 6.115");
+  bpsLogo.setAttribute("rotation", "0 0 180");
   bpsLogo.setAttribute("width", "2.42");
   bpsLogo.setAttribute("height", "0.86");
   bpsLogo.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
@@ -1926,6 +2108,41 @@ function createPlant(position, parent = yearHall, scale = 1) {
   return plant;
 }
 
+
+
+/* ============================================================
+   HELP / CARA PENGGUNAAN
+============================================================ */
+function openHelpModal() {
+  if (!helpModal) return;
+  helpModal.style.display = "flex";
+  helpModal.setAttribute("aria-hidden", "false");
+  if (helpStartButton) helpStartButton.focus();
+}
+
+function closeHelpModal() {
+  if (!helpModal) return;
+  helpModal.style.display = "none";
+  helpModal.setAttribute("aria-hidden", "true");
+}
+
+if (helpButton) helpButton.addEventListener("click", openHelpModal);
+if (helpStartButton) {
+  helpStartButton.addEventListener("click", function() {
+    try { localStorage.setItem("kopiPahitHelpSeen", "1"); } catch (_) {}
+    closeHelpModal();
+  });
+}
+if (helpModal) {
+  helpModal.addEventListener("click", function(e) {
+    if (e.target === helpModal) closeHelpModal();
+  });
+}
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" && helpModal && helpModal.style.display === "flex") {
+    closeHelpModal();
+  }
+});
 
 
 /* ============================================================
@@ -2466,6 +2683,7 @@ function createGalleryExitDoor() {
   const exitSign = document.createElement("a-image");
   exitSign.setAttribute("src", "./assets/pintu-keluar.png");
   exitSign.setAttribute("position", "0 4.72 -0.24");
+  exitSign.setAttribute("rotation", "0 0 180");
   exitSign.setAttribute("width", "2.30");
   exitSign.setAttribute("height", "0.66");
   exitSign.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
@@ -2733,6 +2951,20 @@ function openStudio(
   posterGroup
 ) {
   if (studioOpening || !item || !posterGroup) return;
+
+  // Simpan posisi + arah pandang Gallery sebelum pengguna masuk Studio.
+  // Snapshot ini dipakai saat tombol "Kembali ke Gallery" ditekan.
+  const pos = player?.object3D?.position;
+  const rot = camera?.object3D?.rotation;
+  if (pos && rot) {
+    savedGalleryState = {
+      position: { x: pos.x, y: pos.y, z: pos.z },
+      rotation: { x: rot.x, y: rot.y, z: 0 },
+      year: currentYear,
+      posterEdisi: item.edisi
+    };
+  }
+
   studioOpening=true; currentStudio=item; currentPosterGroup=posterGroup;
   const poster=posterGroup.querySelector("a-image");
   if (poster) poster.setAttribute("visible","false");
@@ -3345,27 +3577,37 @@ function closeStudio() {
   }
 
   /* ========================================================
-     CAMERA
+     CAMERA / GALLERY STATE
   ======================================================== */
 
-  player.setAttribute(
-    "position",
-    "0 1.65 16.5"
-  );
+  if (savedGalleryState) {
+    const p = savedGalleryState.position;
+    const r = savedGalleryState.rotation;
 
+    player.object3D.position.set(p.x, p.y, p.z);
+    camera.object3D.rotation.set(r.x, r.y, r.z || 0);
 
-  camera.setAttribute("rotation", "0 0 0");
-  targetYaw = 0;
-  targetPitch = 0;
+    targetYaw = r.y;
+    targetPitch = r.x;
+
+    // Sinkronkan target mouse supaya tidak terjadi snap saat pengguna
+    // mulai drag mouse lagi setelah kembali ke Gallery.
+    if (typeof syncMouseTargetToCamera === "function") {
+      syncMouseTargetToCamera();
+    }
+  } else {
+    // Fallback aman bila tidak ada snapshot state.
+    player.setAttribute("position", "0 1.65 -0.95");
+    camera.setAttribute("rotation", "0 0 0");
+    targetYaw = 0;
+    targetPitch = 0;
+  }
+
   camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
-
-  currentStudio =
-    null;
-
-
-  currentPosterGroup =
-    null;
+  currentStudio = null;
+  currentPosterGroup = null;
+  savedGalleryState = null;
 
 }
 
@@ -4111,6 +4353,10 @@ scene.addEventListener(
 
         loading.style.display =
           "none";
+
+        // Tampilkan petunjuk penggunaan setiap kali virtual room dibuka.
+        // Pengguna menutupnya dengan tombol "🚀 MULAI MENJELAJAH".
+        openHelpModal();
 
       },
 
