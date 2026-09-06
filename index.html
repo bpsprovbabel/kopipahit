@@ -35,6 +35,17 @@
 
 
   <style>
+#mouse-look-hint{
+ position:fixed; z-index:99999; left:50%; top:14px; transform:translateX(-50%);
+ padding:8px 14px; border:1px solid rgba(0,140,220,.25); border-radius:999px;
+ background:rgba(255,255,255,.94); color:#18445d;
+ font:700 11px/1.25 Arial,sans-serif; box-shadow:0 6px 18px rgba(0,0,0,.12);
+ pointer-events:none; white-space:nowrap; text-align:center;
+}
+@media(max-width:600px){
+ #mouse-look-hint{top:10px;max-width:82vw;white-space:normal;font-size:10px;}
+}
+
 
     /* =====================================================
        GLOBAL
@@ -588,6 +599,7 @@
 
 
 <body>
+<div id="mouse-look-hint">KLIK & TAHAN MOUSE UNTUK MELIHAT · WASD / JOYSTICK KIRI: JALAN · JOYSTICK KANAN: ARAH</div>
 
 
   <!-- =====================================================
@@ -862,7 +874,7 @@
 
     <a-entity
       id="player"
-      position="0 1.65 16.5"
+      position="0 1.65 11.5"
     >
 
       <a-camera
@@ -1873,6 +1885,8 @@ function enterYear(
 
 
   camera.setAttribute("rotation", "0 0 0");
+  targetYaw = 0;
+  targetPitch = 0;
   camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
@@ -1940,6 +1954,8 @@ function backToYearHall() {
 
 
   camera.setAttribute("rotation", "0 0 0");
+  targetYaw = 0;
+  targetPitch = 0;
   camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
@@ -2548,8 +2564,10 @@ function openStudio(
     studio.setAttribute("visible","true");
     backYear.style.display="none";
     closeStudioButton.style.display="block";
-    player.setAttribute("position","0 1.6 2.4");
+    player.setAttribute("position","0 1.6 1.45");
     camera.setAttribute("rotation","0 0 0");
+    targetYaw = 0;
+    targetPitch = 0;
     camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
     const embedURL=normalizeYoutubeUrl(item.youtube);
     if(embedURL){
@@ -3153,6 +3171,8 @@ function closeStudio() {
 
 
   camera.setAttribute("rotation", "0 0 0");
+  targetYaw = 0;
+  targetPitch = 0;
   camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
@@ -3491,23 +3511,54 @@ function targetIsUI(el){
   return !!el?.closest?.('#joystick-zone,#look-joystick-zone,button,a,input,textarea,select,#hud,#studio-docs,.poster-modal-overlay,.modal,#touch-look-overlay');
 }
 
-window.addEventListener("mousemove", (e) => {
-  if (isTouchDevice) return;
-  if (studio && studio.getAttribute("visible")) { resetMouseLook(); return; }
+let mouseDown = false;
 
-  // Mouse look harus memakai pergerakan relatif cursor, bukan posisi absolut.
-  // Tidak perlu klik kiri.
-  if (targetIsUI(e.target)) {
-    mouseReady = false;
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
-    return;
-  }
+function resetMouseLook() {
+  mouseReady = false;
+}
+
+function targetIsCanvas(target) {
+  return !!(
+    scene &&
+    scene.canvas &&
+    (target === scene.canvas || target?.closest?.("canvas") === scene.canvas)
+  );
+}
+
+// PC: kamera baru aktif bila tombol kiri mouse ditekan dan ditahan.
+// Ini mengembalikan perilaku awal yang sebelumnya lebih nyaman.
+window.addEventListener("mousedown", (e) => {
+  if (isTouchDevice) return;
+  if (e.button !== 0) return;
+  if (studio && studio.getAttribute("visible")) return;
+  if (targetIsUI(e.target)) return;
+  if (!targetIsCanvas(e.target)) return;
+
+  mouseDown = true;
+  mouseReady = true;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+});
+
+window.addEventListener("mouseup", (e) => {
+  if (e.button !== 0) return;
+  mouseDown = false;
+  resetMouseLook();
+});
+
+window.addEventListener("mouseleave", () => {
+  mouseDown = false;
+  resetMouseLook();
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (isTouchDevice || !mouseDown) return;
+  if (studio && studio.getAttribute("visible")) return;
 
   const obj = camera?.object3D;
   if (!obj) return;
 
-  if (!mouseReady){
+  if (!mouseReady) {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
     mouseReady = true;
@@ -3516,13 +3567,16 @@ window.addEventListener("mousemove", (e) => {
 
   const dx = e.clientX - lastMouseX;
   const dy = e.clientY - lastMouseY;
+
   lastMouseX = e.clientX;
   lastMouseY = e.clientY;
 
-  // Gerak mouse kanan = lihat kanan.
+  // Mouse kanan -> kamera lihat kanan.
+  // Mouse kiri -> kamera lihat kiri.
   obj.rotation.y -= dx * MOUSE_LOOK_SENSITIVITY;
 
-  // Gerak mouse atas = lihat atas.
+  // Mouse atas -> kamera lihat atas.
+  // Mouse bawah -> kamera lihat bawah.
   obj.rotation.x -= dy * MOUSE_LOOK_SENSITIVITY;
 
   obj.rotation.x = THREE.MathUtils.clamp(
@@ -3531,128 +3585,127 @@ window.addEventListener("mousemove", (e) => {
     THREE.MathUtils.degToRad(65)
   );
   obj.rotation.z = 0;
-});
 
-/* -------------------------
-   MOBILE LOOK JOYSTICK
--------------------------- */
-const LOOK_YAW_SPEED = 0.030;
-const LOOK_PITCH_SPEED = 0.022;
-const LOOK_SMOOTH = 0.36;
-let targetYaw = 0;
-let targetPitch = 0;
-
-function syncLookTargets(){
-  const obj = camera?.object3D;
-  if(!obj) return;
+  // Sinkronkan target joystick kanan agar tidak loncat ketika berganti kontrol.
   targetYaw = obj.rotation.y;
   targetPitch = obj.rotation.x;
+});
+
+
+/* ============================================================
+   MOVEMENT + CAMERA UPDATE LOOPS
+============================================================ */
+const MOVE_SPEED = 3.2;            // world units / second
+const LOOK_YAW_SPEED = 0.030;      // joystick camera speed per frame
+const LOOK_PITCH_SPEED = 0.024;
+const LOOK_SMOOTH = 0.22;
+
+let targetYaw = 0;
+let targetPitch = 0;
+let lastMoveTime = performance.now();
+
+function normalizeAngleRad(a) {
+  return Math.atan2(Math.sin(a), Math.cos(a));
 }
-syncLookTargets();
 
-function normalizeRad(a){
-  while(a > Math.PI) a -= Math.PI * 2;
-  while(a < -Math.PI) a += Math.PI * 2;
-  return a;
+function movementLoop(now) {
+  const dt = Math.min(0.05, Math.max(0.001, (now - lastMoveTime) / 1000));
+  lastMoveTime = now;
+
+  const movingWorld =
+    !!yearHall.getAttribute("visible") ||
+    !!gallery.getAttribute("visible") ||
+    !!studio.getAttribute("visible");
+
+  if (movingWorld && !studioOpening) {
+    const yaw = camera?.object3D?.rotation?.y || 0;
+
+    // Keyboard input.
+    let forward = 0;
+    let strafe = 0;
+
+    if (keys["w"] || keys["arrowup"]) forward += 1;
+    if (keys["s"] || keys["arrowdown"]) forward -= 1;
+    if (keys["a"] || keys["arrowleft"]) strafe -= 1;
+    if (keys["d"] || keys["arrowright"]) strafe += 1;
+
+    // Joystick kiri: vector.y = depan/belakang, vector.x = kiri/kanan.
+    forward += joystickVector.y;
+    strafe += joystickVector.x;
+
+    const len = Math.hypot(forward, strafe);
+    if (len > 1) {
+      forward /= len;
+      strafe /= len;
+    }
+
+    if (Math.abs(forward) > 0.001 || Math.abs(strafe) > 0.001) {
+      // Kamera menghadap -Z saat yaw = 0.
+      const sinY = Math.sin(yaw);
+      const cosY = Math.cos(yaw);
+
+      const dirX = (sinY * forward) + (cosY * strafe);
+      const dirZ = (-cosY * forward) + (sinY * strafe);
+
+      const pos = player.object3D.position;
+      pos.x += dirX * MOVE_SPEED * dt;
+      pos.z += dirZ * MOVE_SPEED * dt;
+
+      // Batas aman year hall / gallery. Studio lebih longgar.
+      if (yearHall.getAttribute("visible")) {
+        pos.x = THREE.MathUtils.clamp(pos.x, -6.1, 6.1);
+        pos.z = THREE.MathUtils.clamp(pos.z, -7.0, 15.5);
+      } else if (gallery.getAttribute("visible")) {
+        pos.x = THREE.MathUtils.clamp(pos.x, -4.25, 4.25);
+        pos.z = THREE.MathUtils.clamp(pos.z, -39.5, 15.0);
+      } else if (studio.getAttribute("visible")) {
+        pos.x = THREE.MathUtils.clamp(pos.x, -4.6, 4.6);
+        pos.z = THREE.MathUtils.clamp(pos.z, -7.0, 3.8);
+      }
+    }
+  }
+
+  requestAnimationFrame(movementLoop);
 }
 
-let lookJoystickWasActive = false;
-
-function lookLoop(){
+function lookLoop() {
   const obj = camera?.object3D;
 
-  if(obj && !studio.getAttribute("visible")){
-    // Penting: PC memakai mouse langsung. Jangan pernah melakukan smoothing
-    // menuju targetYaw/targetPitch lama ketika joystick kanan tidak aktif,
-    // karena itu akan membuat kamera terasa "ditarik balik".
-    if(lookJoystickActive){
-      // Saat joystick baru disentuh, sinkronkan target ke arah kamera saat ini.
-      if(!lookJoystickWasActive){
-        targetYaw = obj.rotation.y;
-        targetPitch = obj.rotation.x;
-      }
-
-      targetYaw -= lookJoystickVector.x * LOOK_YAW_SPEED;
-
-      // NippleJS: Y positif = dorong ke atas.
-      // Maka atas = lihat atas, bawah = lihat bawah.
-      targetPitch -= lookJoystickVector.y * LOOK_PITCH_SPEED;
-
+  if (obj && !studio.getAttribute("visible")) {
+    // Joystick kanan hanya aktif saat dipakai. Target disinkronkan dengan
+    // rotasi kamera agar tidak ada "snap" ketika mulai menggerakkan joystick.
+    if (lookJoystickActive) {
+      targetYaw = normalizeAngleRad(targetYaw - lookJoystickVector.x * LOOK_YAW_SPEED);
+      targetPitch += lookJoystickVector.y * LOOK_PITCH_SPEED;
       targetPitch = THREE.MathUtils.clamp(
         targetPitch,
         THREE.MathUtils.degToRad(-65),
         THREE.MathUtils.degToRad(65)
       );
-
-      const dy = normalizeRad(targetYaw - obj.rotation.y);
-      const dp = targetPitch - obj.rotation.x;
-
-      obj.rotation.y += dy * LOOK_SMOOTH;
-      obj.rotation.x += dp * LOOK_SMOOTH;
-      obj.rotation.x = THREE.MathUtils.clamp(
-        obj.rotation.x,
-        THREE.MathUtils.degToRad(-65),
-        THREE.MathUtils.degToRad(65)
-      );
-      obj.rotation.z = 0;
     }
 
-    lookJoystickWasActive = lookJoystickActive;
+    const dy = normalizeAngleRad(targetYaw - obj.rotation.y);
+    const dp = targetPitch - obj.rotation.x;
+
+    if (lookJoystickActive) {
+      obj.rotation.y += dy * LOOK_SMOOTH;
+      obj.rotation.x += dp * LOOK_SMOOTH;
+    }
+
+    obj.rotation.x = THREE.MathUtils.clamp(
+      obj.rotation.x,
+      THREE.MathUtils.degToRad(-65),
+      THREE.MathUtils.degToRad(65)
+    );
+    obj.rotation.z = 0;
   }
 
   requestAnimationFrame(lookLoop);
 }
-lookLoop();
 
-/* -------------------------
-   MOVEMENT
--------------------------- */
-const MOVEMENT_SPEED = 0.085;
-
-function movementLoop(){
-  const studioOpen = !!(studio && studio.getAttribute("visible"));
-
-  if(!studioOpen && player && player.object3D){
-    const forwardKey = (keys.w || keys.arrowup) ? 1 : 0;
-    const backKey = (keys.s || keys.arrowdown) ? 1 : 0;
-    const leftKey = (keys.a || keys.arrowleft) ? 1 : 0;
-    const rightKey = (keys.d || keys.arrowright) ? 1 : 0;
-
-    let forward = joystickVector.y + forwardKey - backKey;
-    let strafe = joystickVector.x + rightKey - leftKey;
-    const mag = Math.hypot(forward, strafe);
-    if(mag > 1){ forward /= mag; strafe /= mag; }
-
-    if(Math.abs(forward) > 0.001 || Math.abs(strafe) > 0.001){
-      const angle = camera.object3D.rotation.y;
-      const dx = (strafe * Math.cos(angle) - forward * Math.sin(angle)) * MOVEMENT_SPEED;
-      const dz = (-strafe * Math.sin(angle) - forward * Math.cos(angle)) * MOVEMENT_SPEED;
-      player.object3D.position.x += dx;
-      player.object3D.position.z += dz;
-    }
-  }
-
-  const pos = player.object3D.position;
-  pos.x = Math.max(-3.8, Math.min(3.8, pos.x));
-
-  if(yearHall.getAttribute("visible")){
-    pos.z = Math.max(-4, Math.min(6, pos.z));
-  }
-
-  if(gallery.getAttribute("visible")){
-    pos.z = Math.max(-42, Math.min(5, pos.z));
-  }
-
-  requestAnimationFrame(movementLoop);
-}
-movementLoop();
-
-document.addEventListener("keydown", function(e){
-  if(e.key === "Escape"){
-    closePosterDetail();
-    closePosterActions();
-  }
-});
+// Mulai sekali saja.
+requestAnimationFrame(movementLoop);
+requestAnimationFrame(lookLoop);
 
 /* ============================================================
    STARTUP
@@ -3684,6 +3737,11 @@ scene.addEventListener(
       "GALLERY SIAP";
 
     const canvas = scene && scene.canvas;
+    if(camera?.object3D){
+      targetYaw = camera.object3D.rotation.y;
+      targetPitch = camera.object3D.rotation.x;
+    }
+
     if(canvas){
       canvas.setAttribute("tabindex", "0");
       canvas.style.outline = "none";
