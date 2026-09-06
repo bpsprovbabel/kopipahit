@@ -1878,9 +1878,11 @@ function enterYear(
   );
 
 
+  // Start just inside the gallery entrance, as if the user has just
+  // walked out of the door from the main lobby.
   player.setAttribute(
     "position",
-    "0 1.65 10.5"
+    "0 1.65 -0.95"
   );
 
 
@@ -2006,11 +2008,100 @@ function buildGallery(
   gallery.appendChild(createBox("-4.10 0.04 -20", 0.10, 0.05, 42, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.70;`));
   gallery.appendChild(createBox("4.10 0.04 -20", 0.10, 0.05, 42, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.60;`));
 
-  // Entrance branding
-  gallery.appendChild(createText(`KOPI PAHIT · ${year}`, "0 4.15 -4.30", COLORS.navy, 5.0));
-  gallery.appendChild(createText("KONGKOW PINTAR PAHAM IT", "0 3.72 -4.30", COLORS.orange, 3.2));
-  gallery.appendChild(createBox("-1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`));
-  gallery.appendChild(createBox("1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
+  // ============================
+  // IMAGE-DRIVEN GALLERY HEADER
+  // ============================
+  // Tinggal ganti gambar:
+  // assets/<tahun>/gallery-header.png
+  // Rasio yang disarankan: landscape sekitar 3:1.
+  const galleryHeaderFrame = createBox(
+    "0 4.30 -3.55",
+    4.10, 1.18, 0.16,
+    "#111820",
+    "roughness: 0.38; metalness: 0.14;"
+  );
+  gallery.appendChild(galleryHeaderFrame);
+
+  gallery.appendChild(createBox(
+    "0 4.30 -3.67",
+    3.86, 0.95, 0.06,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.90;`
+  ));
+
+  const headerImage = document.createElement("a-image");
+  headerImage.setAttribute(
+    "src",
+    `./assets/${year}/gallery-header.png`
+  );
+  headerImage.setAttribute("position", "0 4.30 -3.70");
+  headerImage.setAttribute("width", "3.72");
+  headerImage.setAttribute("height", "0.91");
+  headerImage.setAttribute("material", "shader: flat; transparent: true;");
+  headerImage.addEventListener("error", () => {
+    if (headerImage.getAttribute("src") !== "./assets/gallery-header.png") {
+      headerImage.setAttribute("src", "./assets/gallery-header.png");
+    }
+  });
+  gallery.appendChild(headerImage);
+
+  // Hanging rods / ceiling suspension.
+  [-1.55, 1.55].forEach((x) => {
+    gallery.appendChild(createBox(
+      `${x} 4.90 -3.55`,
+      0.045, 1.10, 0.045,
+      "#161d23"
+    ));
+    gallery.appendChild(createBox(
+      `${x} 4.34 -3.55`,
+      0.16, 0.07, 0.18,
+      COLORS.orange,
+      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
+    ));
+  });
+
+  // Minimal central architectural trim — no static wording.
+  gallery.appendChild(createBox(
+    "0 3.08 -3.06", 3.30, 0.045, 0.035, "#f3efe8"
+  ));
+  gallery.appendChild(createBox(
+    "-1.35 3.11 -3.10", 0.82, 0.035, 0.03, COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`
+  ));
+  gallery.appendChild(createBox(
+    "1.35 3.11 -3.10", 0.82, 0.035, 0.03, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`
+  ));
+
+  // Wall bay accents — poster content itself is the only information source.
+  const bayZ = [-7, -11.8, -16.6, -21.4, -26.2, -31.0, -35.8];
+  bayZ.forEach((z) => {
+    gallery.appendChild(createBox(
+      `-3.55 3.55 ${z}`, 1.55, 0.035, 0.05, COLORS.orange,
+      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
+    ));
+    gallery.appendChild(createBox(
+      `3.55 3.55 ${z}`, 1.55, 0.035, 0.05, COLORS.orange,
+      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
+    ));
+  });
+
+  // Small ceiling spotlights over the left/right exhibition lanes.
+  bayZ.slice(0, 6).forEach((z, i) => {
+    [-3.55, 3.55].forEach((x) => {
+      const spot = document.createElement("a-entity");
+      spot.setAttribute("light",
+        `type: point; intensity: 0.45; distance: 4; decay: 1.7; color: ${i % 2 ? COLORS.green : COLORS.blue};`);
+      spot.setAttribute("position", `${x} 4.95 ${z}`);
+      gallery.appendChild(spot);
+    });
+  });
+
+  // Left/right low wall panels make the corridor feel like an exhibition
+  // rather than two floating posters.
+  gallery.appendChild(createBox("-4.55 2.00 -20", 0.08, 2.25, 38.0, "#b8b1a7"));
+  gallery.appendChild(createBox("4.55 2.00 -20", 0.08, 2.25, 38.0, "#b8b1a7"));
+gallery.appendChild(createBox("1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
 
   // Lounge islands + plants to make the corridor feel occupied
   [-11,-21,-31].forEach((z,i)=>{
@@ -2033,7 +2124,7 @@ function buildGallery(
   data.forEach(function(item,index){
     const row=Math.floor(index/2);
     const left=index%2===0;
-    createPoster(item,left?-3.55:3.55,-7-row*4.8,left);
+    createPoster(item,left?-3.35:3.35,-6.2-row*4.5,left);
   });
   createGalleryEnd(data.length);
 }
@@ -2044,14 +2135,14 @@ function buildGallery(
 ============================================================ */
 function createGalleryExitDoor() {
   const group = document.createElement("a-entity");
-  group.setAttribute("position", "0 0 16.05");
+  group.setAttribute("position", "0 0 0.62");
   group.classList.add("gallery-exit-door");
 
   // Wall/door recess
   group.appendChild(
     createBox(
       "0 2.35 0",
-      2.35, 3.55, 0.18,
+      2.45, 3.55, 0.18,
       "#eef0ec",
       "roughness: 0.65; metalness: 0.03;"
     )
@@ -2060,7 +2151,7 @@ function createGalleryExitDoor() {
   // Dark opening
   const opening = createBox(
     "0 1.75 -0.13",
-    1.72, 2.62, 0.08,
+    1.78, 2.62, 0.08,
     "#081019",
     "roughness: 0.9; metalness: 0;"
   );
@@ -2098,6 +2189,15 @@ function createGalleryExitDoor() {
     1.65
   );
   group.appendChild(sub);
+
+  // Small illuminated lintel to make the doorway read as part of the gallery.
+  const lintel = createBox(
+    "0 3.65 -0.16",
+    2.55, 0.09, 0.05,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.60;`
+  );
+  group.appendChild(lintel);
 
   // Transparent full-area click target, slightly in front.
   const hit = createBox(
@@ -2166,22 +2266,27 @@ function createPoster(
      WHITE FRAME
   ======================================================== */
 
+  // Deep exhibition backplate.
   group.appendChild(
-
     createBox(
-
       "0 0 0",
-
-      1.82,
-
-      2.65,
-
-      0.20,
-
-      "#ffffff"
-
+      1.92,
+      2.42,
+      0.24,
+      "#182630",
+      "roughness: 0.72; metalness: 0.10;"
     )
+  );
 
+  // White inner mount.
+  group.appendChild(
+    createBox(
+      "0 0 0.07",
+      1.76,
+      2.24,
+      0.10,
+      "#f7f4ee"
+    )
   );
 
 
@@ -2195,9 +2300,9 @@ function createPoster(
 
       "0 0 0.12",
 
-      1.60,
+      1.58,
 
-      2.42,
+      2.08,
 
       0.05,
 
@@ -2233,13 +2338,13 @@ function createPoster(
 
   image.setAttribute(
     "width",
-    "1.48"
+    "1.54"
   );
 
 
   image.setAttribute(
     "height",
-    "2.22"
+    "1.925"
   );
 
 
@@ -2368,47 +2473,23 @@ function createPoster(
   );
 
 
-  /* ========================================================
-     EDITION
-  ======================================================== */
-
-  group.appendChild(
-
-    createText(
-
-      `EDISI #${String(item.edisi).padStart(2, "0")}`,
-
-      "0 1.53 0.16",
-
-      COLORS.navy,
-
-      2.2
-
-    )
-
+  // Image-first exhibition panel: the uploaded poster contains all text/content.
+  const topGlow = createBox(
+    "0 1.18 0.21",
+    1.64, 0.045, 0.045,
+    left ? COLORS.blue : COLORS.green,
+    `emissive: ${left ? COLORS.blue : COLORS.green}; emissiveIntensity: 0.80;`
   );
+  group.appendChild(topGlow);
 
-
-  /* ========================================================
-     DATE
-  ======================================================== */
-
-  group.appendChild(
-
-    createText(
-
-      item.tanggal,
-
-      "0 -1.53 0.16",
-
-      "#68747d",
-
-      2.4
-
-    )
-
-  );
-
+  // Side accent rail for each exhibition bay.
+  const sideAccent = left ? COLORS.blue : COLORS.green;
+  group.appendChild(createBox(
+    "-0.89 0 0.19",
+    0.045, 2.26, 0.045,
+    sideAccent,
+    `emissive: ${sideAccent}; emissiveIntensity: 0.75;`
+  ));
 
   /* ========================================================
      BASE
@@ -2479,103 +2560,63 @@ function createPoster(
    GALLERY END
 ============================================================ */
 
-function createGalleryEnd(
-  count
-) {
+function createGalleryEnd(count) {
+  if (count === 0) return;
 
-  if (
-    count === 0
-  ) {
+  const row = Math.max(0, Math.floor((count - 1) / 2));
+  const z = -7 - row * 4.8 - 5;
 
-    return;
+  // End wall.
+  gallery.appendChild(createBox(
+    `0 2.75 ${z}`,
+    9.6, 5.5, 0.28,
+    COLORS.cream,
+    "roughness: 0.62; metalness: 0.02;"
+  ));
 
-  }
-
-
-  const row =
-    Math.max(
-      0,
-      Math.floor(
-        (count - 1) / 2
-      )
-    );
-
-
-  const z =
-    -7 -
-    row * 4.8 -
-    5;
-
-
-  gallery.appendChild(
-
-    createBox(
-
-      `0 2.7 ${z}`,
-
-      9.6,
-
-      5.4,
-
-      0.22,
-
-      COLORS.cream
-
-    )
-
+  // 16:9 image screen. Ganti:
+  // assets/<tahun>/gallery-end.png
+  // atau fallback: assets/gallery-end.png
+  const screenFrame = createBox(
+    `0 2.75 ${z - 0.18}`,
+    6.85, 4.08, 0.16,
+    "#101820",
+    "roughness: 0.34; metalness: 0.12;"
   );
+  gallery.appendChild(screenFrame);
 
+  gallery.appendChild(createBox(
+    `0 4.73 ${z - 0.29}`,
+    6.28, 0.055, 0.045,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.90;`
+  ));
 
-  gallery.appendChild(
+  const endImage = document.createElement("a-image");
+  endImage.setAttribute("src", `./assets/${currentYear || ""}/gallery-end.png`);
+  endImage.setAttribute("position", `0 2.75 ${z - 0.31}`);
+  endImage.setAttribute("width", "6.28");
+  endImage.setAttribute("height", "3.53");
+  endImage.setAttribute("material", "shader: flat; transparent: true;");
+  endImage.addEventListener("error", () => {
+    const fallback = "./assets/gallery-end.png";
+    if (endImage.getAttribute("src") !== fallback) endImage.setAttribute("src", fallback);
+  });
+  gallery.appendChild(endImage);
 
-    createText(
-
-      "KOPI PAHIT",
-
-      `0 3.55 ${z - 0.20}`,
-
-      COLORS.navy,
-
-      4
-
-    )
-
-  );
-
-
-  gallery.appendChild(
-
-    createText(
-
-      `${count} EDISI · SATU PERJALANAN`,
-
-      `0 3.0 ${z - 0.20}`,
-
-      COLORS.orange,
-
-      3
-
-    )
-
-  );
-
-
-  gallery.appendChild(
-
-    createText(
-
-      "SETIAP DISKUSI MENINGGALKAN JEJAK",
-
-      `0 2.5 ${z - 0.20}`,
-
-      COLORS.green,
-
-      2.8
-
-    )
-
-  );
-
+  // Side architectural light strips only; no static wording.
+  gallery.appendChild(createBox(
+    `-3.55 2.75 ${z - 0.30}`,
+    0.055, 3.66, 0.05,
+    COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.75;`
+  ));
+  gallery.appendChild(createBox(
+    `3.55 2.75 ${z - 0.30}`,
+    0.055, 3.66, 0.05,
+    COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.75;`
+  ));
 }
 
 
@@ -3747,8 +3788,10 @@ function movementLoop(now) {
         pos.x = THREE.MathUtils.clamp(pos.x, -6.1, 6.1);
         pos.z = THREE.MathUtils.clamp(pos.z, -7.0, 15.5);
       } else if (gallery.getAttribute("visible")) {
-        pos.x = THREE.MathUtils.clamp(pos.x, -4.25, 4.25);
-        pos.z = THREE.MathUtils.clamp(pos.z, -39.5, 15.0);
+        // Gallery is physically bounded by the left/right walls and by the
+        // entrance/end wall. Do not allow the player to walk through them.
+        pos.x = THREE.MathUtils.clamp(pos.x, -4.05, 4.05);
+        pos.z = THREE.MathUtils.clamp(pos.z, -39.6, 0.25);
       } else if (studio.getAttribute("visible")) {
         pos.x = THREE.MathUtils.clamp(pos.x, -4.6, 4.6);
         pos.z = THREE.MathUtils.clamp(pos.z, -7.0, 3.8);
