@@ -340,12 +340,12 @@
       -webkit-backdrop-filter: blur(8px);
       text-shadow: 0 2px 6px rgba(0,0,0,.55);
     }
-    #touch-look-overlay {
+     #touch-look-overlay {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 4700;
-      pointer-events: auto;
+      pointer-events: none;
       touch-action: none;
       background: transparent;
     }
@@ -579,7 +579,7 @@
       .studio-doc-button:last-child { margin-right:0; }
       #joystick-zone { width:108px; height:108px; left:12px; bottom:14px; }
       #look-touch-hint { display:block; bottom:18px; right:12px; font-size:8px; }
-      #touch-look-overlay { display:block; }
+      #touch-look-overlay { display:block; pointer-events:auto; }
       #back-year, #close-studio { font-size:9px; padding:9px 11px; }
     }
 
@@ -777,7 +777,7 @@
     <a-entity
       light="
         type: ambient;
-        intensity: 0.95;
+        intensity: 0.72;
         color: #ffffff;
       "
     ></a-entity>
@@ -786,7 +786,7 @@
     <a-entity
       light="
         type: directional;
-        intensity: 0.75;
+        intensity: 0.48;
         color: #ffffff;
       "
       position="0 8 5"
@@ -796,7 +796,7 @@
     <a-entity
       light="
         type: point;
-        intensity: 1.1;
+        intensity: 0.52;
         distance: 22;
         color: #0794d2;
       "
@@ -807,7 +807,7 @@
     <a-entity
       light="
         type: point;
-        intensity: 1.1;
+        intensity: 0.52;
         distance: 22;
         color: #f28c18;
       "
@@ -818,7 +818,7 @@
     <a-entity
       light="
         type: point;
-        intensity: 0.65;
+        intensity: 0.35;
         distance: 18;
         color: #65b82e;
       "
@@ -862,7 +862,7 @@
 
     <a-entity
       id="player"
-      position="0 1.6 6"
+      position="0 1.65 10"
     >
 
       <a-camera
@@ -1473,56 +1473,87 @@ function buildYearHall() {
   /* ========================================================
      BACK BRANDING WALL / HERO PANEL
   ======================================================== */
-  const backFrame=createBox("0 3.75 -7.62", 6.25, 4.1, 0.18, "#fffaf0",
+  // Hero sambutan dibuat sebagai banner 16:9 yang lebih ringkas agar
+  // menjadi fokus latar tanpa menutupi Year Card di bawahnya.
+  const backFrame=createBox("0 4.58 -7.64", 5.72, 3.26, 0.18, "#fffaf0",
     `roughness: 0.45; metalness: 0.02;`);
   yearHall.appendChild(backFrame);
 
   const welcomeImage=document.createElement('a-image');
   welcomeImage.setAttribute('src','./assets/sambutan.png');
-  welcomeImage.setAttribute('position','0 3.75 -7.50');
-  welcomeImage.setAttribute('width','5.98');
-  welcomeImage.setAttribute('height','3.36');
+  welcomeImage.setAttribute('position','0 4.58 -7.50');
+  welcomeImage.setAttribute('width','5.50');
+  welcomeImage.setAttribute('height','3.09');
+  welcomeImage.setAttribute('material','shader: flat; color: #ffffff;');
   yearHall.appendChild(welcomeImage);
 
-  // Small lit ledge under the hero panel
-  yearHall.appendChild(createBox("0 2.00 -7.30", 6.4, 0.08, 0.20, COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`));
-  yearHall.appendChild(createText("VIRTUAL EXPERIENCE GALLERY", "0 1.65 -7.22", "#ffffff", 4.1));
-  yearHall.appendChild(createBox("0 1.42 -7.20", 3.4, 0.04, 0.04, COLORS.green,
-    `emissive: ${COLORS.green}; emissiveIntensity: 0.45;`));
-  yearHall.appendChild(createText("Pilih Tahun untuk Menjelajahi Arsip Kopi Pahit", "0 1.18 -7.18", "#dfe9ee", 2.9));
+  // Caption/logo strip, cukup sebagai elemen arsitektur; tidak mengganggu isi sambutan.
+  yearHall.appendChild(createBox("0 2.98 -7.30", 5.82, 0.07, 0.18, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`));
+  yearHall.appendChild(createBox("0 2.76 -7.20", 3.25, 0.025, 0.025, COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.42;`));
 
   /* ========================================================
      LEFT / RIGHT INFORMATION WALLS
   ======================================================== */
-  function addSidePanel(side, title, subtitle, color){
-    const x = side==='left' ? -6.62 : 6.62;
-    yearHall.appendChild(createBox(`${x} 3.05 -4.2`, 0.16, 3.25, 2.65, "#fbf7ef"));
-    yearHall.appendChild(createBox(`${x + (side==='left'?0.05:-0.05)} 3.05 -5.46`, 0.06, 2.55, 1.25, color,
-      `emissive: ${color}; emissiveIntensity: 0.28;`));
-    yearHall.appendChild(createBox(`${x + (side==='left'?0.05:-0.05)} 4.37 -4.18`, 0.06, 0.06, 2.0, color,
-      `emissive: ${color}; emissiveIntensity: 0.7;`));
-    yearHall.appendChild(createText(title, `${x + (side==='left'?0.14:-0.14)} 3.78 -5.52`, COLORS.navy, 1.25, side==='left'?'left':'right'));
-    yearHall.appendChild(createText(subtitle, `${x + (side==='left'?0.14:-0.14)} 2.82 -5.52`, color, 1.15, side==='left'?'left':'right'));
+  // Dua layar portrait 4:5. Isi gambar sepenuhnya dari file eksternal agar
+  // kontennya dapat diganti tanpa mengubah struktur 3D.
+  const sideScreens = {
+    left:  './assets/screen-left.png',
+    right: './assets/screen-right.png'
+  };
+
+  function addImageScreen(side, imagePath, color){
+    const x = side === 'left' ? -6.76 : 6.76;
+    const rotY = side === 'left' ? 90 : -90;
+    const panel = document.createElement('a-entity');
+    panel.setAttribute('position', `${x} 3.15 -5.35`);
+    panel.setAttribute('rotation', `0 ${rotY} 0`);
+
+    // Back board: 4:5 portrait. Local XY plane faces +Z before rotation.
+    panel.appendChild(createBox('0 0 0', 2.26, 2.84, 0.14, '#eef1ee',
+      'roughness: 0.42; metalness: 0.05;'));
+
+    // Neon outer border.
+    panel.appendChild(createBox('0 1.36 0.095', 2.06, 0.05, 0.04, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`));
+    panel.appendChild(createBox('0 -1.36 0.095', 2.06, 0.05, 0.04, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`));
+    panel.appendChild(createBox('-1.03 0 0.095', 0.05, 2.72, 0.04, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`));
+    panel.appendChild(createBox('1.03 0 0.095', 0.05, 2.72, 0.04, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`));
+
+    // 4:5 image area — no static text.
+    const img = document.createElement('a-image');
+    img.setAttribute('src', imagePath);
+    img.setAttribute('position', '0 0 0.115');
+    img.setAttribute('width', '1.92');
+    img.setAttribute('height', '2.40');
+    img.setAttribute('material', 'shader: flat; color: #ffffff;');
+    panel.appendChild(img);
+
+    yearHall.appendChild(panel);
   }
-  addSidePanel('left','DATA','MEMBANGUN NEGERI',COLORS.blue);
-  addSidePanel('right','STATISTIK','BERKUALITAS UNTUK INDONESIA MAJU',COLORS.orange);
+
+  addImageScreen('left', sideScreens.left, COLORS.blue);
+  addImageScreen('right', sideScreens.right, COLORS.orange);
 
   /* ========================================================
      PODIUM FOR YEAR CARDS
   ======================================================== */
-  yearHall.appendChild(createCylinder("0 0.26 -0.9", 3.9, 0.52, "#f6f1e8"));
-  yearHall.appendChild(createCylinder("0 0.53 -0.9", 3.45, 0.16, "#17364b",
+  yearHall.appendChild(createCylinder("0 0.26 -3.55", 3.9, 0.52, "#f6f1e8"));
+  yearHall.appendChild(createCylinder("0 0.53 -3.55", 3.45, 0.16, "#17364b",
     `roughness: 0.32; metalness: 0.10;`));
-  yearHall.appendChild(createCylinder("0 0.64 -0.9", 3.0, 0.10, COLORS.orange,
+  yearHall.appendChild(createCylinder("0 0.64 -3.55", 3.0, 0.10, COLORS.orange,
     `emissive: ${COLORS.orange}; emissiveIntensity: 0.38;`));
 
   /* ========================================================
      YEAR CARDS
   ======================================================== */
-  createYearCard(2026, "7 EDISI", "-3.05 1.05 -1.05", true);
-  createYearCard(2027, "BELUM ADA EDISI", "0 1.05 -1.05", false);
-  createYearCard(2028, "BELUM ADA EDISI", "3.05 1.05 -1.05", false);
+  createYearCard(2026, "", "-2.05 1.40 -3.55", true);
+  createYearCard(2027, "", "0 1.40 -3.55", false);
+  createYearCard(2028, "", "2.05 1.40 -3.55", false);
 
   /* ========================================================
      BENCHES / PLANTERS / DECOR
@@ -1598,103 +1629,79 @@ function createYearCard3D({
   onEnter = null
 }) {
   const group = document.createElement("a-entity");
-  group.setAttribute("position", position || "0 1 -1");
+  group.setAttribute("position", position || "0 1.40 -3.55");
   group.classList.add("year-card-3d");
 
-  const box = (pos, w, h, d, color, material = "") => {
-    const el = createBox(pos, w, h, d, color, material);
-    return el;
-  };
+  // A2 portrait = 420 x 594. The 3D board below follows the same ratio.
+  // The uploaded image is the entire face: no year/title/button is baked by code.
+  const CARD_W = 1.54;
+  const CARD_H = 2.18;
 
-  const text = (value, pos, color, width) => {
-    return createText(value || "", pos, color, width);
-  };
+  const shell = createBox(
+    "0 0 0", CARD_W + 0.20, CARD_H + 0.20, 0.23, "#101820",
+    "roughness: 0.38; metalness: 0.14;"
+  );
+  group.appendChild(shell);
 
-  // Rear shell gives the card real 3D depth.
-  group.appendChild(box(
-    "0 0 0", 2.48, 3.46, 0.24, "#101820",
-    "roughness: 0.42; metalness: 0.08"
-  ));
+  const board = createBox(
+    "0 0 0.13", CARD_W, CARD_H, 0.08, "#f7f7f2",
+    "roughness: 0.28; metalness: 0.03;"
+  );
+  group.appendChild(board);
 
-  // Front plate.
-  group.appendChild(box(
-    "0 0 0.14", 2.30, 3.28, 0.10, "#f8f7f2",
-    "roughness: 0.40; metalness: 0.02"
-  ));
-
-  // Accent rail.
-  group.appendChild(box(
-    "0 1.52 0.22", 2.08, 0.10, 0.05, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.45;`
-  ));
-
-  // Image texture: only the file changes from year to year.
+  // Full-face A2 image. Ganti file ini saja untuk mengubah tampilan kartu.
   const imageEl = document.createElement("a-image");
-  imageEl.setAttribute("src", image || "");
-  imageEl.setAttribute("position", "0 0.43 0.225");
-  imageEl.setAttribute("width", "1.88");
-  imageEl.setAttribute("height", "1.38");
-  imageEl.setAttribute("material", "shader: flat; transparent: true");
+  imageEl.setAttribute("src", image || "./assets/logo-kopi-pahit.png");
+  imageEl.setAttribute("position", "0 0 0.185");
+  imageEl.setAttribute("width", CARD_W - 0.06);
+  imageEl.setAttribute("height", CARD_H - 0.06);
+  imageEl.setAttribute("material", "shader: flat; color: #ffffff;");
+  imageEl.addEventListener("error", () => {
+    const fallback = (galleryData[year] && galleryData[year][0])
+      ? galleryData[year][0].poster
+      : "./assets/logo-kopi-pahit.png";
+    if (imageEl.getAttribute("src") !== fallback) imageEl.setAttribute("src", fallback);
+  });
   group.appendChild(imageEl);
 
-  // Image frame.
-  const frame = document.createElement("a-entity");
-  frame.appendChild(box("0 1.15 0.24", 1.96, 0.05, 0.035, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.20;`));
-  frame.appendChild(box("0 -0.29 0.24", 1.96, 0.05, 0.035, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.20;`));
-  frame.appendChild(box("-0.955 0.43 0.24", 0.05, 1.48, 0.035, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.20;`));
-  frame.appendChild(box("0.955 0.43 0.24", 0.05, 1.48, 0.035, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.20;`));
-  group.appendChild(frame);
+  // Neon tubing around the A2 sheet.
+  const glow = `emissive: ${accent}; emissiveIntensity: 0.95;`;
+  group.appendChild(createBox("0 1.05 0.235", 1.47, 0.045, 0.045, accent, glow));
+  group.appendChild(createBox("0 -1.05 0.235", 1.47, 0.045, 0.045, accent, glow));
+  group.appendChild(createBox("-0.735 0 0.235", 0.045, 2.11, 0.045, accent, glow));
+  group.appendChild(createBox("0.735 0 0.235", 0.045, 2.11, 0.045, accent, glow));
 
-  // Metadata.
-  group.appendChild(text(String(year), "0 -0.24 0.25", COLORS.navy, 3.55));
-  group.appendChild(text(subtitle, "0 -0.66 0.25", "#6d767e", 2.25));
+  // Tiny white specular line for a premium neon-box look.
+  group.appendChild(createBox("0 1.015 0.246", 1.32, 0.014, 0.015, "#ffffff",
+    "emissive: #ffffff; emissiveIntensity: 0.75;"));
 
-  // Button.
-  const button = box(
-    "0 -1.11 0.25", 1.76, 0.48, 0.08,
-    active ? accent : "#b9bfc3",
-    active ? `emissive: ${accent}; emissiveIntensity: 0.20;` : ""
-  );
-
+  // Whole card is the hit target. No static text is needed.
   if (active) {
-    button.classList.add("clickable");
-    button.addEventListener("mouseenter", () => {
-      button.setAttribute("scale", "1.06 1.06 1.06");
-    });
-    button.addEventListener("mouseleave", () => {
-      button.setAttribute("scale", "1 1 1");
-    });
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
+    const hit = createBox(
+      "0 0 0.28", CARD_W + 0.08, CARD_H + 0.08, 0.035, "#ffffff",
+      "transparent: true; opacity: 0; depthWrite: false; side: double;"
+    );
+    hit.classList.add("clickable");
+    const openCard = (event) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
       if (typeof onEnter === "function") onEnter(year);
-    });
+    };
+    hit.addEventListener("click", openCard);
+    hit.addEventListener("touchend", openCard, { passive: false });
+    hit.addEventListener("mouseenter", () => group.setAttribute("scale", "1.035 1.035 1.035"));
+    hit.addEventListener("mouseleave", () => group.setAttribute("scale", "1 1 1"));
+    group.appendChild(hit);
   }
 
-  group.appendChild(button);
-  group.appendChild(text(
-    active ? "MASUK →" : "SEGERA HADIR",
-    "0 -1.11 0.32", "#ffffff", 1.75
+  // Small 3D foot/base only; it does not carry text.
+  group.appendChild(createBox(
+    "0 -1.28 0", 1.70, 0.18, 0.82, "#dfe5e2",
+    "roughness: 0.45; metalness: 0.08;"
   ));
-
-  group.appendChild(text(
-    active ? "Koleksi tersedia" : "Koleksi belum tersedia",
-    "0 -1.38 0.25",
-    active ? COLORS.green : "#9ca4aa",
-    1.80
-  ));
-
-  // Reusable pedestal.
-  group.appendChild(box(
-    "0 -1.75 0", 2.60, 0.30, 1.42, "#dfe5e2",
-    "roughness: 0.56; metalness: 0.05"
-  ));
-  group.appendChild(box(
-    "0 -1.57 0.70", 2.08, 0.035, 0.035, accent,
-    `emissive: ${accent}; emissiveIntensity: 0.85;`
+  group.appendChild(createBox(
+    "0 -1.16 0.43", 1.42, 0.028, 0.028, accent,
+    `emissive: ${accent}; emissiveIntensity: 0.95;`
   ));
 
   return group;
@@ -1705,10 +1712,7 @@ function createYearCard(year, subtitle, position, active) {
     year === 2026 ? COLORS.blue :
     year === 2027 ? COLORS.green : COLORS.orange;
 
-  const firstPoster =
-    galleryData[year] && galleryData[year][0]
-      ? galleryData[year][0].poster
-      : "./assets/logo-kopi-pahit.png";
+  const firstPoster = `./assets/${year}/year-card.png`;
 
   const card = createYearCard3D({
     year,
@@ -1873,7 +1877,7 @@ function enterYear(
 
   player.setAttribute(
     "position",
-    "0 1.6 4.5"
+    "0 1.65 10"
   );
 
 
@@ -1940,7 +1944,7 @@ function backToYearHall() {
 
   player.setAttribute(
     "position",
-    "0 1.6 6"
+    "0 1.65 10"
   );
 
 
@@ -3153,7 +3157,7 @@ function closeStudio() {
 
   player.setAttribute(
     "position",
-    "0 1.6 4.5"
+    "0 1.65 10"
   );
 
 
@@ -3412,66 +3416,139 @@ joystick.on("move", function(event,data){
 });
 joystick.on("end", function(){ joystickVector={x:0,y:0}; });
 
-/* Swipe-to-look. The overlay sits above A-Frame on mobile, but deliberately
-   ignores the joystick/document/modal/video regions. */
+/* ============================================================
+   TOUCH LOOK — ANDROID / MOBILE
+   Overlay transparan menangkap gesture secara langsung. Joystick tetap
+   berada di atasnya sehingga kiri tetap khusus untuk gerak.
+============================================================ */
 let lookTouch = null;
-const lookSensitivity = 0.20;
-const lookSmooth = 0.22;
+let lookTouchStart = null;
+const lookSensitivity = 0.18;
+const lookSmooth = 0.30;
 let targetYaw = 0;
 let targetPitch = 0;
+const touchLookOverlay = document.getElementById('touch-look-overlay');
 
 function syncLookTargets(){
-  const r=camera.getAttribute("rotation") || {x:0,y:0,z:0};
-  targetYaw=r.y;
-  targetPitch=r.x;
+  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
+  targetYaw = r.y;
+  targetPitch = r.x;
 }
 syncLookTargets();
 
 function normalizeAngle(a){
-  while(a>180) a-=360;
-  while(a<-180) a+=360;
+  while(a > 180) a -= 360;
+  while(a < -180) a += 360;
   return a;
 }
 
-function isInteractiveTouchTarget(target){
-  return !!target.closest('#joystick-zone, #studio-docs, #poster-action-modal, #poster-detail-modal, #youtube-layer, button, a, input, textarea, select');
+function touchIsBlocked(){
+  return studioOpening || (studio.getAttribute('visible') === true || studio.getAttribute('visible') === 'true') ||
+    document.getElementById('poster-action-modal')?.style.display === 'flex' ||
+    document.getElementById('poster-detail-modal')?.style.display === 'flex';
 }
 
-const touchOverlay=document.getElementById('touch-look-overlay');
-if(touchOverlay){
-  touchOverlay.addEventListener('touchstart', function(e){
-    if(!isTouchDevice || e.touches.length!==1) return;
-    if(isInteractiveTouchTarget(e.target)) return;
-    const t=e.touches[0];
-    const r=camera.getAttribute('rotation') || {x:0,y:0,z:0};
-    targetYaw=r.y; targetPitch=r.x;
-    lookTouch={x:t.clientX,y:t.clientY};
+function getClickedClickableAtTouch(clientX, clientY){
+  if(!scene?.renderer || !scene?.camera) return;
+  const canvas = scene.canvas;
+  if(!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const ndc = new THREE.Vector2(
+    ((clientX - rect.left) / rect.width) * 2 - 1,
+    -((clientY - rect.top) / rect.height) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(ndc, scene.camera);
+
+  const objects = Array.from(document.querySelectorAll('.clickable'))
+    .map(el => el.object3D)
+    .filter(Boolean);
+  if(!objects.length) return;
+
+  const intersections = raycaster.intersectObjects(objects, true);
+  if(!intersections.length) return;
+
+  let hit = intersections[0].object;
+  while(hit && !hit.el) hit = hit.parent;
+  if(hit?.el){
+    hit.el.emit('click', { originalEvent: null });
+  }
+}
+
+function startLookTouch(e){
+  if(!isTouchDevice || !e.touches || e.touches.length !== 1 || touchIsBlocked()) return;
+  const t = e.touches[0];
+  // Ignore touches physically inside the joystick, even if the overlay is underneath it.
+  const j = document.getElementById('joystick-zone')?.getBoundingClientRect();
+  if(j && t.clientX >= j.left && t.clientX <= j.right && t.clientY >= j.top && t.clientY <= j.bottom) return;
+  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
+  targetYaw = r.y;
+  targetPitch = r.x;
+  lookTouch = {x:t.clientX, y:t.clientY};
+  lookTouchStart = {x:t.clientX, y:t.clientY};
+}
+
+function moveLookTouch(e){
+  if(!lookTouch || !e.touches || e.touches.length !== 1) return;
+  const t = e.touches[0];
+  const dx = t.clientX - lookTouch.x;
+  const dy = t.clientY - lookTouch.y;
+  // Finger right -> view right; finger down -> look down.
+  targetYaw -= dx * lookSensitivity;
+  targetPitch += dy * lookSensitivity;
+  targetPitch = Math.max(-65, Math.min(65, targetPitch));
+  lookTouch = {x:t.clientX, y:t.clientY};
+  e.preventDefault();
+}
+
+function endLookTouch(e){
+  if(!lookTouchStart) return;
+  const t = e.changedTouches?.[0];
+  if(t){
+    const dx = t.clientX - lookTouchStart.x;
+    const dy = t.clientY - lookTouchStart.y;
+    const distance = Math.hypot(dx,dy);
+    if(distance < 16 && !touchIsBlocked()){
+      getClickedClickableAtTouch(t.clientX, t.clientY);
+    }
+  }
+  lookTouch = null;
+  lookTouchStart = null;
+}
+
+if(touchLookOverlay){
+  touchLookOverlay.addEventListener('touchstart', startLookTouch, {passive:true});
+  touchLookOverlay.addEventListener('touchmove', moveLookTouch, {passive:false});
+  touchLookOverlay.addEventListener('touchend', endLookTouch, {passive:true});
+  touchLookOverlay.addEventListener('touchcancel', () => { lookTouch=null; lookTouchStart=null; }, {passive:true});
+}
+
+// Fallback for Android/browser combinations that suppress events on the overlay.
+scene.addEventListener('loaded', () => {
+  const canvas = scene.canvas;
+  if(!canvas) return;
+  canvas.style.touchAction = 'none';
+  canvas.addEventListener('touchstart', (e) => {
+    if(lookTouch) return;
+    startLookTouch(e);
   }, {passive:true});
-
-  touchOverlay.addEventListener('touchmove', function(e){
-    if(!lookTouch || e.touches.length!==1) return;
-    const t=e.touches[0];
-    const dx=t.clientX-lookTouch.x;
-    const dy=t.clientY-lookTouch.y;
-    targetYaw -= dx*lookSensitivity;
-    targetPitch += dy*lookSensitivity;
-    targetPitch=Math.max(-65,Math.min(65,targetPitch));
-    lookTouch={x:t.clientX,y:t.clientY};
-    e.preventDefault();
+  canvas.addEventListener('touchmove', (e) => {
+    if(lookTouch) moveLookTouch(e);
   }, {passive:false});
-
-  ['touchend','touchcancel'].forEach(type=>touchOverlay.addEventListener(type,function(){lookTouch=null;},{passive:true}));
-}
+  canvas.addEventListener('touchend', (e) => {
+    if(lookTouchStart) endLookTouch(e);
+  }, {passive:true});
+});
 
 function lookLoop(){
-  const r=camera.getAttribute('rotation') || {x:0,y:0,z:0};
-  if(isTouchDevice){
-    let dy=normalizeAngle(targetYaw-r.y);
-    let dp=targetPitch-r.x;
-    r.y += dy*lookSmooth;
-    r.x += dp*lookSmooth;
-    r.x=Math.max(-65,Math.min(65,r.x));
-    camera.setAttribute('rotation',r);
+  const r = camera.getAttribute('rotation') || {x:0,y:0,z:0};
+  if(isTouchDevice && !studio.getAttribute('visible')){
+    const dy = normalizeAngle(targetYaw - r.y);
+    const dp = targetPitch - r.x;
+    r.y += dy * lookSmooth;
+    r.x += dp * lookSmooth;
+    r.x = Math.max(-65, Math.min(65, r.x));
+    camera.setAttribute('rotation', r);
   }
   requestAnimationFrame(lookLoop);
 }
