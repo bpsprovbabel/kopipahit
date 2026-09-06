@@ -1704,6 +1704,7 @@ function buildYearHall() {
   bpsLogo.setAttribute("src", "./assets/logo-bps.png");
   bpsLogo.setAttribute("position", "0 5.05 6.115");
   bpsLogo.setAttribute("rotation", "0 0 0");
+  bpsLogo.setAttribute("scale", "-1 1 1");
   bpsLogo.setAttribute("width", "2.42");
   bpsLogo.setAttribute("height", "0.86");
   bpsLogo.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
@@ -2185,6 +2186,8 @@ function closeHelpModal() {
 if (helpButton) helpButton.addEventListener("click", openHelpModal);
 if (helpStartButton) {
   helpStartButton.addEventListener("click", function() {
+    // The button click itself is the user gesture that unlocks audio.
+    // Start the lobby track immediately, with looping enabled.
     startLobbyAudioFromUserGesture();
     try { localStorage.setItem("kopiPahitHelpSeen", "1"); } catch (_) {}
     closeHelpModal();
@@ -2759,6 +2762,7 @@ function createGalleryExitDoor() {
   exitSign.setAttribute("src", "./assets/pintu-keluar.png");
   exitSign.setAttribute("position", "0 4.72 -0.24");
   exitSign.setAttribute("rotation", "0 0 0");
+  exitSign.setAttribute("scale", "-1 1 1");
   exitSign.setAttribute("width", "2.30");
   exitSign.setAttribute("height", "0.66");
   exitSign.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
