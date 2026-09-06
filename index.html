@@ -1736,102 +1736,75 @@ function createYearCard(year, subtitle, position, active) {
    PLANT
 ============================================================ */
 
-function createPlant(
-  position
-) {
+function createPlant(position, parent = yearHall, scale = 1) {
+  const plant = document.createElement("a-entity");
+  plant.setAttribute("position", position);
+  plant.setAttribute("scale", `${scale} ${scale} ${scale}`);
 
-  const plant =
-    document.createElement(
-      "a-entity"
-    );
-
-
-  plant.setAttribute(
-    "position",
-    position
-  );
-
-
+  // Floor planter
   plant.appendChild(
-
     createBox(
       "0 0.25 0",
       0.75,
       0.50,
       0.75,
-      "#ffffff"
+      "#f5f1e9",
+      "roughness: 0.78; metalness: 0.02;"
     )
-
   );
 
-
+  // Soil layer
   plant.appendChild(
-
     createBox(
-      "0 0.78 0",
-      0.10,
-      1.0,
-      0.10,
-      COLORS.green
+      "0 0.53 0",
+      0.56,
+      0.08,
+      0.56,
+      "#5d3f2b",
+      "roughness: 1; metalness: 0;"
     )
-
   );
 
-
+  // Main stems
   [
+    ["-0.12 0.95 0", 0.07, 0.78, 0.07, "#3e8f35"],
+    ["0.10 1.02 0.04", 0.06, 0.88, 0.06, "#4aa53c"],
+    ["0 1.10 -0.04", 0.05, 0.96, 0.05, "#3f8c32"]
+  ].forEach(([pos, w, h, d, color]) => {
+    const stem = createBox(pos, w, h, d, color);
+    plant.appendChild(stem);
+  });
 
-    "-0.25 1.25 0",
-    "0 1.45 0",
-    "0.25 1.25 0"
+  // Layered leaves so it reads as a plant, not just three green blobs.
+  const leaves = [
+    ["-0.28 1.12 0.02", 0.34, 0.78, 0.30, -16],
+    ["0.26 1.18 0.03", 0.36, 0.80, 0.31, 16],
+    ["-0.08 1.42 0.08", 0.38, 0.84, 0.32, -6],
+    ["0.10 1.58 -0.02", 0.33, 0.78, 0.29, 8],
+    ["0 1.78 0.05", 0.30, 0.72, 0.28, 0]
+  ];
 
-  ].forEach(
+  leaves.forEach(([pos, sx, sy, sz, rotZ], i) => {
+    const leaf = document.createElement("a-sphere");
+    leaf.setAttribute("radius", "0.34");
+    leaf.setAttribute("position", pos);
+    leaf.setAttribute("scale", `${sx} ${sy} ${sz}`);
+    leaf.setAttribute("rotation", `0 0 ${rotZ}`);
+    leaf.setAttribute(
+      "color",
+      i % 2 === 0 ? "#4cae3f" : "#65b82e"
+    );
+    leaf.setAttribute(
+      "material",
+      `roughness:0.82; metalness:0.0;`
+    );
+    plant.appendChild(leaf);
+  });
 
-    function(pos) {
-
-      const leaf =
-        document.createElement(
-          "a-sphere"
-        );
-
-
-      leaf.setAttribute(
-        "radius",
-        "0.28"
-      );
-
-
-      leaf.setAttribute(
-        "position",
-        pos
-      );
-
-
-      leaf.setAttribute(
-        "scale",
-        "1 0.65 1"
-      );
-
-
-      leaf.setAttribute(
-        "color",
-        COLORS.green
-      );
-
-
-      plant.appendChild(
-        leaf
-      );
-
-    }
-
-  );
-
-
-  yearHall.appendChild(
-    plant
-  );
-
+  parent.appendChild(plant);
+  return plant;
 }
+
 
 
 /* ============================================================
@@ -1979,160 +1952,281 @@ function backToYearHall() {
    BUILD GALLERY
 ============================================================ */
 
-function buildGallery(
-  year
-) {
+
+function buildGallery(year) {
   gallery.innerHTML = "";
 
-  // Premium corridor floor + carpet runner
-  gallery.appendChild(createBox("0 -0.10 -20", 10, 0.20, 42, "#d6d0c4", `roughness: 0.82; metalness: 0.04;`));
-  gallery.appendChild(createBox("0 0.015 -20", 2.55, 0.035, 40.5, "#24313a", `roughness: 1; metalness: 0;`));
-  gallery.appendChild(createBox("0 0.038 -20", 2.05, 0.018, 40.0, "#633b25", `roughness: 1; metalness: 0;`));
-  gallery.appendChild(createBox("0 0.055 -20", 0.055, 0.012, 39.5, COLORS.orange, `emissive: ${COLORS.orange}; emissiveIntensity: 0.35;`));
+  /*
+    CLEAN EXHIBITION CORRIDOR
+    --------------------------
+    Semua elemen dibuat flush/terikat ke dinding atau plafon.
+    Tidak ada balok dekorasi yang menggantung bebas di tengah ruang.
+  */
 
-  // Warm architectural walls
-  gallery.appendChild(createBox("-4.8 2.7 -20", 0.20, 5.40, 42, "#e9e4da", `roughness: 0.75; metalness: 0.02;`));
-  gallery.appendChild(createBox("4.8 2.7 -20", 0.20, 5.40, 42, "#e9e4da", `roughness: 0.75; metalness: 0.02;`));
-  gallery.appendChild(createBox("-4.65 0.72 -20", 0.08, 1.45, 41.5, "#bdb4a5"));
-  gallery.appendChild(createBox("4.65 0.72 -20", 0.08, 1.45, 41.5, "#bdb4a5"));
+  // FLOOR
+  gallery.appendChild(createBox(
+    "0 -0.12 -19.5",
+    9.8, 0.22, 40.2,
+    "#d9d4ca",
+    "roughness: 0.88; metalness: 0.02;"
+  ));
 
-  // Ceiling beams / light rails
-  gallery.appendChild(createBox("0 5.55 -20", 9.6, 0.18, 42, "#d3cec3"));
-  for (let z=-5; z>=-39; z-=4.8) {
-    gallery.appendChild(createBox(`0 5.31 ${z}`, 7.4, 0.055, 0.08, COLORS.orange, `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`));
-    gallery.appendChild(createBox(`-4.35 5.30 ${z}`, 0.10, 0.10, 0.80, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`));
-    gallery.appendChild(createBox(`4.35 5.30 ${z}`, 0.10, 0.10, 0.80, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
+  // Central carpet runner
+  gallery.appendChild(createBox(
+    "0 0.01 -19.5",
+    2.55, 0.035, 39.5,
+    "#273846",
+    "roughness: 1; metalness: 0;"
+  ));
+  gallery.appendChild(createBox(
+    "0 0.035 -19.5",
+    2.12, 0.018, 39.1,
+    "#6b3e27",
+    "roughness: 1; metalness: 0;"
+  ));
+  gallery.appendChild(createBox(
+    "0 0.052 -19.5",
+    0.045, 0.012, 38.8,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.30;`
+  ));
+
+  // WALLS
+  gallery.appendChild(createBox(
+    "-4.78 2.70 -19.5",
+    0.22, 5.55, 40.2,
+    "#ece7de",
+    "roughness: 0.78; metalness: 0.02;"
+  ));
+  gallery.appendChild(createBox(
+    "4.78 2.70 -19.5",
+    0.22, 5.55, 40.2,
+    "#ece7de",
+    "roughness: 0.78; metalness: 0.02;"
+  ));
+
+  // Lower wall plinths
+  gallery.appendChild(createBox(
+    "-4.63 0.78 -19.5",
+    0.10, 1.55, 40.0,
+    "#bdb6ab"
+  ));
+  gallery.appendChild(createBox(
+    "4.63 0.78 -19.5",
+    0.10, 1.55, 40.0,
+    "#bdb6ab"
+  ));
+
+  // CEILING — one clean recessed tray
+  gallery.appendChild(createBox(
+    "0 5.45 -19.5",
+    9.55, 0.20, 40.0,
+    "#d1ccc2",
+    "roughness: 0.72; metalness: 0.01;"
+  ));
+  gallery.appendChild(createBox(
+    "0 5.30 -19.5",
+    7.55, 0.055, 39.2,
+    "#f4efe8"
+  ));
+
+  // Flush ceiling light strips only — no floating ornaments.
+  [-2.55, 0, 2.55].forEach((x, idx) => {
+    const c = idx === 0 ? COLORS.blue : (idx === 1 ? COLORS.orange : COLORS.green);
+    gallery.appendChild(createBox(
+      `${x} 5.235 -19.5`,
+      0.055, 0.025, 38.5,
+      c,
+      `emissive: ${c}; emissiveIntensity: 0.52;`
+    ));
+  });
+
+  // Recessed ceiling lamps
+  for (let z = -4.0; z >= -36.0; z -= 4.0) {
+    const lamp = document.createElement("a-entity");
+    lamp.setAttribute("light", "type: point; intensity: 0.36; distance: 5.5; decay: 1.8; color: #fff7ec;");
+    lamp.setAttribute("position", `0 5.08 ${z}`);
+    gallery.appendChild(lamp);
+
+    const disc = document.createElement("a-cylinder");
+    disc.setAttribute("radius", "0.085");
+    disc.setAttribute("height", "0.02");
+    disc.setAttribute("rotation", "90 0 0");
+    disc.setAttribute("position", `0 5.24 ${z}`);
+    disc.setAttribute("color", "#fffaf1");
+    disc.setAttribute("material", "emissive: #fffaf1; emissiveIntensity: 0.75;");
+    gallery.appendChild(disc);
   }
 
-  // Gallery edge lighting
-  gallery.appendChild(createBox("-4.10 0.04 -20", 0.10, 0.05, 42, COLORS.blue, `emissive: ${COLORS.blue}; emissiveIntensity: 0.70;`));
-  gallery.appendChild(createBox("4.10 0.04 -20", 0.10, 0.05, 42, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.60;`));
+  // Continuous wall-level accent lines.
+  gallery.appendChild(createBox(
+    "-4.33 0.08 -19.5",
+    0.055, 0.035, 39.0,
+    COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.60;`
+  ));
+  gallery.appendChild(createBox(
+    "4.33 0.08 -19.5",
+    0.055, 0.035, 39.0,
+    COLORS.green,
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.60;`
+  ));
 
-  // ============================
-  // IMAGE-DRIVEN GALLERY HEADER
-  // ============================
-  // Tinggal ganti gambar:
-  // assets/<tahun>/gallery-header.png
-  // Rasio yang disarankan: landscape sekitar 3:1.
-  const galleryHeaderFrame = createBox(
-    "0 4.30 -3.55",
-    4.10, 1.18, 0.16,
+  // HEADER SIGN — mounted to rear wall, so it cannot float between ceiling pieces.
+  const headerZ = -2.55;
+  // Ceiling-adjacent neon sign: 4.20m × 0.95m × 0.18m.
+  gallery.appendChild(createBox(
+    `0 4.18 ${headerZ}`,
+    4.20, 0.95, 0.18,
     "#111820",
     "roughness: 0.38; metalness: 0.14;"
-  );
-  gallery.appendChild(galleryHeaderFrame);
-
+  ));
   gallery.appendChild(createBox(
-    "0 4.30 -3.67",
-    3.86, 0.95, 0.06,
+    `0 4.18 ${headerZ - 0.12}`,
+    3.98, 0.79, 0.05,
     COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.90;`
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.85;`
   ));
 
   const headerImage = document.createElement("a-image");
-  headerImage.setAttribute(
-    "src",
-    `./assets/${year}/gallery-header.png`
-  );
-  headerImage.setAttribute("position", "0 4.30 -3.70");
-  headerImage.setAttribute("width", "3.72");
-  headerImage.setAttribute("height", "0.91");
-  headerImage.setAttribute("material", "shader: flat; transparent: true;");
+  headerImage.setAttribute("src", `./assets/${year}/gallery-header.png`);
+  headerImage.setAttribute("position", `0 4.18 ${headerZ - 0.15}`);
+  headerImage.setAttribute("width", "3.82");
+  headerImage.setAttribute("height", "0.72");
+  headerImage.setAttribute("material", "shader: flat; color: #ffffff;");
   headerImage.addEventListener("error", () => {
-    if (headerImage.getAttribute("src") !== "./assets/gallery-header.png") {
-      headerImage.setAttribute("src", "./assets/gallery-header.png");
-    }
+    const fallback = "./assets/gallery-header.png";
+    if (headerImage.getAttribute("src") !== fallback) headerImage.setAttribute("src", fallback);
   });
   gallery.appendChild(headerImage);
 
-  // Hanging rods / ceiling suspension.
-  [-1.55, 1.55].forEach((x) => {
+  // A clean horizontal trim below the header.
+  gallery.appendChild(createBox(
+    `0 3.42 ${headerZ - 0.05}`,
+    3.80, 0.04, 0.04,
+    "#ffffff"
+  ));
+
+  // Side exhibition poster bays — left/right, consistent and symmetrical.
+  const posterZ = [-6.2, -10.8, -15.4, -20.0, -24.6, -29.2, -33.8];
+
+  posterZ.forEach((z, index) => {
+    const sideColor = index % 2 === 0 ? COLORS.blue : COLORS.green;
+
+    // Small ceiling bay marker, flush to wall/ceiling transition.
     gallery.appendChild(createBox(
-      `${x} 4.90 -3.55`,
-      0.045, 1.10, 0.045,
-      "#161d23"
-    ));
-    gallery.appendChild(createBox(
-      `${x} 4.34 -3.55`,
-      0.16, 0.07, 0.18,
+      `-4.10 4.42 ${z}`,
+      1.75, 0.035, 0.04,
       COLORS.orange,
-      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
-    ));
-  });
-
-  // Minimal central architectural trim — no static wording.
-  gallery.appendChild(createBox(
-    "0 3.08 -3.06", 3.30, 0.045, 0.035, "#f3efe8"
-  ));
-  gallery.appendChild(createBox(
-    "-1.35 3.11 -3.10", 0.82, 0.035, 0.03, COLORS.blue,
-    `emissive: ${COLORS.blue}; emissiveIntensity: 0.55;`
-  ));
-  gallery.appendChild(createBox(
-    "1.35 3.11 -3.10", 0.82, 0.035, 0.03, COLORS.green,
-    `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`
-  ));
-
-  // Wall bay accents — poster content itself is the only information source.
-  const bayZ = [-7, -11.8, -16.6, -21.4, -26.2, -31.0, -35.8];
-  bayZ.forEach((z) => {
-    gallery.appendChild(createBox(
-      `-3.55 3.55 ${z}`, 1.55, 0.035, 0.05, COLORS.orange,
-      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
+      `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`
     ));
     gallery.appendChild(createBox(
-      `3.55 3.55 ${z}`, 1.55, 0.035, 0.05, COLORS.orange,
-      `emissive: ${COLORS.orange}; emissiveIntensity: 0.55;`
+      `4.10 4.42 ${z}`,
+      1.75, 0.035, 0.04,
+      COLORS.orange,
+      `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`
     ));
-  });
 
-  // Small ceiling spotlights over the left/right exhibition lanes.
-  bayZ.slice(0, 6).forEach((z, i) => {
+    // Subtle wall spotlights over each poster bay.
     [-3.55, 3.55].forEach((x) => {
       const spot = document.createElement("a-entity");
-      spot.setAttribute("light",
-        `type: point; intensity: 0.45; distance: 4; decay: 1.7; color: ${i % 2 ? COLORS.green : COLORS.blue};`);
-      spot.setAttribute("position", `${x} 4.95 ${z}`);
+      spot.setAttribute("light", `type: point; intensity: 0.30; distance: 3.8; decay: 1.8; color: ${sideColor};`);
+      spot.setAttribute("position", `${x} 3.95 ${z - 0.25}`);
       gallery.appendChild(spot);
     });
   });
 
-  // Left/right low wall panels make the corridor feel like an exhibition
-  // rather than two floating posters.
-  gallery.appendChild(createBox("-4.55 2.00 -20", 0.08, 2.25, 38.0, "#b8b1a7"));
-  gallery.appendChild(createBox("4.55 2.00 -20", 0.08, 2.25, 38.0, "#b8b1a7"));
-gallery.appendChild(createBox("1.65 3.40 -4.27", 1.65, 0.04, 0.04, COLORS.green, `emissive: ${COLORS.green}; emissiveIntensity: 0.55;`));
+  // PLANT ISLANDS — planter + several real plants, like the main lobby.
+  [
+    { z: -8.6, side: -1, accent: COLORS.blue },
+    { z: -17.8, side: -1, accent: COLORS.green },
+    { z: -27.0, side: -1, accent: COLORS.blue },
+    { z: -36.0, side: -1, accent: COLORS.green }
+  ].forEach(({z, side, accent}, i) => {
+    const x = -3.80;
 
-  // Lounge islands + plants to make the corridor feel occupied
-  [-11,-21,-31].forEach((z,i)=>{
-    const c=i%2===0?COLORS.blue:COLORS.green;
-    gallery.appendChild(createBox(`-2.25 0.28 ${z}`,1.25,0.18,0.55,"#765944"));
-    gallery.appendChild(createBox(`-2.25 0.52 ${z}`,1.08,0.30,0.42,"#34434e"));
-    gallery.appendChild(createBox(`2.25 0.28 ${z-1.0}`,1.25,0.18,0.55,"#765944"));
-    gallery.appendChild(createBox(`2.25 0.52 ${z-1.0}`,1.08,0.30,0.42,"#34434e"));
-    gallery.appendChild(createBox(`-2.25 0.66 ${z-0.27}`,0.62,0.025,0.025,c,`emissive: ${c}; emissiveIntensity: 0.5;`));
+    // Main planter
+    gallery.appendChild(createBox(
+      `${x} 0.25 ${z}`,
+      1.00, 0.50, 0.80,
+      "#ece8df",
+      "roughness: 0.70; metalness: 0.03;"
+    ));
+    gallery.appendChild(createBox(
+      `${x} 0.52 ${z}`,
+      0.70, 0.08, 0.56,
+      "#5d3f2b",
+      "roughness: 1; metalness: 0;"
+    ));
+
+    // Three plants clustered in the planter.
+    createPlant(`${x - 0.25} 0.45 ${z - 0.10}`, gallery, 0.95);
+    createPlant(`${x + 0.05} 0.45 ${z + 0.05}`, gallery, 1.05);
+    createPlant(`${x + 0.25} 0.45 ${z - 0.12}`, gallery, 0.82);
+
+    // Accent line on the planter.
+    gallery.appendChild(createBox(
+      `${x} 0.53 ${z + 0.42}`,
+      0.76, 0.035, 0.035,
+      accent,
+      `emissive: ${accent}; emissiveIntensity: 0.55;`
+    ));
+
+    // Mirror cluster on right side.
+    const rx = 3.80;
+    const rz = z - 0.85;
+
+    gallery.appendChild(createBox(
+      `${rx} 0.25 ${rz}`,
+      1.00, 0.50, 0.80,
+      "#ece8df",
+      "roughness: 0.70; metalness: 0.03;"
+    ));
+    gallery.appendChild(createBox(
+      `${rx} 0.52 ${rz}`,
+      0.70, 0.08, 0.56,
+      "#5d3f2b",
+      "roughness: 1; metalness: 0;"
+    ));
+
+    createPlant(`${rx - 0.25} 0.45 ${rz - 0.10}`, gallery, 0.90);
+    createPlant(`${rx + 0.05} 0.45 ${rz + 0.05}`, gallery, 1.04);
+    createPlant(`${rx + 0.25} 0.45 ${rz - 0.12}`, gallery, 0.80);
+
+    gallery.appendChild(createBox(
+      `${rx} 0.53 ${rz + 0.42}`,
+      0.76, 0.035, 0.035,
+      accent,
+      `emissive: ${accent}; emissiveIntensity: 0.55;`
+    ));
   });
-  [-5.2,-14.8,-24.4,-34].forEach((z)=>{ createPlant(`-4.12 0 ${z}`); createPlant(`4.12 0 ${z-2.0}`); });
 
-  // Timeline
-  gallery.appendChild(createBox("0 0.20 -22.5",7.2,0.04,0.04,COLORS.blue,`emissive: ${COLORS.blue}; emissiveIntensity: 0.5;`));
+  // Small center floor wayfinding accent near the entrance.
+  gallery.appendChild(createBox(
+    "0 0.065 -3.8",
+    1.10, 0.025, 0.08,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.40;`
+  ));
 
-  // Physical exit at the gallery entrance.
+  // Physical door back to the main year-selection hall.
   createGalleryExitDoor();
 
-  const data=galleryData[year]||[];
-  data.forEach(function(item,index){
-    const row=Math.floor(index/2);
-    const left=index%2===0;
-    createPoster(item,left?-3.35:3.35,-6.2-row*4.5,left);
+  const data = galleryData[year] || [];
+  data.forEach(function(item, index) {
+    const row = Math.floor(index / 2);
+    const left = index % 2 === 0;
+    createPoster(
+      item,
+      left ? -3.35 : 3.35,
+      -6.2 - row * 4.6,
+      left
+    );
   });
+
   createGalleryEnd(data.length);
 }
 
-
-/* ============================================================
-   GALLERY EXIT DOOR — RETURN TO YEAR LOBBY
-============================================================ */
 function createGalleryExitDoor() {
   const group = document.createElement("a-entity");
   group.setAttribute("position", "0 0 0.62");
@@ -2142,7 +2236,7 @@ function createGalleryExitDoor() {
   group.appendChild(
     createBox(
       "0 2.35 0",
-      2.45, 3.55, 0.18,
+      2.05, 3.15, 0.18,
       "#eef0ec",
       "roughness: 0.65; metalness: 0.03;"
     )
@@ -2151,7 +2245,7 @@ function createGalleryExitDoor() {
   // Dark opening
   const opening = createBox(
     "0 1.75 -0.13",
-    1.78, 2.62, 0.08,
+    1.35, 2.70, 0.08,
     "#081019",
     "roughness: 0.9; metalness: 0;"
   );
@@ -2227,332 +2321,98 @@ function createGalleryExitDoor() {
    CREATE POSTER
 ============================================================ */
 
-function createPoster(
 
-  item,
+function createPoster(item, x, z, left) {
+  const group = document.createElement("a-entity");
 
-  x,
+  group.setAttribute("position", `${x} 2.12 ${z}`);
+  group.setAttribute("rotation", `0 ${left ? 90 : -90} 0`);
+  group.classList.add("poster-group");
 
-  z,
-
-  left
-
-) {
-
-  const group =
-    document.createElement(
-      "a-entity"
-    );
-
-
-  group.setAttribute(
-    "position",
-    `${x} 2.05 ${z}`
-  );
-
-
-  group.setAttribute(
-    "rotation",
-    `0 ${left ? 90 : -90} 0`
-  );
-
-
-  group.classList.add(
-    "poster-group"
-  );
-
-
-  /* ========================================================
-     WHITE FRAME
-  ======================================================== */
-
-  // Deep exhibition backplate.
-  group.appendChild(
-    createBox(
-      "0 0 0",
-      1.92,
-      2.42,
-      0.24,
-      "#182630",
-      "roughness: 0.72; metalness: 0.10;"
-    )
-  );
-
-  // White inner mount.
-  group.appendChild(
-    createBox(
-      "0 0 0.07",
-      1.76,
-      2.24,
-      0.10,
-      "#f7f4ee"
-    )
-  );
-
-
-  /* ========================================================
-     ORANGE FRAME
-  ======================================================== */
-
-  group.appendChild(
-
-    createBox(
-
-      "0 0 0.12",
-
-      1.58,
-
-      2.08,
-
-      0.05,
-
-      COLORS.orange,
-
-      `
-        emissive: ${COLORS.orange};
-        emissiveIntensity: 0.12;
-      `
-
-    )
-
-  );
-
-
-  /* ========================================================
-     POSTER IMAGE
-     
-     PATH LANGSUNG KE FILE.
-  ======================================================== */
-
-  const image =
-    document.createElement(
-      "a-image"
-    );
-
-
-  image.setAttribute(
-    "src",
-    item.poster
-  );
-
-
-  image.setAttribute(
-    "width",
-    "1.54"
-  );
-
-
-  image.setAttribute(
-    "height",
-    "1.925"
-  );
-
-
-  image.setAttribute(
-    "position",
-    "0 0 0.17"
-  );
-
-
-  image.classList.add(
-    "clickable"
-  );
-
-
-  /* ========================================================
-     DEBUG SUCCESS
-  ======================================================== */
-
-  image.addEventListener(
-
-    "materialtextureloaded",
-
-    function() {
-
-      console.log(
-
-        "✅ Poster loaded:",
-
-        item.edisi,
-
-        item.poster
-
-      );
-
-    }
-
-  );
-
-
-  /* ========================================================
-     DEBUG ERROR
-  ======================================================== */
-
-  image.addEventListener(
-
-    "materialtextureerror",
-
-    function() {
-
-      console.error(
-
-        "❌ Poster failed:",
-
-        item.edisi,
-
-        item.poster
-
-      );
-
-    }
-
-  );
-
-
-  /* ========================================================
-     HOVER
-  ======================================================== */
-
-  image.addEventListener(
-    "mouseenter",
-    function() {
-
-      image.setAttribute(
-        "scale",
-        "1.05 1.05 1.05"
-      );
-
-    }
-  );
-
-
-  image.addEventListener(
-    "mouseleave",
-    function() {
-
-      image.setAttribute(
-        "scale",
-        "1 1 1"
-      );
-
-    }
-  );
-
-
-  /* ========================================================
-     CLICK
-  ======================================================== */
-
-  image.addEventListener(
-
-    "click",
-
-    function(event) {
-
-      if (
-        studioOpening
-      ) {
-
-        return;
-
-      }
-
-
-      event.stopPropagation();
-
-
-      openPosterActions(item, group);
-
-    }
-
-  );
-
-
-  group.appendChild(
-    image
-  );
-
-
-  // Image-first exhibition panel: the uploaded poster contains all text/content.
-  const topGlow = createBox(
-    "0 1.18 0.21",
-    1.64, 0.045, 0.045,
-    left ? COLORS.blue : COLORS.green,
-    `emissive: ${left ? COLORS.blue : COLORS.green}; emissiveIntensity: 0.80;`
-  );
-  group.appendChild(topGlow);
-
-  // Side accent rail for each exhibition bay.
-  const sideAccent = left ? COLORS.blue : COLORS.green;
+  // Mounting panel: one solid backplate, no overlapping large boxes.
   group.appendChild(createBox(
-    "-0.89 0 0.19",
-    0.045, 2.26, 0.045,
-    sideAccent,
-    `emissive: ${sideAccent}; emissiveIntensity: 0.75;`
+    "0 0 0",
+    2.18, 2.72, 0.18,
+    "#16232c",
+    "roughness: 0.68; metalness: 0.08;"
   ));
 
-  /* ========================================================
-     BASE
-  ======================================================== */
+  // White 4:5 mount
+  group.appendChild(createBox(
+    "0 0 0.10",
+    1.90, 2.48, 0.06,
+    "#f6f2ea",
+    "roughness: 0.48; metalness: 0.02;"
+  ));
 
-  group.appendChild(
+  // Poster image itself: exactly 4:5.
+  const image = document.createElement("a-image");
+  image.setAttribute("src", item.poster);
+  image.setAttribute("width", "1.78");
+  image.setAttribute("height", "2.225");
+  image.setAttribute("position", "0 0 0.145");
+  image.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+  image.classList.add("clickable");
 
-    createBox(
+  image.addEventListener("materialtextureloaded", function() {
+    console.log("✅ Poster loaded:", item.edisi, item.poster);
+  });
+  image.addEventListener("materialtextureerror", function() {
+    console.error("❌ Poster failed:", item.edisi, item.poster);
+  });
 
-      "0 -1.37 0",
+  image.addEventListener("mouseenter", function() {
+    image.setAttribute("scale", "1.035 1.035 1.035");
+  });
+  image.addEventListener("mouseleave", function() {
+    image.setAttribute("scale", "1 1 1");
+  });
+  image.addEventListener("click", function(event) {
+    if (studioOpening) return;
+    event.stopPropagation();
+    openPosterActions(item, group);
+  });
 
-      1.85,
+  group.appendChild(image);
 
-      0.16,
+  // Four thin neon rails sit clearly in front of the image; no z-fighting.
+  const neon = left ? COLORS.blue : COLORS.green;
+  const rails = [
+    ["0 1.225 0.19", 1.86, 0.045],
+    ["0 -1.225 0.19", 1.86, 0.045]
+  ];
+  rails.forEach(([pos, w, h]) => {
+    group.appendChild(createBox(
+      pos, w, h, 0.035, neon,
+      `emissive: ${neon}; emissiveIntensity: 0.70;`
+    ));
+  });
+  group.appendChild(createBox(
+    "-0.93 0 0.19", 0.045, 2.49, 0.035, neon,
+    `emissive: ${neon}; emissiveIntensity: 0.70;`
+  ));
+  group.appendChild(createBox(
+    "0.93 0 0.19", 0.045, 2.49, 0.035, COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.70;`
+  ));
 
-      0.45,
+  // Low base / plinth attached to floor.
+  group.appendChild(createBox(
+    "0 -1.48 0",
+    1.96, 0.18, 0.50,
+    "#eef1ee",
+    "roughness: 0.55; metalness: 0.04;"
+  ));
 
-      "#eef1ee"
+  // Tiny floor marker — purely decorative and non-floating.
+  const dot = document.createElement("a-sphere");
+  dot.setAttribute("radius", "0.065");
+  dot.setAttribute("position", "0 -1.82 0");
+  dot.setAttribute("color", neon);
+  dot.setAttribute("material", `emissive: ${neon}; emissiveIntensity: 0.45;`);
+  group.appendChild(dot);
 
-    )
-
-  );
-
-
-  /* ========================================================
-     TIMELINE DOT
-  ======================================================== */
-
-  const dot =
-    document.createElement(
-      "a-sphere"
-    );
-
-
-  dot.setAttribute(
-    "radius",
-    "0.07"
-  );
-
-
-  dot.setAttribute(
-    "position",
-    "0 -1.84 0"
-  );
-
-
-  dot.setAttribute(
-    "color",
-    left
-      ? COLORS.blue
-      : COLORS.green
-  );
-
-
-  group.appendChild(
-    dot
-  );
-
-
-  gallery.appendChild(
-    group
-  );
-
+  gallery.appendChild(group);
 }
 
 
@@ -2563,61 +2423,63 @@ function createPoster(
 function createGalleryEnd(count) {
   if (count === 0) return;
 
-  const row = Math.max(0, Math.floor((count - 1) / 2));
-  const z = -7 - row * 4.8 - 5;
+  // Put the end screen slightly behind the last poster bay.
+  const lastRow = Math.max(0, Math.floor((count - 1) / 2));
+  const z = -6.2 - lastRow * 4.6 - 5.2;
 
   // End wall.
   gallery.appendChild(createBox(
     `0 2.75 ${z}`,
-    9.6, 5.5, 0.28,
-    COLORS.cream,
-    "roughness: 0.62; metalness: 0.02;"
+    9.55, 5.45, 0.30,
+    "#eee9e0",
+    "roughness: 0.74; metalness: 0.02;"
   ));
 
-  // 16:9 image screen. Ganti:
-  // assets/<tahun>/gallery-end.png
-  // atau fallback: assets/gallery-end.png
-  const screenFrame = createBox(
-    `0 2.75 ${z - 0.18}`,
-    6.85, 4.08, 0.16,
-    "#101820",
-    "roughness: 0.34; metalness: 0.12;"
-  );
-  gallery.appendChild(screenFrame);
-
+  // Screen frame, fixed to the end wall.
   gallery.appendChild(createBox(
-    `0 4.73 ${z - 0.29}`,
-    6.28, 0.055, 0.045,
+    `0 2.85 ${z - 0.18}`,
+    6.95, 4.12, 0.16,
+    "#111820",
+    "roughness: 0.36; metalness: 0.10;"
+  ));
+
+  // Orange top edge — fixed, not floating.
+  gallery.appendChild(createBox(
+    `0 4.89 ${z - 0.28}`,
+    6.35, 0.055, 0.05,
     COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.90;`
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.75;`
   ));
 
   const endImage = document.createElement("a-image");
   endImage.setAttribute("src", `./assets/${currentYear || ""}/gallery-end.png`);
-  endImage.setAttribute("position", `0 2.75 ${z - 0.31}`);
-  endImage.setAttribute("width", "6.28");
-  endImage.setAttribute("height", "3.53");
-  endImage.setAttribute("material", "shader: flat; transparent: true;");
+  endImage.setAttribute("position", `0 2.85 ${z - 0.30}`);
+  endImage.setAttribute("width", "6.32");
+  endImage.setAttribute("height", "3.555");
+  endImage.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
   endImage.addEventListener("error", () => {
     const fallback = "./assets/gallery-end.png";
-    if (endImage.getAttribute("src") !== fallback) endImage.setAttribute("src", fallback);
+    if (endImage.getAttribute("src") !== fallback) {
+      endImage.setAttribute("src", fallback);
+    }
   });
   gallery.appendChild(endImage);
 
-  // Side architectural light strips only; no static wording.
+  // Side fixed light rails.
   gallery.appendChild(createBox(
-    `-3.55 2.75 ${z - 0.30}`,
-    0.055, 3.66, 0.05,
+    `-3.50 2.85 ${z - 0.30}`,
+    0.05, 3.64, 0.04,
     COLORS.blue,
-    `emissive: ${COLORS.blue}; emissiveIntensity: 0.75;`
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.70;`
   ));
   gallery.appendChild(createBox(
-    `3.55 2.75 ${z - 0.30}`,
-    0.055, 3.66, 0.05,
+    `3.50 2.85 ${z - 0.30}`,
+    0.05, 3.64, 0.04,
     COLORS.green,
-    `emissive: ${COLORS.green}; emissiveIntensity: 0.75;`
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.70;`
   ));
 }
+
 
 
 /* ============================================================
@@ -3655,13 +3517,40 @@ function targetIsCanvas(target) {
 
 // PC: kamera baru aktif bila tombol kiri mouse ditekan dan ditahan.
 // Ini mengembalikan perilaku awal yang sebelumnya lebih nyaman.
+
+let mouseTargetYaw = null;
+let mouseTargetPitch = null;
+let mouseImpulseX = 0;
+let mouseImpulseY = 0;
+
+const MOUSE_SMOOTHING = 0.20;
+const MOUSE_DAMPING = 0.76;
+const MOUSE_MAX_IMPULSE = 0.055;
+
+function syncMouseTargetToCamera() {
+  const r = camera?.object3D?.rotation;
+  if (!r) return;
+  mouseTargetYaw = r.y;
+  mouseTargetPitch = r.x;
+  mouseImpulseX = 0;
+  mouseImpulseY = 0;
+}
+
+function resetMouseLook() {
+  mouseReady = false;
+  mouseDown = false;
+  mouseImpulseX = 0;
+  mouseImpulseY = 0;
+  if (camera?.object3D) syncMouseTargetToCamera();
+}
+
 window.addEventListener("mousedown", (e) => {
-  if (isTouchDevice) return;
-  if (e.button !== 0) return;
+  if (isTouchDevice || e.button !== 0) return;
   if (studio && studio.getAttribute("visible")) return;
   if (targetIsUI(e.target)) return;
   if (!targetIsCanvas(e.target)) return;
 
+  syncMouseTargetToCamera();
   mouseDown = true;
   mouseReady = true;
   lastMouseX = e.clientX;
@@ -3671,20 +3560,22 @@ window.addEventListener("mousedown", (e) => {
 window.addEventListener("mouseup", (e) => {
   if (e.button !== 0) return;
   mouseDown = false;
-  resetMouseLook();
+  mouseReady = false;
+  mouseImpulseX = 0;
+  mouseImpulseY = 0;
 });
 
-window.addEventListener("mouseleave", () => {
+window.addEventListener("blur", () => {
   mouseDown = false;
-  resetMouseLook();
+  mouseReady = false;
+  mouseImpulseX = 0;
+  mouseImpulseY = 0;
 });
 
 window.addEventListener("mousemove", (e) => {
   if (isTouchDevice || !mouseDown) return;
   if (studio && studio.getAttribute("visible")) return;
-
-  const obj = camera?.object3D;
-  if (!obj) return;
+  if (mouseTargetYaw === null) syncMouseTargetToCamera();
 
   if (!mouseReady) {
     lastMouseX = e.clientX;
@@ -3695,30 +3586,51 @@ window.addEventListener("mousemove", (e) => {
 
   const dx = e.clientX - lastMouseX;
   const dy = e.clientY - lastMouseY;
-
   lastMouseX = e.clientX;
   lastMouseY = e.clientY;
 
-  // Mouse kanan -> kamera lihat kanan.
-  // Mouse kiri -> kamera lihat kiri.
-  obj.rotation.y -= dx * MOUSE_LOOK_SENSITIVITY;
-
-  // Mouse atas -> kamera lihat atas.
-  // Mouse bawah -> kamera lihat bawah.
-  obj.rotation.x -= dy * MOUSE_LOOK_SENSITIVITY;
-
-  obj.rotation.x = THREE.MathUtils.clamp(
-    obj.rotation.x,
-    THREE.MathUtils.degToRad(-65),
-    THREE.MathUtils.degToRad(65)
+  mouseImpulseX += THREE.MathUtils.clamp(
+    dx * MOUSE_LOOK_SENSITIVITY,
+    -MOUSE_MAX_IMPULSE,
+    MOUSE_MAX_IMPULSE
   );
-  obj.rotation.z = 0;
-
-  // Sinkronkan target joystick kanan agar tidak loncat ketika berganti kontrol.
-  targetYaw = obj.rotation.y;
-  targetPitch = obj.rotation.x;
+  mouseImpulseY += THREE.MathUtils.clamp(
+    dy * MOUSE_LOOK_SENSITIVITY,
+    -MOUSE_MAX_IMPULSE,
+    MOUSE_MAX_IMPULSE
+  );
 });
 
+function mouseLookSmoothLoop() {
+  const obj = camera?.object3D;
+
+  if (obj && !isTouchDevice && mouseDown && !studio.getAttribute("visible")) {
+    if (mouseTargetYaw === null) syncMouseTargetToCamera();
+
+    mouseImpulseX *= MOUSE_DAMPING;
+    mouseImpulseY *= MOUSE_DAMPING;
+
+    mouseTargetYaw -= mouseImpulseX;
+    mouseTargetPitch -= mouseImpulseY;
+
+    mouseTargetPitch = THREE.MathUtils.clamp(
+      mouseTargetPitch,
+      THREE.MathUtils.degToRad(-65),
+      THREE.MathUtils.degToRad(65)
+    );
+
+    obj.rotation.y += normalizeAngleRad(mouseTargetYaw - obj.rotation.y) * MOUSE_SMOOTHING;
+    obj.rotation.x += (mouseTargetPitch - obj.rotation.x) * MOUSE_SMOOTHING;
+    obj.rotation.z = 0;
+
+    targetYaw = obj.rotation.y;
+    targetPitch = obj.rotation.x;
+  }
+
+  requestAnimationFrame(mouseLookSmoothLoop);
+}
+
+requestAnimationFrame(mouseLookSmoothLoop);
 
 /* ============================================================
    MOVEMENT + CAMERA UPDATE LOOPS
