@@ -1880,7 +1880,7 @@ function enterYear(
 
   player.setAttribute(
     "position",
-    "0 1.65 16.5"
+    "0 1.65 10.5"
   );
 
 
@@ -2026,6 +2026,9 @@ function buildGallery(
   // Timeline
   gallery.appendChild(createBox("0 0.20 -22.5",7.2,0.04,0.04,COLORS.blue,`emissive: ${COLORS.blue}; emissiveIntensity: 0.5;`));
 
+  // Physical exit at the gallery entrance.
+  createGalleryExitDoor();
+
   const data=galleryData[year]||[];
   data.forEach(function(item,index){
     const row=Math.floor(index/2);
@@ -2033,6 +2036,90 @@ function buildGallery(
     createPoster(item,left?-3.55:3.55,-7-row*4.8,left);
   });
   createGalleryEnd(data.length);
+}
+
+
+/* ============================================================
+   GALLERY EXIT DOOR — RETURN TO YEAR LOBBY
+============================================================ */
+function createGalleryExitDoor() {
+  const group = document.createElement("a-entity");
+  group.setAttribute("position", "0 0 16.05");
+  group.classList.add("gallery-exit-door");
+
+  // Wall/door recess
+  group.appendChild(
+    createBox(
+      "0 2.35 0",
+      2.35, 3.55, 0.18,
+      "#eef0ec",
+      "roughness: 0.65; metalness: 0.03;"
+    )
+  );
+
+  // Dark opening
+  const opening = createBox(
+    "0 1.75 -0.13",
+    1.72, 2.62, 0.08,
+    "#081019",
+    "roughness: 0.9; metalness: 0;"
+  );
+  opening.classList.add("gallery-exit-clickable");
+  group.appendChild(opening);
+
+  // Neon frame
+  const frameParts = [
+    ["0 3.08 -0.20", 1.92, 0.07, 0.05, COLORS.blue],
+    ["-0.96 1.75 -0.20", 0.07, 2.70, 0.05, COLORS.blue],
+    ["0.96 1.75 -0.20", 0.07, 2.70, 0.05, COLORS.green],
+    ["0 0.42 -0.20", 1.92, 0.07, 0.05, COLORS.orange]
+  ];
+  frameParts.forEach(([pos,w,h,d,color]) => {
+    const b = createBox(
+      pos, w, h, d, color,
+      `emissive: ${color}; emissiveIntensity: 0.50;`
+    );
+    b.classList.add("gallery-exit-clickable");
+    group.appendChild(b);
+  });
+
+  const label = createText(
+    "← KEMBALI KE LOBI UTAMA",
+    "0 3.42 -0.23",
+    COLORS.navy,
+    2.55
+  );
+  group.appendChild(label);
+
+  const sub = createText(
+    "PILIH TAHUN",
+    "0 3.12 -0.23",
+    COLORS.orange,
+    1.65
+  );
+  group.appendChild(sub);
+
+  // Transparent full-area click target, slightly in front.
+  const hit = createBox(
+    "0 1.76 -0.26",
+    2.05, 2.95, 0.035,
+    "#ffffff",
+    "transparent: true; opacity: 0; depthWrite: false;"
+  );
+  hit.classList.add("clickable", "gallery-exit-clickable");
+  hit.addEventListener("mouseenter", () => {
+    group.setAttribute("scale", "1.03 1.03 1.03");
+  });
+  hit.addEventListener("mouseleave", () => {
+    group.setAttribute("scale", "1 1 1");
+  });
+  hit.addEventListener("click", (e) => {
+    e.stopPropagation();
+    backToYearHall();
+  });
+  group.appendChild(hit);
+
+  gallery.appendChild(group);
 }
 
 
@@ -3640,12 +3727,16 @@ function movementLoop(now) {
     }
 
     if (Math.abs(forward) > 0.001 || Math.abs(strafe) > 0.001) {
-      // Kamera menghadap -Z saat yaw = 0.
+      // Konversi input lokal kamera ke arah world.
+      // Saat yaw = 0:
+      //   W / joystick atas  -> -Z (maju)
+      //   D / joystick kanan -> +X (kanan)
+      // Rumus ini tetap konsisten saat kamera diputar 90°, 180°, dst.
       const sinY = Math.sin(yaw);
       const cosY = Math.cos(yaw);
 
-      const dirX = (sinY * forward) + (cosY * strafe);
-      const dirZ = (-cosY * forward) + (sinY * strafe);
+      const dirX = (-sinY * forward) + (cosY * strafe);
+      const dirZ = (-cosY * forward) - (sinY * strafe);
 
       const pos = player.object3D.position;
       pos.x += dirX * MOVE_SPEED * dt;
