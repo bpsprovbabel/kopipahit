@@ -874,7 +874,7 @@
 
     <a-entity
       id="player"
-      position="0 1.65 11.5"
+      position="0 1.65 5.7"
     >
 
       <a-camera
@@ -889,11 +889,6 @@
         <a-cursor
 
           id="cursor"
-
-          cursor="
-            fuse: false;
-            rayOrigin: mouse;
-          "
 
           raycaster="
             objects: .clickable;
@@ -1445,23 +1440,167 @@ function buildYearHall() {
   /* ========================================================
      ARCHITECTURAL SHELL
   ======================================================== */
-  yearHall.appendChild(createBox("0 3.0 -8.0", 14, 6, 0.25, "#f7f1e8",
-    `roughness: 0.50; metalness: 0.02;`));
-  yearHall.appendChild(createBox("-7 3 -3", 0.25, 6, 10, "#f1f4f3"));
-  yearHall.appendChild(createBox("7 3 -3", 0.25, 6, 10, "#f1f4f3"));
+  // Floor is 14m x 18m, centered at z=-2 => from z=-11 to z=+7.
+  // Side walls now cover the full footprint so nobody can walk outside.
+  yearHall.appendChild(createBox(
+    "0 3.0 -10.88", 14, 6, 0.25, "#f7f1e8",
+    `roughness: 0.50; metalness: 0.02;`
+  ));
+  yearHall.appendChild(createBox(
+    "-7 3 -2", 0.25, 6, 18, "#f1f4f3"
+  ));
+  yearHall.appendChild(createBox(
+    "7 3 -2", 0.25, 6, 18, "#f1f4f3"
+  ));
 
-  // Dark wall plinths keep the room from looking washed out
-  yearHall.appendChild(createBox("-6.82 1.05 -3.0", 0.10, 2.1, 9.7, "#1c3547"));
-  yearHall.appendChild(createBox("6.82 1.05 -3.0", 0.10, 2.1, 9.7, "#1c3547"));
+  // Dark lower wall bands follow the complete wall length.
+  yearHall.appendChild(createBox(
+    "-6.82 1.05 -2.0", 0.10, 2.1, 17.7, "#1c3547"
+  ));
+  yearHall.appendChild(createBox(
+    "6.82 1.05 -2.0", 0.10, 2.1, 17.7, "#1c3547"
+  ));
+
+  // Entrance threshold: the player starts just inside this open side.
+  yearHall.appendChild(createBox(
+    "0 0.09 6.55", 7.0, 0.05, 0.08, "#d7d0c7"
+  ));
+
+  // Entrance sill: visual barrier aligned with the movement boundary.
+  yearHall.appendChild(createBox(
+    "0 0.08 5.98",
+    6.70, 0.12, 0.16,
+    "#d5d0c7",
+    "roughness: 0.72; metalness: 0.02;"
+  ));
 
   /* ========================================================
+     BPS LOGO ABOVE MAIN ENTRANCE
+  ======================================================== */
+  const bpsLogoMount = createBox(
+    "0 5.05 6.17",
+    2.75, 0.98, 0.08,
+    "#f7f2e9",
+    "roughness: 0.50; metalness: 0.03;"
+  );
+  yearHall.appendChild(bpsLogoMount);
+
+  const bpsLogo = document.createElement("a-image");
+  bpsLogo.setAttribute("src", "./assets/logo-bps.png");
+  bpsLogo.setAttribute("position", "0 5.05 6.115");
+  bpsLogo.setAttribute("width", "2.42");
+  bpsLogo.setAttribute("height", "0.86");
+  bpsLogo.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+  bpsLogo.addEventListener("error", () => {
+    bpsLogo.setAttribute("visible", "false");
+  });
+  yearHall.appendChild(bpsLogo);
+
+  // Warm focused spotlight from above/front, aimed at the logo.
+  const bpsSpot = document.createElement("a-entity");
+  bpsSpot.setAttribute("position", "0 5.72 5.25");
+  bpsSpot.setAttribute("rotation", "-28 0 0");
+  bpsSpot.setAttribute(
+    "light",
+    "type: spot; color: #fff5dc; intensity: 1.20; distance: 4.8; angle: 0.48; penumbra: 0.70; decay: 1.6;"
+  );
+  yearHall.appendChild(bpsSpot);
+
+  // Small warm trim beneath the logo.
+  yearHall.appendChild(createBox(
+    "0 4.46 6.10",
+    2.35, 0.045, 0.035,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.45;`
+  ));
+
+  // DECORATIVE MAIN ENTRANCE DOOR
+  // Fixed visual element only — intentionally has no click/open interaction.
+  const entranceDoor = document.createElement("a-entity");
+  entranceDoor.setAttribute("position", "0 0 6.35");
+
+  // Outer frame / jamb.
+  entranceDoor.appendChild(createBox(
+    "0 2.20 0",
+    3.35, 4.40, 0.18,
+    "#d9d5cd",
+    "roughness: 0.52; metalness: 0.06;"
+  ));
+
+  // Left and right glass leaves.
+  const glassMat = "opacity: 0.68; transparent: true; roughness: 0.18; metalness: 0.18;";
+  entranceDoor.appendChild(createBox(
+    "-0.82 2.20 -0.12",
+    1.52, 3.92, 0.055,
+    "#dceaf0",
+    glassMat
+  ));
+  entranceDoor.appendChild(createBox(
+    "0.82 2.20 -0.12",
+    1.52, 3.92, 0.055,
+    "#dceaf0",
+    glassMat
+  ));
+
+  // Center mullion and top frame.
+  entranceDoor.appendChild(createBox(
+    "0 2.20 -0.18",
+    0.10, 3.98, 0.07,
+    "#f1eee7"
+  ));
+  entranceDoor.appendChild(createBox(
+    "0 4.18 -0.18",
+    3.02, 0.08, 0.07,
+    "#f1eee7"
+  ));
+
+  // Subtle blue/orange side accents.
+  entranceDoor.appendChild(createBox(
+    "-1.59 2.20 -0.20",
+    0.045, 3.92, 0.04,
+    COLORS.blue,
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.42;`
+  ));
+  entranceDoor.appendChild(createBox(
+    "1.59 2.20 -0.20",
+    0.045, 3.92, 0.04,
+    COLORS.orange,
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`
+  ));
+
+  // Handles: purely decorative.
+  entranceDoor.appendChild(createBox(
+    "-0.16 2.15 -0.27",
+    0.035, 0.62, 0.035,
+    "#7c807f",
+    "roughness: 0.34; metalness: 0.55;"
+  ));
+  entranceDoor.appendChild(createBox(
+    "0.16 2.15 -0.27",
+    0.035, 0.62, 0.035,
+    "#7c807f",
+    "roughness: 0.34; metalness: 0.55;"
+  ));
+
+  // No .clickable class / no event listener: this door can never open.
+  yearHall.appendChild(entranceDoor);
+
+
+
+    /* ========================================================
      FEATURE CEILING
   ======================================================== */
-  yearHall.appendChild(createBox("0 5.7 -3.2", 12.6, 0.12, 9.5, "#d8d5cf"));
-  yearHall.appendChild(createBox("0 5.60 -3.2", 9.7, 0.07, 7.9, "#f8f2e8"));
+  yearHall.appendChild(createBox(
+    "0 5.70 -2.0", 13.95, 0.12, 17.75, "#d8d5cf"
+  ));
+  yearHall.appendChild(createBox(
+    "0 5.60 -2.0", 11.90, 0.07, 15.90, "#f8f2e8"
+  ));
   [[-4.3,COLORS.blue],[-1.45,COLORS.green],[1.45,COLORS.orange],[4.3,COLORS.blue]].forEach(([x,c])=>{
-    yearHall.appendChild(createBox(`${x} 5.63 -3.2`, 0.18, 0.045, 7.5, c,
-      `emissive: ${c}; emissiveIntensity: 0.55;`));
+    yearHall.appendChild(createBox(
+      `${x} 5.63 -2.0`, 0.18, 0.045, 15.0, c,
+      `emissive: ${c}; emissiveIntensity: 0.55;`
+    ));
   });
   [-5.2,0,5.2].forEach(x=>{
     const lamp=document.createElement('a-sphere');
@@ -1473,74 +1612,94 @@ function buildYearHall() {
     yearHall.appendChild(lamp);
   });
 
-  /* ========================================================
+/* ========================================================
      BACK BRANDING WALL / HERO PANEL
   ======================================================== */
   // Hero sambutan dibuat sebagai banner 16:9 yang lebih ringkas agar
   // menjadi fokus latar tanpa menutupi Year Card di bawahnya.
-  const backFrame=createBox("0 4.18 -7.64", 4.87, 2.78, 0.18, "#fffaf0",
+  const backFrame=createBox("0 3.95 -10.64", 4.87, 2.78, 0.18, "#fffaf0",
     `roughness: 0.45; metalness: 0.02;`);
   yearHall.appendChild(backFrame);
 
   const welcomeImage=document.createElement('a-image');
   welcomeImage.setAttribute('src','./assets/sambutan.png');
-  welcomeImage.setAttribute('position','0 4.18 -7.50');
+  welcomeImage.setAttribute('position','0 3.95 -10.52');
   welcomeImage.setAttribute('width','4.65');
   welcomeImage.setAttribute('height','2.61');
   welcomeImage.setAttribute('material','shader: flat; color: #ffffff;');
   yearHall.appendChild(welcomeImage);
 
   // Caption/logo strip, cukup sebagai elemen arsitektur; tidak mengganggu isi sambutan.
-  yearHall.appendChild(createBox("0 2.72 -7.30", 4.95, 0.07, 0.18, COLORS.orange,
+  yearHall.appendChild(createBox("0 2.49 -10.38", 4.95, 0.07, 0.18, COLORS.orange,
     `emissive: ${COLORS.orange}; emissiveIntensity: 0.42;`));
-  yearHall.appendChild(createBox("0 2.55 -7.20", 2.75, 0.025, 0.025, COLORS.green,
+  yearHall.appendChild(createBox("0 2.32 -10.28", 2.75, 0.025, 0.025, COLORS.green,
     `emissive: ${COLORS.green}; emissiveIntensity: 0.42;`));
 
-  /* ========================================================
-     LEFT / RIGHT INFORMATION WALLS
+    /* ========================================================
+     LEFT / RIGHT IMAGE SCREENS — 3 PER SIDE
   ======================================================== */
-  // Dua layar portrait 4:5. Isi gambar sepenuhnya dari file eksternal agar
-  // kontennya dapat diganti tanpa mengubah struktur 3D.
-  const sideScreens = {
-    left:  './assets/screen-left.png',
-    right: './assets/screen-right.png'
-  };
+  // Every screen is a wall-mounted 4:5 image panel.
+  // Change only the PNG/JPG files in /assets.
+  const screenSlots = [
+    { z: 0.8,  left: "./assets/screen-left-2.png",  right: "./assets/screen-right-2.png" },
+    { z: -4.1, left: "./assets/screen-left.png",     right: "./assets/screen-right.png" },
+    { z: -8.7, left: "./assets/screen-left-3.png",  right: "./assets/screen-right-3.png" }
+  ];
 
-  function addImageScreen(side, imagePath, color){
-    const x = side === 'left' ? -6.76 : 6.76;
-    const rotY = side === 'left' ? 90 : -90;
-    const panel = document.createElement('a-entity');
-    panel.setAttribute('position', `${x} 3.15 -5.35`);
-    panel.setAttribute('rotation', `0 ${rotY} 0`);
+  function addMainLobbyScreen(side, z, imagePath, color) {
+    const x = side === "left" ? -6.82 : 6.82;
+    const rotY = side === "left" ? 90 : -90;
 
-    // Back board: 4:5 portrait. Local XY plane faces +Z before rotation.
-    panel.appendChild(createBox('0 0 0', 2.26, 2.84, 0.14, '#eef1ee',
-      'roughness: 0.42; metalness: 0.05;'));
+    const panel = document.createElement("a-entity");
+    panel.setAttribute("position", `${x} 3.05 ${z}`);
+    panel.setAttribute("rotation", `0 ${rotY} 0`);
 
-    // Neon outer border.
-    panel.appendChild(createBox('0 1.36 0.095', 2.06, 0.05, 0.04, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`));
-    panel.appendChild(createBox('0 -1.36 0.095', 2.06, 0.05, 0.04, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`));
-    panel.appendChild(createBox('-1.03 0 0.095', 0.05, 2.72, 0.04, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`));
-    panel.appendChild(createBox('1.03 0 0.095', 0.05, 2.72, 0.04, color,
-      `emissive: ${color}; emissiveIntensity: 0.75;`));
+    // Single backplate to avoid z-fighting / blinking.
+    panel.appendChild(createBox(
+      "0 0 0",
+      2.18, 2.78, 0.16,
+      "#17242d",
+      "roughness: 0.48; metalness: 0.08;"
+    ));
 
-    // 4:5 image area — no static text.
-    const img = document.createElement('a-image');
-    img.setAttribute('src', imagePath);
-    img.setAttribute('position', '0 0 0.115');
-    img.setAttribute('width', '1.92');
-    img.setAttribute('height', '2.40');
-    img.setAttribute('material', 'shader: flat; color: #ffffff;');
+    // Image, 4:5, offset toward the room.
+    const img = document.createElement("a-image");
+    img.setAttribute("src", imagePath);
+    img.setAttribute("position", "0 0 0.105");
+    img.setAttribute("width", "1.86");
+    img.setAttribute("height", "2.325");
+    img.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+    img.addEventListener("error", () => {
+      // Keep the frame visible even when an optional image has not been uploaded yet.
+      img.setAttribute("visible", "false");
+    });
     panel.appendChild(img);
+
+    // Thin neon border, slightly in front of the image.
+    panel.appendChild(createBox(
+      "0 1.18 0.135", 1.88, 0.045, 0.035, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`
+    ));
+    panel.appendChild(createBox(
+      "0 -1.18 0.135", 1.88, 0.045, 0.035, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`
+    ));
+    panel.appendChild(createBox(
+      "-0.94 0 0.135", 0.045, 2.37, 0.035, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`
+    ));
+    panel.appendChild(createBox(
+      "0.94 0 0.135", 0.045, 2.37, 0.035, color,
+      `emissive: ${color}; emissiveIntensity: 0.75;`
+    ));
 
     yearHall.appendChild(panel);
   }
 
-  addImageScreen('left', sideScreens.left, COLORS.blue);
-  addImageScreen('right', sideScreens.right, COLORS.orange);
+  screenSlots.forEach((slot, i) => {
+    addMainLobbyScreen("left",  slot.z, slot.left,  i === 0 ? COLORS.blue : (i === 1 ? COLORS.green : COLORS.blue));
+    addMainLobbyScreen("right", slot.z, slot.right, i === 0 ? COLORS.orange : (i === 1 ? COLORS.green : COLORS.orange));
+  });
 
   /* ========================================================
      PODIUM FOR YEAR CARDS
@@ -1554,21 +1713,95 @@ function buildYearHall() {
   /* ========================================================
      YEAR CARDS
   ======================================================== */
-  createYearCard(2026, "", "-2.05 1.40 -3.55", true);
-  createYearCard(2027, "", "0 1.40 -3.55", false);
-  createYearCard(2028, "", "2.05 1.40 -3.55", false);
+
+  // Additional image screens in the MAIN LOBBY.
+  // These are intentionally added here (not in Gallery).
+  // Use:
+  // assets/screen-left-2.png
+  // assets/screen-left-3.png
+  // assets/screen-right-2.png
+  // assets/screen-right-3.png
+  // Each image is displayed inside a clean 4:5 frame.
+
+  function addMainLobbyScreen(position, rotationY, accent, imagePath) {
+    const frame = createBox(
+      position,
+      2.05, 2.82, 0.14,
+      "#17242d",
+      "roughness: 0.48; metalness: 0.08;"
+    );
+    frame.setAttribute("rotation", `0 ${rotationY} 0`);
+    yearHall.appendChild(frame);
+
+    const panel = document.createElement("a-image");
+    panel.setAttribute("src", imagePath);
+    panel.setAttribute("position", position);
+    panel.setAttribute("rotation", `0 ${rotationY} 0`);
+    panel.setAttribute("width", "1.82");
+    panel.setAttribute("height", "2.275");
+    panel.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+    panel.addEventListener("error", () => {
+      panel.setAttribute("visible", "false");
+    });
+    yearHall.appendChild(panel);
+
+    // Thin neon edge at the outer face.
+    const rail = createBox(
+      position,
+      1.91, 2.36, 0.035,
+      accent,
+      `emissive: ${accent}; emissiveIntensity: 0.68;`
+    );
+    rail.setAttribute("rotation", `0 ${rotationY} 0`);
+    yearHall.appendChild(rail);
+  }
+
+  addMainLobbyScreen(
+    "-5.75 2.95 -3.1",
+    90,
+    COLORS.blue,
+    "./assets/screen-left-2.png"
+  );
+  addMainLobbyScreen(
+    "-5.75 2.95 3.2",
+    90,
+    COLORS.green,
+    "./assets/screen-left-3.png"
+  );
+  addMainLobbyScreen(
+    "5.75 2.95 -3.1",
+    -90,
+    COLORS.orange,
+    "./assets/screen-right-2.png"
+  );
+  addMainLobbyScreen(
+    "5.75 2.95 3.2",
+    -90,
+    COLORS.green,
+    "./assets/screen-right-3.png"
+  );
+
+  createYearCard(2026, "", "-2.05 2.00 -3.55", true);
+  createYearCard(2027, "", "0 2.00 -3.55", false);
+  createYearCard(2028, "", "2.05 2.00 -3.55", false);
 
   /* ========================================================
      BENCHES / PLANTERS / DECOR
   ======================================================== */
-  createLobbyBench("-5.05 0 -1.9", COLORS.blue);
-  createLobbyBench("5.05 0 -1.9", COLORS.orange);
-  createLobbyBench("-5.05 0 -6.0", COLORS.green);
-  createLobbyBench("5.05 0 -6.0", COLORS.blue);
-  createPlanter("-5.7 0 -3.6");
-  createPlanter("5.7 0 -3.6");
-  createPlanter("-5.7 0 -7.0");
-  createPlanter("5.7 0 -7.0");
+  // Benches and planter clusters distributed along the full lobby.
+  createLobbyBench("-5.0 0 1.7", COLORS.blue);
+  createLobbyBench("5.0 0 1.7", COLORS.orange);
+  createLobbyBench("-5.0 0 -3.0", COLORS.green);
+  createLobbyBench("5.0 0 -3.0", COLORS.blue);
+  createLobbyBench("-5.0 0 -7.0", COLORS.blue);
+  createLobbyBench("5.0 0 -7.0", COLORS.orange);
+
+  createPlanter("-5.75 0 0.1");
+  createPlanter("5.75 0 0.1");
+  createPlanter("-5.75 0 -4.4");
+  createPlanter("5.75 0 -4.4");
+  createPlanter("-5.75 0 -8.4");
+  createPlanter("5.75 0 -8.4");
 
   // Directional floor lights toward the year cards
   [-3,-1.5,0,1.5,3].forEach((x,i)=>{
@@ -1924,7 +2157,7 @@ function backToYearHall() {
 
   player.setAttribute(
     "position",
-    "0 1.65 16.5"
+    "0 1.65 5.7"
   );
 
 
@@ -3698,7 +3931,7 @@ function movementLoop(now) {
       // Batas aman year hall / gallery. Studio lebih longgar.
       if (yearHall.getAttribute("visible")) {
         pos.x = THREE.MathUtils.clamp(pos.x, -6.1, 6.1);
-        pos.z = THREE.MathUtils.clamp(pos.z, -7.0, 15.5);
+        pos.z = THREE.MathUtils.clamp(pos.z, -10.35, 5.92);
       } else if (gallery.getAttribute("visible")) {
         // Gallery is physically bounded by the left/right walls and by the
         // entrance/end wall. Do not allow the player to walk through them.
