@@ -1616,7 +1616,7 @@ function buildYearHall() {
       /* ========================================================
      LEFT / RIGHT IMAGE SCREENS — FLUSH TO WALL
   ======================================================== */
-  // Same V46 layout, but each screen is physically attached to the wall
+  // Same V47 layout, but each screen is physically attached to the wall
   // and has no colored border.
   const screenSlots = [
     { z: 0.8,  left: "./assets/screen-left-2.png",  right: "./assets/screen-right-2.png" },
@@ -2367,7 +2367,7 @@ function buildGallery(year) {
 }
 
 function createGalleryExitDoor() {
-  // Same visual model as the MAIN LOBBY entrance door (V46),
+  // Same visual model as the MAIN LOBBY entrance door (V47),
   // but positioned at the Gallery entrance/return point.
   // Decorative only: no click/open interaction.
   const group = document.createElement("a-entity");
@@ -2599,42 +2599,52 @@ function createPoster(item, x, z, left) {
 ============================================================ */
 
 function createGalleryEnd(count) {
-  if (count === 0) return;
+  // END SCREEN IS ALWAYS AT THE TRUE END OF THE GALLERY CORRIDOR.
+  // It is mounted on the inside face of the rear wall, so it cannot disappear
+  // behind the wall when the camera reaches the end.
+  const endZ = -38.95;
+  const wallInnerFace = endZ + 0.16; // rear wall thickness = 0.32
+  const screenZ = wallInnerFace + 0.035;
 
-  // Put the end screen slightly behind the last poster bay.
-  const lastRow = Math.max(0, Math.floor((count - 1) / 2));
-  const z = -6.2 - lastRow * 4.6 - 5.2;
-
-  // End wall.
+  // Rear wall closes the corridor.
   gallery.appendChild(createBox(
-    `0 2.75 ${z}`,
-    9.55, 5.45, 0.30,
+    `0 2.75 ${endZ}`,
+    9.55, 5.45, 0.32,
     "#eee9e0",
     "roughness: 0.74; metalness: 0.02;"
   ));
 
-  // Screen frame, fixed to the end wall.
+  // Screen backing.
   gallery.appendChild(createBox(
-    `0 2.85 ${z - 0.18}`,
-    6.95, 4.12, 0.16,
+    `0 2.85 ${screenZ}`,
+    7.20, 4.18, 0.10,
     "#111820",
     "roughness: 0.36; metalness: 0.10;"
   ));
 
-  // Orange top edge — fixed, not floating.
+  // Orange top trim integrated into the frame.
   gallery.appendChild(createBox(
-    `0 4.89 ${z - 0.28}`,
-    6.35, 0.055, 0.05,
+    `0 4.91 ${screenZ + 0.06}`,
+    6.55, 0.055, 0.035,
     COLORS.orange,
-    `emissive: ${COLORS.orange}; emissiveIntensity: 0.75;`
+    `emissive: ${COLORS.orange}; emissiveIntensity: 0.72;`
   ));
 
   const endImage = document.createElement("a-image");
-  endImage.setAttribute("src", `./assets/${currentYear || ""}/gallery-end.png`);
-  endImage.setAttribute("position", `0 2.85 ${z - 0.30}`);
-  endImage.setAttribute("width", "6.32");
-  endImage.setAttribute("height", "3.555");
-  endImage.setAttribute("material", "shader: flat; side: double; color: #ffffff;");
+  endImage.setAttribute(
+    "src",
+    `./assets/${currentYear || ""}/gallery-end.png`
+  );
+  endImage.setAttribute(
+    "position",
+    `0 2.85 ${screenZ + 0.085}`
+  );
+  endImage.setAttribute("width", "6.45");
+  endImage.setAttribute("height", "3.628125"); // exact 16:9
+  endImage.setAttribute(
+    "material",
+    "shader: flat; side: double; color: #ffffff;"
+  );
   endImage.addEventListener("error", () => {
     const fallback = "./assets/gallery-end.png";
     if (endImage.getAttribute("src") !== fallback) {
@@ -2643,22 +2653,28 @@ function createGalleryEnd(count) {
   });
   gallery.appendChild(endImage);
 
-  // Side fixed light rails.
+  // Side light rails are part of the wall-mounted frame.
   gallery.appendChild(createBox(
-    `-3.50 2.85 ${z - 0.30}`,
-    0.05, 3.64, 0.04,
+    `-3.52 2.85 ${screenZ + 0.085}`,
+    0.05, 3.70, 0.035,
     COLORS.blue,
-    `emissive: ${COLORS.blue}; emissiveIntensity: 0.70;`
+    `emissive: ${COLORS.blue}; emissiveIntensity: 0.68;`
   ));
   gallery.appendChild(createBox(
-    `3.50 2.85 ${z - 0.30}`,
-    0.05, 3.64, 0.04,
+    `3.52 2.85 ${screenZ + 0.085}`,
+    0.05, 3.70, 0.035,
     COLORS.green,
-    `emissive: ${COLORS.green}; emissiveIntensity: 0.70;`
+    `emissive: ${COLORS.green}; emissiveIntensity: 0.68;`
+  ));
+
+  // A short clear standing zone in front of the end screen.
+  gallery.appendChild(createBox(
+    `0 0.02 ${endZ + 1.05}`,
+    5.80, 0.035, 1.25,
+    "#263744",
+    "roughness: 0.95; metalness: 0;"
   ));
 }
-
-
 
 /* ============================================================
    POSTER ACTIONS / DETAIL VIEW
