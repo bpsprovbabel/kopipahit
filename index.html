@@ -315,10 +315,11 @@
       position: fixed;
       width: 118px;
       height: 118px;
+      bottom: 14vh;
       z-index: 5200;
       pointer-events: auto;
       touch-action: none;
-      display: none;
+      display: block;
     }
     #joystick-zone { left: 20px; }
     #look-joystick-zone { right: 20px; }
@@ -621,7 +622,7 @@
 
   <div id="hud">
 
-    WASD / JOYSTICK KIRI · GESER LAYAR UNTUK MELIHAT
+    WASD / JOYSTICK KIRI = GERAK · MOUSE / JOYSTICK KANAN = LIHAT
     ·
     JELAJAHI GALLERY
     ·
@@ -716,7 +717,7 @@
   <div id="touch-look-overlay" aria-hidden="true"></div>
   <div id="joystick-zone" class="joystick-zone" aria-label="Joystick gerak"></div>
   <div id="look-joystick-zone" class="joystick-zone" aria-label="Joystick arah pandang"></div>
-  <div id="look-touch-hint">JOYSTICK KANAN = LIHAT</div>
+  <div id="look-touch-hint">KANAN = LIHAT</div>
 
   <div id="studio-docs">
     <div id="studio-docs-title">DOKUMEN KEGIATAN · BUKA TAB BARU</div>
@@ -868,13 +869,7 @@
 
         id="camera"
 
-        look-controls="
-          enabled: true;
-          pointerLockEnabled: false;
-          magicWindowTrackingEnabled: false;
-          touchEnabled: false;
-          mouseEnabled: true;
-        "
+        look-controls="enabled: false; touchEnabled: false; mouseEnabled: false; pointerLockEnabled: false;"
 
         wasd-controls="enabled: false;"
       >
@@ -1878,7 +1873,7 @@ function enterYear(
 
 
   camera.setAttribute("rotation", "0 0 0");
-  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
   backYear.style.display =
@@ -1909,7 +1904,7 @@ function backToYearHall() {
   youtubeLayer.style.display =
     "none";
   studioDocs.style.display = "none";
-  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
   closeStudioButton.style.display =
@@ -1945,7 +1940,7 @@ function backToYearHall() {
 
 
   camera.setAttribute("rotation", "0 0 0");
-  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
   currentYear =
@@ -2555,7 +2550,7 @@ function openStudio(
     closeStudioButton.style.display="block";
     player.setAttribute("position","0 1.6 2.4");
     camera.setAttribute("rotation","0 0 0");
-    camera.setAttribute("look-controls","enabled: false; magicWindowTrackingEnabled: false; touchEnabled: false; mouseEnabled: false; pointerLockEnabled: false;");
+    camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
     const embedURL=normalizeYoutubeUrl(item.youtube);
     if(embedURL){
       youtubeTitle.innerText=`STUDIO ${String(item.edisi).padStart(2,"0")} · KOPI PAHIT #${item.edisi}`;
@@ -3158,7 +3153,7 @@ function closeStudio() {
 
 
   camera.setAttribute("rotation", "0 0 0");
-  camera.setAttribute("look-controls", isTouchDevice ? "enabled:false; magicWindowTrackingEnabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;" : "enabled:true; magicWindowTrackingEnabled:false; touchEnabled:true; mouseEnabled:true; pointerLockEnabled:false;");
+  camera.setAttribute("look-controls","enabled:false; touchEnabled:false; mouseEnabled:false; pointerLockEnabled:false;");
 
 
   currentStudio =
@@ -3387,13 +3382,16 @@ function normalizeYoutubeUrl(
 
 
 /* ============================================================
-   DUAL JOYSTICK MOBILE
-   Kiri = bergerak, kanan = melihat.
-   Posisi joystick dinaikkan agar tidak bertabrakan dengan browser controls.
+   UNIVERSAL CONTROLS — V15
+   PC : mouse bergerak = lihat TANPA klik, WASD = bergerak,
+        joystick kiri/kanan tetap tersedia.
+   HP : joystick kiri = bergerak, joystick kanan = lihat.
 ============================================================ */
 const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 let joystickVector = { x:0, y:0 };
 let lookJoystickVector = { x:0, y:0 };
+let lookJoystickActive = false;
+const keys = Object.create(null);
 
 const movementJoystick = nipplejs.create({
   zone: document.getElementById("joystick-zone"),
@@ -3427,20 +3425,125 @@ movementJoystick.on("end", function(){ joystickVector={x:0,y:0}; });
 
 lookJoystick.on("move", function(event,data){
   if(data && data.vector){
+    lookJoystickActive = true;
     lookJoystickVector.x = data.vector.x;
     lookJoystickVector.y = data.vector.y;
   }
 });
-lookJoystick.on("end", function(){ lookJoystickVector={x:0,y:0}; });
+lookJoystick.on("end", function(){
+  lookJoystickActive = false;
+  lookJoystickVector={x:0,y:0};
+});
 
-const LOOK_YAW_SPEED = 0.030;   // radians/frame at full joystick deflection
+/* -------------------------
+   KEYBOARD — WASD + ARROWS
+-------------------------- */
+document.body.setAttribute("tabindex", "0");
+document.body.style.outline = "none";
+
+function clearAllControls(){
+  Object.keys(keys).forEach(k => keys[k] = false);
+  joystickVector = {x:0,y:0};
+  lookJoystickVector = {x:0,y:0};
+  lookJoystickActive = false;
+}
+
+// Capture di document agar WASD tetap diterima meskipun elemen lain sedang aktif.
+document.addEventListener("keydown", (e) => {
+  const k = String(e.key || "").toLowerCase();
+  if (["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) {
+    keys[k] = true;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+document.addEventListener("keyup", (e) => {
+  const k = String(e.key || "").toLowerCase();
+  if (["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) {
+    keys[k] = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+window.addEventListener("blur", clearAllControls);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) clearAllControls();
+});
+
+/* -------------------------
+   PC MOUSE LOOK — NO CLICK
+   Gerakkan mouse di atas canvas, kamera mengikuti langsung.
+-------------------------- */
+const MOUSE_LOOK_SENSITIVITY = 0.0026;
+let lastMouseX = null;
+let lastMouseY = null;
+let mouseReady = false;
+
+function resetMouseLook(){
+  lastMouseX = null;
+  lastMouseY = null;
+  mouseReady = false;
+}
+
+function targetIsUI(el){
+  return !!el?.closest?.('#joystick-zone,#look-joystick-zone,button,a,input,textarea,select,#hud,#studio-docs,.poster-modal-overlay,.modal,#touch-look-overlay');
+}
+
+window.addEventListener("mousemove", (e) => {
+  if (isTouchDevice) return;
+  if (studio && studio.getAttribute("visible")) { resetMouseLook(); return; }
+
+  // Mouse look harus memakai pergerakan relatif cursor, bukan posisi absolut.
+  // Tidak perlu klik kiri.
+  if (targetIsUI(e.target)) {
+    mouseReady = false;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    return;
+  }
+
+  const obj = camera?.object3D;
+  if (!obj) return;
+
+  if (!mouseReady){
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    mouseReady = true;
+    return;
+  }
+
+  const dx = e.clientX - lastMouseX;
+  const dy = e.clientY - lastMouseY;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+
+  // Gerak mouse kanan = lihat kanan.
+  obj.rotation.y -= dx * MOUSE_LOOK_SENSITIVITY;
+
+  // Gerak mouse atas = lihat atas.
+  obj.rotation.x -= dy * MOUSE_LOOK_SENSITIVITY;
+
+  obj.rotation.x = THREE.MathUtils.clamp(
+    obj.rotation.x,
+    THREE.MathUtils.degToRad(-65),
+    THREE.MathUtils.degToRad(65)
+  );
+  obj.rotation.z = 0;
+});
+
+/* -------------------------
+   MOBILE LOOK JOYSTICK
+-------------------------- */
+const LOOK_YAW_SPEED = 0.030;
 const LOOK_PITCH_SPEED = 0.022;
-const LOOK_SMOOTH = 0.32;
+const LOOK_SMOOTH = 0.36;
 let targetYaw = 0;
 let targetPitch = 0;
 
 function syncLookTargets(){
-  const obj = camera && camera.object3D ? camera.object3D : null;
+  const obj = camera?.object3D;
   if(!obj) return;
   targetYaw = obj.rotation.y;
   targetPitch = obj.rotation.x;
@@ -3453,238 +3556,96 @@ function normalizeRad(a){
   return a;
 }
 
-function lookLoop(){
-  const obj = camera && camera.object3D ? camera.object3D : null;
+let lookJoystickWasActive = false;
 
-  if(obj && !studio.getAttribute('visible')){
-    if(isTouchDevice){
-      // RIGHT JOYSTICK: X = yaw, Y = pitch.
-      // Update the actual camera Object3D so this works reliably on Android.
-      if(Math.abs(lookJoystickVector.x) > 0.001 || Math.abs(lookJoystickVector.y) > 0.001){
-        targetYaw -= lookJoystickVector.x * LOOK_YAW_SPEED;
-        targetPitch -= lookJoystickVector.y * LOOK_PITCH_SPEED;
-        targetPitch = Math.max(THREE.MathUtils.degToRad(-65), Math.min(THREE.MathUtils.degToRad(65), targetPitch));
+function lookLoop(){
+  const obj = camera?.object3D;
+
+  if(obj && !studio.getAttribute("visible")){
+    // Penting: PC memakai mouse langsung. Jangan pernah melakukan smoothing
+    // menuju targetYaw/targetPitch lama ketika joystick kanan tidak aktif,
+    // karena itu akan membuat kamera terasa "ditarik balik".
+    if(lookJoystickActive){
+      // Saat joystick baru disentuh, sinkronkan target ke arah kamera saat ini.
+      if(!lookJoystickWasActive){
+        targetYaw = obj.rotation.y;
+        targetPitch = obj.rotation.x;
       }
+
+      targetYaw -= lookJoystickVector.x * LOOK_YAW_SPEED;
+
+      // NippleJS: Y positif = dorong ke atas.
+      // Maka atas = lihat atas, bawah = lihat bawah.
+      targetPitch -= lookJoystickVector.y * LOOK_PITCH_SPEED;
+
+      targetPitch = THREE.MathUtils.clamp(
+        targetPitch,
+        THREE.MathUtils.degToRad(-65),
+        THREE.MathUtils.degToRad(65)
+      );
 
       const dy = normalizeRad(targetYaw - obj.rotation.y);
       const dp = targetPitch - obj.rotation.x;
+
       obj.rotation.y += dy * LOOK_SMOOTH;
       obj.rotation.x += dp * LOOK_SMOOTH;
-      obj.rotation.x = Math.max(THREE.MathUtils.degToRad(-65), Math.min(THREE.MathUtils.degToRad(65), obj.rotation.x));
+      obj.rotation.x = THREE.MathUtils.clamp(
+        obj.rotation.x,
+        THREE.MathUtils.degToRad(-65),
+        THREE.MathUtils.degToRad(65)
+      );
       obj.rotation.z = 0;
     }
+
+    lookJoystickWasActive = lookJoystickActive;
   }
+
   requestAnimationFrame(lookLoop);
 }
 lookLoop();
 
-/* ============================================================
+/* -------------------------
    MOVEMENT
-============================================================ */
+-------------------------- */
+const MOVEMENT_SPEED = 0.085;
 
-const MOVEMENT_SPEED =
-  0.055;
+function movementLoop(){
+  const studioOpen = !!(studio && studio.getAttribute("visible"));
 
+  if(!studioOpen && player && player.object3D){
+    const forwardKey = (keys.w || keys.arrowup) ? 1 : 0;
+    const backKey = (keys.s || keys.arrowdown) ? 1 : 0;
+    const leftKey = (keys.a || keys.arrowleft) ? 1 : 0;
+    const rightKey = (keys.d || keys.arrowright) ? 1 : 0;
 
-function movementLoop() {
+    let forward = joystickVector.y + forwardKey - backKey;
+    let strafe = joystickVector.x + rightKey - leftKey;
+    const mag = Math.hypot(forward, strafe);
+    if(mag > 1){ forward /= mag; strafe /= mag; }
 
-  /*
-   * Movement disabled inside studio.
-   */
-
-  if (
-    !studio.getAttribute(
-      "visible"
-    )
-  ) {
-
-    if (
-
-      joystickVector.x !== 0 ||
-
-      joystickVector.y !== 0
-
-    ) {
-
-      const rotation =
-        camera.getAttribute(
-          "rotation"
-        );
-
-
-      const angle =
-        THREE.MathUtils.degToRad(
-          rotation.y
-        );
-
-
-      const forward =
-        joystickVector.y *
-        MOVEMENT_SPEED;
-
-
-      const strafe =
-        joystickVector.x *
-        MOVEMENT_SPEED;
-
-
-      const dx =
-
-        (
-          strafe *
-          Math.cos(
-            angle
-          )
-        )
-
-        -
-
-        (
-          forward *
-          Math.sin(
-            angle
-          )
-        );
-
-
-      const dz =
-
-        (
-          -strafe *
-          Math.sin(
-            angle
-          )
-        )
-
-        -
-
-        (
-          forward *
-          Math.cos(
-            angle
-          )
-        );
-
-
-      const current =
-        player.getAttribute(
-          "position"
-        );
-
-
-      player.setAttribute(
-
-        "position",
-
-        {
-
-          x:
-            current.x + dx,
-
-          y:
-            1.6,
-
-          z:
-            current.z + dz
-
-        }
-
-      );
-
+    if(Math.abs(forward) > 0.001 || Math.abs(strafe) > 0.001){
+      const angle = camera.object3D.rotation.y;
+      const dx = (strafe * Math.cos(angle) - forward * Math.sin(angle)) * MOVEMENT_SPEED;
+      const dz = (-strafe * Math.sin(angle) - forward * Math.cos(angle)) * MOVEMENT_SPEED;
+      player.object3D.position.x += dx;
+      player.object3D.position.z += dz;
     }
-
   }
 
+  const pos = player.object3D.position;
+  pos.x = Math.max(-3.8, Math.min(3.8, pos.x));
 
-  /* ========================================================
-     LIMIT X
-  ======================================================== */
-
-  const pos =
-    player.getAttribute(
-      "position"
-    );
-
-
-  pos.x =
-    Math.max(
-
-      -3.8,
-
-      Math.min(
-        3.8,
-        pos.x
-      )
-
-    );
-
-
-  /* ========================================================
-     YEAR HALL Z
-  ======================================================== */
-
-  if (
-
-    yearHall.getAttribute(
-      "visible"
-    )
-
-  ) {
-
-    pos.z =
-      Math.max(
-
-        -4,
-
-        Math.min(
-          6,
-          pos.z
-        )
-
-      );
-
+  if(yearHall.getAttribute("visible")){
+    pos.z = Math.max(-4, Math.min(6, pos.z));
   }
 
-
-  /* ========================================================
-     GALLERY Z
-  ======================================================== */
-
-  if (
-
-    gallery.getAttribute(
-      "visible"
-    )
-
-  ) {
-
-    pos.z =
-      Math.max(
-
-        -42,
-
-        Math.min(
-          5,
-          pos.z
-        )
-
-      );
-
+  if(gallery.getAttribute("visible")){
+    pos.z = Math.max(-42, Math.min(5, pos.z));
   }
 
-
-  player.setAttribute(
-    "position",
-    pos
-  );
-
-
-  requestAnimationFrame(
-    movementLoop
-  );
-
+  requestAnimationFrame(movementLoop);
 }
-
+movementLoop();
 
 document.addEventListener("keydown", function(e){
   if(e.key === "Escape"){
@@ -3701,7 +3662,7 @@ buildYearHall();
 
 
 
-movementLoop();
+
 
 
 /* ============================================================
@@ -3721,6 +3682,14 @@ scene.addEventListener(
 
     loadingStatus.innerText =
       "GALLERY SIAP";
+
+    const canvas = scene && scene.canvas;
+    if(canvas){
+      canvas.setAttribute("tabindex", "0");
+      canvas.style.outline = "none";
+      try { canvas.focus({preventScroll:true}); } catch(_) { try { canvas.focus(); } catch(__) {} }
+    }
+    try { document.body.focus({preventScroll:true}); } catch(_) { try { document.body.focus(); } catch(__) {} }
 
 
     setTimeout(
