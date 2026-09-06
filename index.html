@@ -4127,7 +4127,6 @@ function findInteractiveObject(object3D) {
 }
 
 function handleDirectSceneClick(event) {
-  if (isTouchDevice) return;
   if (event.button !== 0) return;
   if (!scene?.renderer || !camera?.object3D) return;
   if (targetIsUI(event.target)) return;
@@ -4200,6 +4199,55 @@ window.addEventListener("mouseup", (e) => {
   // A tiny threshold distinguishes a normal click from mouse-look dragging.
   if (moved <= 4) handleDirectSceneClick(e);
 }, true);
+
+/* ============================================================
+   DIRECT TOUCH / TAP INTERACTION
+   ------------------------------------------------------------
+   Android / mobile browsers do not use the mouse click path above.
+   A short tap on the A-Frame canvas is treated as a direct click on
+   the 3D object under the finger. Swipes remain available for the
+   joystick / touch controls because a movement threshold is applied.
+============================================================ */
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTarget = null;
+let touchStartTime = 0;
+
+window.addEventListener("touchstart", (e) => {
+  if (!isTouchDevice || !e.touches?.length) return;
+  const t = e.touches[0];
+  if (targetIsUI(e.target)) return;
+  if (!targetIsCanvas(e.target)) return;
+
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  touchStartTarget = e.target;
+  touchStartTime = performance.now();
+}, { passive: true, capture: true });
+
+window.addEventListener("touchend", (e) => {
+  if (!isTouchDevice || !e.changedTouches?.length) return;
+  if (!touchStartTarget) return;
+
+  const t = e.changedTouches[0];
+  const moved = Math.hypot(
+    t.clientX - touchStartX,
+    t.clientY - touchStartY
+  );
+  const elapsed = performance.now() - touchStartTime;
+
+  // Short tap only. Larger movement is considered navigation / look input.
+  if (moved <= 12 && elapsed <= 550) {
+    handleDirectSceneClick({
+      clientX: t.clientX,
+      clientY: t.clientY,
+      button: 0,
+      target: touchStartTarget
+    });
+  }
+
+  touchStartTarget = null;
+}, { passive: true, capture: true });
 
 window.addEventListener("mousedown", (e) => {
   if (isTouchDevice || e.button !== 0) return;
