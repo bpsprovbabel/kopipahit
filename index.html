@@ -929,6 +929,7 @@
     renderer="
       antialias: true;
       colorManagement: true;
+      powerPreference: high-performance;
     "
   >
 
@@ -3940,6 +3941,14 @@ function normalizeYoutubeUrl(
    HP : joystick kiri = bergerak, joystick kanan = lihat.
 ============================================================ */
 const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+const isMobilePerformanceMode = isTouchDevice && (window.innerWidth <= 900 || Math.min(window.devicePixelRatio || 1, 2) > 1);
+
+// Mobile rendering optimization: keep the scene visually identical while
+// reducing GPU workload caused by very high device-pixel-ratio screens.
+if (isMobilePerformanceMode && scene) {
+  scene.setAttribute("renderer", "antialias: false; colorManagement: true; powerPreference: high-performance;");
+}
+
 let joystickVector = { x:0, y:0 };
 let lookJoystickVector = { x:0, y:0 };
 let lookJoystickActive = false;
@@ -3998,6 +4007,8 @@ function clearAllControls(){
   joystickVector = {x:0,y:0};
   lookJoystickVector = {x:0,y:0};
   lookJoystickActive = false;
+  movementVelocityX = 0;
+  movementVelocityZ = 0;
 }
 
 // Capture di document agar WASD tetap diterima meskipun elemen lain sedang aktif.
@@ -4340,14 +4351,16 @@ requestAnimationFrame(mouseLookSmoothLoop);
 /* ============================================================
    MOVEMENT + CAMERA UPDATE LOOPS
 ============================================================ */
-const MOVE_SPEED = 3.2;            // world units / second
+const MOVE_SPEED = isMobilePerformanceMode ? 2.8 : 3.2; // world units / second
 const LOOK_YAW_SPEED = 0.030;      // joystick camera speed per frame
 const LOOK_PITCH_SPEED = 0.024;
-const LOOK_SMOOTH = 0.22;
+const LOOK_SMOOTH = isMobilePerformanceMode ? 0.30 : 0.22;
 
 let targetYaw = 0;
 let targetPitch = 0;
 let lastMoveTime = performance.now();
+let movementVelocityX = 0;
+let movementVelocityZ = 0;
 
 function normalizeAngleRad(a) {
   return Math.atan2(Math.sin(a), Math.cos(a));
@@ -4384,29 +4397,29 @@ function movementLoop(now) {
       strafe /= len;
     }
 
-    if (Math.abs(forward) > 0.001 || Math.abs(strafe) > 0.001) {
-      // Konversi input lokal kamera ke arah world.
-      // Saat yaw = 0:
-      //   W / joystick atas  -> -Z (maju)
-      //   D / joystick kanan -> +X (kanan)
-      // Rumus ini tetap konsisten saat kamera diputar 90°, 180°, dst.
-      const sinY = Math.sin(yaw);
-      const cosY = Math.cos(yaw);
+    // Konversi input lokal kamera ke arah world.
+    // Saat yaw = 0: W/joystick atas -> -Z, D/joystick kanan -> +X.
+    const sinY = Math.sin(yaw);
+    const cosY = Math.cos(yaw);
+    const desiredX = (-sinY * forward) + (cosY * strafe);
+    const desiredZ = (-cosY * forward) - (sinY * strafe);
 
-      const dirX = (-sinY * forward) + (cosY * strafe);
-      const dirZ = (-cosY * forward) - (sinY * strafe);
+    // Smooth acceleration/deceleration reduces the "stutter-step" feeling
+    // when Android frames arrive unevenly.
+    const accel = isMobilePerformanceMode ? 12 : 18;
+    const blend = 1 - Math.exp(-accel * dt);
+    movementVelocityX += (desiredX * MOVE_SPEED - movementVelocityX) * blend;
+    movementVelocityZ += (desiredZ * MOVE_SPEED - movementVelocityZ) * blend;
 
+    if (Math.abs(movementVelocityX) > 0.001 || Math.abs(movementVelocityZ) > 0.001) {
       const pos = player.object3D.position;
-      pos.x += dirX * MOVE_SPEED * dt;
-      pos.z += dirZ * MOVE_SPEED * dt;
+      pos.x += movementVelocityX * dt;
+      pos.z += movementVelocityZ * dt;
 
-      // Batas aman year hall / gallery. Studio lebih longgar.
       if (yearHall.getAttribute("visible")) {
         pos.x = THREE.MathUtils.clamp(pos.x, -6.1, 6.1);
         pos.z = THREE.MathUtils.clamp(pos.z, -10.35, 5.92);
       } else if (gallery.getAttribute("visible")) {
-        // Gallery is physically bounded by the left/right walls and by the
-        // entrance/end wall. Do not allow the player to walk through them.
         pos.x = THREE.MathUtils.clamp(pos.x, -4.05, 4.05);
         pos.z = THREE.MathUtils.clamp(pos.z, -39.6, 0.25);
       } else if (studio.getAttribute("visible")) {
